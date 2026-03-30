@@ -7,8 +7,8 @@ const path = require('path');
 const JavaScriptObfuscator = require('javascript-obfuscator');
 const { minify: htmlMinify } = require('html-minifier-terser');
 
-const SRC = path.join(__dirname, 'dashboard.html');
-const OUT = path.join(__dirname, 'dashboard.dist.html');
+const SRC = path.join(__dirname, 'index.html');
+const OUT = path.join(__dirname, 'index.dist.html');
 
 async function build() {
     let html = fs.readFileSync(SRC, 'utf-8');
