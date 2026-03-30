@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <style>
         /* ===== 테마: 배경/텍스트/보더는 고정, primary + 차트 팔레트만 변경 ===== */
         :root {
@@ -51,11 +52,20 @@
         .btn-icon:hover { border-color: var(--primary); color: var(--primary); }
         .btn-icon svg { width: 16px; height: 16px; fill: currentColor; }
 
-        /* 테마 선택기 */
-        .theme-picker { display: flex; align-items: center; gap: 5px; }
-        .theme-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: all .15s; }
+        /* 헤더 아이콘 버튼 (Material Icons) */
+        .header-actions .mi { font-family: 'Material Icons Round'; font-size: 20px; font-weight: normal; font-style: normal; line-height: 1; letter-spacing: normal; text-transform: none; white-space: nowrap; word-wrap: normal; -webkit-font-smoothing: antialiased; }
+        .hdr-btn { width: 36px; height: 36px; border-radius: .5rem; background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; position: relative; }
+        .hdr-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .hdr-btn[data-tip]::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--card-bg); color: var(--title-color); border: 1px solid var(--border-color); padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: 600; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .15s; }
+        .hdr-btn:hover[data-tip]::after { opacity: 1; }
+
+        /* 테마 팝업 */
+        .theme-wrap { position: relative; }
+        .theme-popup { display: none; position: absolute; top: calc(100% + 8px); right: 0; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: .75rem; padding: 12px; z-index: 150; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+        .theme-popup.show { display: flex; gap: 8px; }
+        .theme-dot { width: 28px; height: 28px; border-radius: 50%; border: 2.5px solid transparent; cursor: pointer; transition: all .15s; }
         .theme-dot:hover { transform: scale(1.15); }
-        .theme-dot.active { border-color: var(--title-color); }
+        .theme-dot.active { border-color: var(--title-color); box-shadow: 0 0 0 2px var(--primary); }
         .theme-dot[data-t="midnight"] { background: linear-gradient(135deg,#00A15D,#00d47a); }
         .theme-dot[data-t="purple"]   { background: linear-gradient(135deg,#8B5CF6,#C084FC); }
         .theme-dot[data-t="ocean"]    { background: linear-gradient(135deg,#06B6D4,#67E8F9); }
@@ -65,7 +75,7 @@
         /* ===== 업로드 (2컬럼: 좌측 홍보 + 우측 영상/업로드) ===== */
         .upload-section { width: 92%; max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 60px); gap: 48px; }
         .upload-left { flex: 1; text-align: left; }
-        .upload-left h2 { font-size: 44px; font-weight: 700; color: var(--title-color); line-height: 1.1; margin-bottom: 12px; }
+        .upload-left h2 { font-size: 44px; font-weight: 700; color: var(--title-color); line-height: 1.1; margin-bottom: 12px; margin-top: 20px; }
         .upload-left h2 em { font-style: normal; color: var(--primary); }
         .upload-left .upload-sub { font-size: 16px; color: var(--text-color); line-height: 1.6; margin-bottom: 28px; }
         .upload-features { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
@@ -81,15 +91,28 @@
         .drop-icon { width: 52px; height: 52px; background: rgba(0,161,93,.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
         .drop-icon svg { width: 24px; height: 24px; fill: var(--primary); }
         .drop-zone h2 { font-size: 17px; font-weight: 700; color: var(--title-color); margin-bottom: 6px; }
+        .drop-title-mobile { display: none; }
+        .drop-title-mobile em { font-style: normal; color: var(--primary); }
         .drop-zone p { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
         .btn-upload { width: 100%; padding: 14px 24px; font-size: 16px; font-weight: 700; border-radius: .75rem; justify-content: center; }
+        .drop-security { font-size: 11px; color: var(--text-muted); margin-top: 12px; margin-bottom: 0; line-height: 1.5; }
 
         @media (max-width: 768px) {
-            .upload-section { flex-direction: column; gap: 32px; padding: 40px 0; }
-            .upload-left { text-align: center; }
-            .upload-left h2 { font-size: 26px; }
-            .upload-features { align-items: center; }
-            .upload-right { width: 100%; }
+            .upload-section { flex-direction: column; gap: 0; padding: 0; min-height: calc(100vh - 52px); height: calc(100vh - 52px); overflow: hidden; }
+            .upload-left { display: none; }
+            .drop-zone h2 .drop-title-default { display: none; }
+            .drop-zone h2 .drop-title-mobile { display: inline; }
+            .upload-sub { display: none; }
+            .upload-features { display: none; }
+            .upload-security { display: none; }
+            .upload-right { width: 100%; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; overflow: hidden; }
+            .upload-video { flex: 1; max-width: 280px; margin-top: 0; display: flex; align-items: flex-end; overflow: hidden; }
+            .upload-video video { width: 100%; object-fit: contain; }
+            .drop-zone { margin-top: -80px; margin-bottom: 50px; padding: 20px 20px; flex-shrink: 0; max-width: 100%; width: 92%; border-radius: 1rem; }
+            .drop-zone h2 { font-size: 15px; margin-bottom: 4px; }
+            .drop-zone p { font-size: 12px; margin-bottom: 10px; }
+            .btn-upload { padding: 12px 20px; font-size: 14px; }
+            .drop-icon { width: 40px; height: 40px; margin-bottom: 10px; }
         }
         #fileInput { display: none; }
 
@@ -225,7 +248,16 @@
         .toast { position: fixed; bottom: 24px; right: 24px; background: var(--card-bg); color: var(--title-color); border: 1px solid var(--border-color); padding: 12px 24px; border-radius: .75rem; font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(12px); transition: all .25s; z-index: 999; pointer-events: none; }
         .toast.show { opacity: 1; transform: translateY(0); }
 
-        @media (max-width: 576px) { .header { padding: 12px 14px; } .builder { padding: 0 12px 40px; } .modal { padding: 20px; } }
+        @media (max-width: 576px) {
+            .header { padding: 10px 14px; }
+            .header-left h1 { font-size: 15px; }
+            .header-logo svg { width: 22px; height: 22px; }
+            .hdr-btn { width: 32px; height: 32px; }
+            .hdr-btn .mi { font-size: 18px; }
+            .header-actions { gap: 6px; }
+            .builder { padding: 0 12px 40px; }
+            .modal { padding: 20px; }
+        }
     </style>
 </head>
 <body>
@@ -236,15 +268,18 @@
         <h1>Dashboard Builder</h1>
     </div>
     <div class="header-actions">
-        <div class="theme-picker">
-            <div class="theme-dot active" data-t="midnight" title="Midnight"></div>
-            <div class="theme-dot" data-t="purple" title="Purple"></div>
-            <div class="theme-dot" data-t="ocean" title="Ocean"></div>
-            <div class="theme-dot" data-t="rose" title="Rose"></div>
-            <div class="theme-dot" data-t="ember" title="Ember"></div>
+        <div class="theme-wrap">
+            <button class="hdr-btn" id="btnTheme" data-tip="테마"><span class="mi">palette</span></button>
+            <div class="theme-popup" id="themePopup">
+                <div class="theme-dot active" data-t="midnight" title="Midnight"></div>
+                <div class="theme-dot" data-t="purple" title="Purple"></div>
+                <div class="theme-dot" data-t="ocean" title="Ocean"></div>
+                <div class="theme-dot" data-t="rose" title="Rose"></div>
+                <div class="theme-dot" data-t="ember" title="Ember"></div>
+            </div>
         </div>
-        <button class="btn btn-outline btn-sm" id="btnDownload" style="display:none;"><svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> 저장</button>
-        <button class="btn btn-outline btn-sm" id="btnReset" style="display:none;">새 파일</button>
+        <button class="hdr-btn" id="btnDownload" style="display:none;" data-tip="저장"><span class="mi">save</span></button>
+        <button class="hdr-btn" id="btnReset" style="display:none;" data-tip="새 파일"><span class="mi">note_add</span></button>
     </div>
 </div>
 
@@ -267,13 +302,14 @@
     <div class="upload-right">
         <div class="upload-video">
             <video autoplay loop muted playsinline>
-                <source src="ani.mp4" type="video/mp4">
+                <source src="docs/ani.mp4" type="video/mp4">
             </video>
         </div>
         <div class="drop-zone" id="dropZone">
-            <h2>엑셀 파일을 업로드하세요</h2>
+            <h2><span class="drop-title-default">엑셀 파일을 업로드하세요</span><span class="drop-title-mobile">엑셀 파일을 <em>멋진 대시보드</em>로 바꿔드립니다.</span></h2>
             <p>.xlsx .xls .csv 지원</p>
-            <span class="btn btn-primary btn-upload">파일 선택</span>
+            <span class="btn btn-primary btn-upload">엑셀파일 업로드</span>
+            <p class="drop-security">파일은 서버로 전송되지 않습니다.<br>브라우저에서만 처리되며, 저장/유출/재사용이 불가능합니다.</p>
         </div>
         <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
     </div>
@@ -330,6 +366,16 @@ const dropZone = $('dropZone'), fileInput = $('fileInput'), uploadSec = $('uploa
 const loader = $('loader'), builder = $('builder'), widgetGrid = $('widgetGrid');
 
 // 테마
+// 테마 팝업 토글
+const themePopup = document.getElementById('themePopup');
+document.getElementById('btnTheme').addEventListener('click', (e) => {
+    e.stopPropagation();
+    themePopup.classList.toggle('show');
+});
+document.addEventListener('click', (e) => {
+    if (!themePopup.contains(e.target)) themePopup.classList.remove('show');
+});
+
 document.querySelectorAll('.theme-dot').forEach(dot => dot.addEventListener('click', () => {
     document.body.setAttribute('data-theme', dot.dataset.t);
     document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
@@ -337,6 +383,7 @@ document.querySelectorAll('.theme-dot').forEach(dot => dot.addEventListener('cli
     currentTheme = dot.dataset.t;
     PALETTE = THEME_PALETTES[dot.dataset.t];
     rebuildAllCharts();
+    themePopup.classList.remove('show');
 }));
 
 // 업로드
