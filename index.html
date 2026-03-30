@@ -151,22 +151,8 @@
         .widget { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 20px; position: relative; transition: box-shadow .2s, opacity .2s; min-width: 280px; flex: 1 1 calc(33.333% - 12px); max-width: 100%; }
         @media (max-width: 1200px) { .widget { flex: 1 1 calc(50% - 8px); } }
         @media (max-width: 768px) { .widget { flex: 1 1 100%; } }
-        /* 리사이즈 핸들 (좌우) */
-        .widget-resize-handle {
-            position: absolute; top: 0; width: 6px; height: 100%; cursor: col-resize; z-index: 5;
-        }
-        .widget-resize-handle.left { left: -3px; }
-        .widget-resize-handle.right { right: -3px; }
-        .widget-resize-handle::after {
-            content: ''; position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 2px; height: 30px; border-radius: 1px;
-            background: transparent; transition: background .15s;
-        }
-        .widget-resize-handle:hover::after, .widget-resize-handle.active::after { background: var(--primary); }
-        .widget.resizing { opacity: .85; transition: none; }
-        .widget.dragging { opacity: .4; }
-        .widget.drag-over { box-shadow: 0 0 0 2px var(--primary); }
+        .widget-resize-handle { display: none; }
+        .widget-drag { display: none; }
         .widget-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
         .widget-header h3 { font-size: 15px; font-weight: 700; color: var(--title-color); display: flex; align-items: center; gap: 4px; cursor: pointer; }
         .widget-header h3 .title-edit { display: none; background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 2px; }
@@ -774,7 +760,7 @@ function addWidget(type, cfg) {
     div.id = id;
     div.dataset.type = type;
     div.dataset.cfg = JSON.stringify(cfg);
-    div.draggable = true;
+    div.draggable = false;
 
     div.innerHTML = `<div class="widget-resize-handle left"></div><div class="widget-resize-handle right"></div><div class="widget-header"><div class="widget-actions"><button class="widget-drag" title="드래그하여 이동"><svg viewBox="0 0 24 24"><path d="M9 5h2v2H9zm4 0h2v2h-2zM9 9h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2z"/></svg></button><h3><span class="title-text">${cfg.title}</span><button class="title-edit" title="제목 편집"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button></h3></div><div class="widget-actions"><button class="widget-resize" data-id="${id}" data-tip="크기 변경"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4zm10 0h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm16 0v6h-6v-2h4v-4h2z"/></svg></button><button class="widget-remove" data-id="${id}" data-tip="삭제"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" fill="none"/></svg></button></div></div><div class="widget-body" id="${id}_body"></div>`;
     widgetGrid.appendChild(div);
