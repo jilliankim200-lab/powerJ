@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Read(//c/workspace/ppt/**)"
+      "Read(//c/workspace/ppt/**)",
+      "Bash(node build.js)",
+      "Bash(rm -f dashboard.html dashboard.dist.html app.py requirements.txt create_sample.py capture_main.py make_banners.py make_sub1.py screenshot.py _check_video.py sample_capture.xlsx main.png)",
+      "Bash(rm -rf templates/)"
     ]
   }
 }

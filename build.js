@@ -18,27 +18,15 @@ async function build() {
     if (scriptMatch) {
         const originalJs = scriptMatch[1];
 
-        // 우클릭/개발자도구 차단 + 소스 보호 코드 추가
+        // 우클릭/개발자도구 단축키 차단 (debugger 제거 - 브라우저 멈춤 방지)
         const protectionJs = `
-// Source Protection
 (function(){
-    // 우클릭 차단
     document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
-    // 개발자도구 단축키 차단
     document.addEventListener('keydown', function(e){
         if(e.key==='F12') { e.preventDefault(); return false; }
         if(e.ctrlKey && e.shiftKey && (e.key==='I'||e.key==='J'||e.key==='C')) { e.preventDefault(); return false; }
         if(e.ctrlKey && e.key==='u') { e.preventDefault(); return false; }
     });
-    // 개발자도구 감지
-    var t=0;
-    setInterval(function(){
-        var s=performance.now();
-        debugger;
-        if(performance.now()-s>100){
-            document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#161717;color:#F43F5E;font-family:Pretendard,sans-serif;font-size:20px;font-weight:700">Unauthorized access detected.</div>';
-        }
-    },3000);
 })();
 `;
         const fullJs = protectionJs + '\n' + originalJs;
@@ -50,8 +38,8 @@ async function build() {
             controlFlowFlatteningThreshold: 0.7,
             deadCodeInjection: true,
             deadCodeInjectionThreshold: 0.3,
-            debugProtection: true,
-            debugProtectionInterval: 2000,
+            debugProtection: false,
+            debugProtectionInterval: 0,
             disableConsoleOutput: true,
             identifierNamesGenerator: 'hexadecimal',
             log: false,
