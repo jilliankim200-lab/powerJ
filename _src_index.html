@@ -1056,7 +1056,12 @@ function renderWidgetContent(id, type, cfg) {
         cfg.cols.forEach(c => html += `<th>${c}</th>`);
         html += '</tr></thead><tbody>';
         rows.slice(0, cfg.limit||20).forEach(row => {
-            html += '<tr>' + cfg.cols.map(c => `<td${longCols.has(c)?' class="td-long"':''}>${row[c]!=null?row[c]:''}</td>`).join('') + '</tr>';
+            html += '<tr>' + cfg.cols.map(c => {
+                let v = row[c]!=null?row[c]:'';
+                if (typeof v==='number' && isFinite(v)) v = v.toLocaleString('ko-KR');
+                else if (typeof v==='string' && /^-?\d[\d,]*(\.\d+)?$/.test(v.trim()) && !isNaN(Number(v.replace(/,/g,'')))) v = Number(v.replace(/,/g,'')).toLocaleString('ko-KR');
+                return `<td${longCols.has(c)?' class="td-long"':''}>${v}</td>`;
+            }).join('') + '</tr>';
         });
         body.innerHTML = html + '</tbody></table></div>';
         body.querySelectorAll('.list-table tbody tr').forEach(tr => {
