@@ -7,7 +7,7 @@ const path = require('path');
 const JavaScriptObfuscator = require('javascript-obfuscator');
 const { minify: htmlMinify } = require('html-minifier-terser');
 
-const SRC = path.join(__dirname, 'index.html');
+const SRC = path.join(__dirname, '_src_index.html');
 const OUT = path.join(__dirname, 'index.dist.html');
 
 async function build() {
