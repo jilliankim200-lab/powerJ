@@ -45,7 +45,7 @@ async function build() {
             log: false,
             numbersToExpressions: true,
             renameGlobals: false,
-            selfDefending: true,
+            selfDefending: false,
             simplify: true,
             splitStrings: true,
             splitStringsChunkLength: 5,
