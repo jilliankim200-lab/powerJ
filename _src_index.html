@@ -245,7 +245,7 @@
 
         /* 리스트 위젯 */
         .list-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        .list-table th { text-align: left; padding: 10px 12px; font-weight: 700; color: var(--primary-light); border-bottom: 1px solid var(--border-color); font-size: 12px; white-space: nowrap; }
+        .list-table th { text-align: left; padding: 10px 12px; font-weight: 700; color: var(--primary-light); border-bottom: 1px solid var(--border-color); font-size: 12px; white-space: nowrap; position: sticky; top: 0; background: var(--card-bg); z-index: 2; }
         .list-table td { padding: 9px 12px; border-bottom: 1px solid var(--border-color); color: var(--text-color); transition: background .1s, color .1s; cursor: pointer; white-space: nowrap; }
         .list-table td.td-long { white-space: normal; min-width: 200px; }
         .list-table tbody tr:hover td { background: color-mix(in srgb, var(--primary) 10%, transparent); color: var(--primary-light); }
@@ -253,6 +253,14 @@
 
         /* 스팬 */
         .widget.span-full { flex: 1 1 100%; }
+
+        /* 다운로드 드롭다운 */
+        .dl-wrap { position: relative; }
+        .dl-popup { display: none; position: absolute; top: calc(100% + 8px); right: 0; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: .75rem; padding: 6px; z-index: 150; box-shadow: 0 8px 24px rgba(0,0,0,.4); min-width: 140px; }
+        .dl-popup.show { display: block; }
+        .dl-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: .5rem; cursor: pointer; font-family: 'Pretendard'; font-size: 13px; font-weight: 600; color: var(--text-color); border: none; background: none; width: 100%; text-align: left; transition: all .15s; }
+        .dl-item:hover { background: color-mix(in srgb, var(--primary) 15%, transparent); color: var(--primary-light); }
+        .dl-item .mi { font-family: 'Material Icons Round'; font-size: 18px; }
 
         /* 토스트 */
         .toast { position: fixed; bottom: 24px; right: 24px; background: var(--card-bg); color: var(--title-color); border: 1px solid var(--border-color); padding: 12px 24px; border-radius: .75rem; font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(12px); transition: all .25s; z-index: 999; pointer-events: none; }
@@ -288,7 +296,13 @@
                 <div class="theme-dot" data-t="ember" title="Ember"></div>
             </div>
         </div>
-        <button class="hdr-btn" id="btnDownload" style="display:none;"><span class="mi">save</span><span class="hdr-label">저장</span></button>
+        <div class="dl-wrap" id="dlWrap" style="display:none;">
+            <button class="hdr-btn" id="btnDownload"><span class="mi">save</span><span class="hdr-label">저장</span></button>
+            <div class="dl-popup" id="dlPopup">
+                <button class="dl-item" id="dlPng"><span class="mi">image</span>이미지 (PNG)</button>
+                <button class="dl-item" id="dlHtml"><span class="mi">code</span>HTML 파일</button>
+            </div>
+        </div>
         <button class="hdr-btn" id="btnReset" style="display:none;"><span class="mi">note_add</span><span class="hdr-label">새 파일</span></button>
     </div>
 </div>
@@ -415,22 +429,34 @@ $('btnReset').addEventListener('click', () => {
     echartInstances.forEach(c => c.dispose()); echartInstances = [];
     widgetGrid.innerHTML = ''; parsedData = null; widgetId = 0;
     builder.classList.remove('show'); uploadSec.style.display = '';
-    $('btnReset').style.display = 'none'; $('btnDownload').style.display = 'none';
+    $('btnReset').style.display = 'none'; $('dlWrap').style.display = 'none';
     fileInput.value = '';
 });
 
-$('btnDownload').addEventListener('click', async () => {
+// 다운로드 드롭다운
+$('btnDownload').addEventListener('click', (e) => {
+    e.stopPropagation();
+    $('dlPopup').classList.toggle('show');
+});
+document.addEventListener('click', () => $('dlPopup').classList.remove('show'));
+$('dlPopup').addEventListener('click', (e) => e.stopPropagation());
+
+function getDownloadName() {
+    return parsedData?.filename?.replace(/\.[^.]+$/, '') || 'dashboard';
+}
+
+// PNG 다운로드
+$('dlPng').addEventListener('click', async () => {
+    $('dlPopup').classList.remove('show');
     showToast('캡처 중...');
     const header = document.querySelector('.header');
     const manageBar = document.querySelector('.manage-bar');
     const bg = getComputedStyle(document.body).getPropertyValue('--body-bg').trim();
-    const fname = parsedData?.filename?.replace(/\.[^.]+$/, '') || 'dashboard';
+    const fname = getDownloadName();
 
-    // 헤더, 관리바 숨기기
     header.style.display = 'none';
     manageBar.style.display = 'none';
 
-    // 타이틀 삽입
     const titleEl = document.createElement('div');
     titleEl.id = '_captureTitle';
     titleEl.style.cssText = `padding:28px 24px 8px;font-size:22px;font-weight:800;color:var(--title-color);font-family:Pretendard;`;
@@ -438,7 +464,7 @@ $('btnDownload').addEventListener('click', async () => {
     builder.insertBefore(titleEl, builder.firstChild);
 
     try {
-        const c = await html2canvas(document.body, { backgroundColor: bg, scale: 2, useCORS: true, logging: false, windowWidth: document.body.scrollWidth, windowHeight: document.body.scrollHeight });
+        const c = await html2canvas(document.body, { backgroundColor: bg, scale: 1, useCORS: true, logging: false, windowWidth: document.body.scrollWidth, windowHeight: document.body.scrollHeight });
         const a = document.createElement('a');
         a.download = fname + '_' + new Date().toISOString().slice(0,10) + '.png';
         a.href = c.toDataURL('image/png');
@@ -450,6 +476,44 @@ $('btnDownload').addEventListener('click', async () => {
         manageBar.style.display = '';
         titleEl.remove();
     }
+});
+
+// HTML 다운로드
+$('dlHtml').addEventListener('click', () => {
+    $('dlPopup').classList.remove('show');
+    const fname = getDownloadName();
+    const clone = document.documentElement.cloneNode(true);
+    // 제거: 업로드 섹션, 로더, 모달, 토스트, 스크립트
+    clone.querySelectorAll('#uploadSection, .loader-wrap, .modal-overlay, #toast, script').forEach(el => el.remove());
+    // 관리바 제거
+    const mb = clone.querySelector('.manage-bar'); if (mb) mb.remove();
+    // 파일 인풋 제거
+    const fi = clone.querySelector('#fileInput'); if (fi) fi.remove();
+    // 빌더를 보이게
+    const bl = clone.querySelector('.builder'); if (bl) bl.className = 'builder show';
+    // 헤더 리셋/다운로드 버튼 제거
+    const dlw = clone.querySelector('#dlWrap'); if (dlw) dlw.remove();
+    const br = clone.querySelector('#btnReset'); if (br) br.remove();
+    // 위젯 조작 버튼 제거 (드래그, 리사이즈, 삭제)
+    clone.querySelectorAll('.widget-drag, .widget-resize, .widget-remove').forEach(el => el.remove());
+    // 타이틀 편집 아이콘 제거
+    clone.querySelectorAll('.title-edit').forEach(el => el.remove());
+    // 타이틀 삽입
+    const titleDiv = clone.querySelector('.builder');
+    if (titleDiv) {
+        const t = document.createElement('div');
+        t.style.cssText = 'padding:28px 24px 8px;font-size:22px;font-weight:800;color:var(--title-color);font-family:Pretendard;';
+        t.textContent = fname;
+        titleDiv.insertBefore(t, titleDiv.firstChild);
+    }
+    const htmlStr = '<!DOCTYPE html>\n<html>' + clone.innerHTML + '</html>';
+    const blob = new Blob([htmlStr], { type: 'text/html;charset=utf-8' });
+    const a = document.createElement('a');
+    a.download = fname + '_' + new Date().toISOString().slice(0,10) + '.html';
+    a.href = URL.createObjectURL(blob);
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('HTML 다운로드 완료');
 });
 
 function showToast(m) { const t=$('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
@@ -629,7 +693,7 @@ function parseAndInit(filename, rows) {
     parsedData = { rows, columns, numericCols, textCols, filename };
     loader.classList.remove('show');
     builder.classList.add('show');
-    $('btnReset').style.display = ''; $('btnDownload').style.display = '';
+    $('btnReset').style.display = ''; $('dlWrap').style.display = '';
 
     // ===== 스마트 위젯 자동 생성 =====
     // 1) 요약 카드 (금액 컬럼 우선)
