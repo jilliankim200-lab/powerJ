@@ -529,7 +529,19 @@ $('dlPng').addEventListener('click', async () => {
 // HTML 다운로드
 $('dlHtml').addEventListener('click', () => {
     $('dlPopup').classList.remove('show');
+    showToast('HTML 생성 중...');
     const fname = getDownloadName();
+
+    // 차트 canvas → 이미지로 변환
+    const chartImages = {};
+    echartInstances.forEach(inst => {
+        const dom = inst.getDom();
+        const wid = dom.closest('.widget');
+        if (wid) {
+            try { chartImages[wid.id] = inst.getDataURL({ type: 'png', pixelRatio: 1, backgroundColor: 'transparent' }); } catch(e) {}
+        }
+    });
+
     const clone = document.documentElement.cloneNode(true);
     // 제거: 업로드 섹션, 로더, 모달, 토스트, 스크립트
     clone.querySelectorAll('#uploadSection, .loader-wrap, .modal-overlay, #toast, script').forEach(el => el.remove());
@@ -537,6 +549,8 @@ $('dlHtml').addEventListener('click', () => {
     const mb = clone.querySelector('.manage-bar'); if (mb) mb.remove();
     // 파일 인풋 제거
     const fi = clone.querySelector('#fileInput'); if (fi) fi.remove();
+    // 광고 제거
+    const ad = clone.querySelector('#adBottom'); if (ad) ad.remove();
     // 빌더를 보이게
     const bl = clone.querySelector('.builder'); if (bl) bl.className = 'builder show';
     // 헤더 리셋/다운로드 버튼 제거
@@ -546,6 +560,17 @@ $('dlHtml').addEventListener('click', () => {
     clone.querySelectorAll('.widget-drag, .widget-resize, .widget-remove').forEach(el => el.remove());
     // 타이틀 편집 아이콘 제거
     clone.querySelectorAll('.title-edit').forEach(el => el.remove());
+
+    // 차트 canvas를 이미지로 교체
+    clone.querySelectorAll('.widget').forEach(w => {
+        if (chartImages[w.id]) {
+            const body = w.querySelector('.widget-body');
+            if (body) {
+                body.innerHTML = `<img src="${chartImages[w.id]}" style="width:100%;height:auto;">`;
+            }
+        }
+    });
+
     // 타이틀 삽입
     const titleDiv = clone.querySelector('.builder');
     if (titleDiv) {
