@@ -54,10 +54,13 @@
 
         /* 헤더 아이콘 버튼 (Material Icons) */
         .header-actions .mi { font-family: 'Material Icons Round'; font-size: 20px; font-weight: normal; font-style: normal; line-height: 1; letter-spacing: normal; text-transform: none; white-space: nowrap; word-wrap: normal; -webkit-font-smoothing: antialiased; }
-        .hdr-btn { width: 36px; height: 36px; border-radius: .5rem; background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; position: relative; }
+        .hdr-btn { height: 36px; padding: 0 12px; border-radius: .5rem; background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all .15s; position: relative; }
+        .hdr-btn .hdr-label { font-family: 'Pretendard'; font-size: 12px; font-weight: 600; }
         .hdr-btn:hover { border-color: var(--primary); color: var(--primary); }
-        .hdr-btn[data-tip]::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--card-bg); color: var(--title-color); border: 1px solid var(--border-color); padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: 600; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .15s; }
-        .hdr-btn:hover[data-tip]::after { opacity: 1; }
+        @media (max-width: 768px) {
+            .hdr-btn { width: 36px; padding: 0; }
+            .hdr-btn .hdr-label { display: none; }
+        }
 
         /* 테마 팝업 */
         .theme-wrap { position: relative; }
@@ -276,7 +279,7 @@
     </div>
     <div class="header-actions">
         <div class="theme-wrap">
-            <button class="hdr-btn" id="btnTheme" data-tip="테마"><span class="mi">palette</span></button>
+            <button class="hdr-btn" id="btnTheme"><span class="mi">palette</span><span class="hdr-label">테마</span></button>
             <div class="theme-popup" id="themePopup">
                 <div class="theme-dot active" data-t="midnight" title="Midnight"></div>
                 <div class="theme-dot" data-t="purple" title="Purple"></div>
@@ -285,8 +288,8 @@
                 <div class="theme-dot" data-t="ember" title="Ember"></div>
             </div>
         </div>
-        <button class="hdr-btn" id="btnDownload" style="display:none;" data-tip="저장"><span class="mi">save</span></button>
-        <button class="hdr-btn" id="btnReset" style="display:none;" data-tip="새 파일"><span class="mi">note_add</span></button>
+        <button class="hdr-btn" id="btnDownload" style="display:none;"><span class="mi">save</span><span class="hdr-label">저장</span></button>
+        <button class="hdr-btn" id="btnReset" style="display:none;"><span class="mi">note_add</span><span class="hdr-label">새 파일</span></button>
     </div>
 </div>
 
