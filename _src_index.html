@@ -276,13 +276,30 @@
         .toast { position: fixed; bottom: 24px; right: 24px; background: var(--card-bg); color: var(--title-color); border: 1px solid var(--border-color); padding: 12px 24px; border-radius: .75rem; font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(12px); transition: all .25s; z-index: 999; pointer-events: none; }
         .toast.show { opacity: 1; transform: translateY(0); }
 
+        @media (max-width: 768px) {
+            /* 관리바 버튼 아이콘만 */
+            .manage-bar { gap: 6px; margin: 14px 0 12px; }
+            .btn-manage { padding: 8px 10px; font-size: 0; gap: 0; }
+            .btn-manage svg { width: 18px; height: 18px; }
+            .btn-manage-sub { padding: 8px 10px; font-size: 0; gap: 0; }
+            .btn-manage-sub svg { width: 18px; height: 18px; }
+            .manage-divider { height: 22px; }
+            .manage-info { display: none; }
+            .btn-manage-tip { display: none !important; }
+            /* 폰트 키우기 */
+            .widget-header h3 { font-size: 17px; }
+            .stat-card .sc-label { font-size: 14px; }
+            .stat-card .sc-value { font-size: 22px; }
+            .stat-card .sc-sub { font-size: 13px; }
+            .list-table { font-size: 14px; }
+            .list-table th { font-size: 13px; padding: 11px 14px; }
+            .list-table td { padding: 10px 14px; }
+            .chart-meta { font-size: 13px; }
+        }
         @media (max-width: 576px) {
             .header { padding: 10px 14px; }
             .header-left h1 { font-size: 15px; }
             .header-logo svg { width: 22px; height: 22px; }
-            .hdr-btn { width: 32px; height: 32px; }
-            .hdr-btn .mi { font-size: 18px; }
-            .header-actions { gap: 6px; }
             .builder { padding: 0 12px 40px; }
             .modal { padding: 20px; }
         }
