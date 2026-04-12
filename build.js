@@ -9,8 +9,8 @@ const path = require('path');
 const JavaScriptObfuscator = require('javascript-obfuscator');
 const { minify: htmlMinify } = require('html-minifier-terser');
 
-const DIST_DIR = path.join(__dirname, 'dist');
-// 난독화/빌드 없이 dist로 그대로 복사할 정적 파일 목록 (AdSense 정책 페이지 + SEO 파일)
+const DIST_DIR = path.join(__dirname, 'docs');
+// 난독화/빌드 없이 docs로 그대로 복사할 정적 파일 목록 (AdSense 정책 페이지 + SEO 파일)
 const STATIC_ASSETS = [
     'about.html',
     'privacy.html',

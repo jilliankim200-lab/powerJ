@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+    <meta name="google-site-verification" content="fJBa9bTkNG07KvadRpmyMhGuiL79chOeqx8wZ4E4Ng0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>엑셀 함수 완전 정복 — SUMIF·VLOOKUP·피벗 실전 가이드 | PowerJ Tools</title>
+<meta name="description" content="SUMIF, VLOOKUP, XLOOKUP, COUNTIF, IF, TEXT, 피벗 테이블 등 업무에 꼭 필요한 엑셀 함수를 실전 예시와 함께 설명합니다. 대시보드 데이터 준비에 바로 활용하세요.">
+<meta name="keywords" content="엑셀 함수, SUMIF, VLOOKUP, XLOOKUP, COUNTIF, 피벗테이블, 엑셀 팁, 엑셀 기초, 엑셀 실무">
+<meta name="author" content="PowerJ Tools">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://powerj.pages.dev/excel-tips.html">
+<meta property="og:title" content="엑셀 함수 완전 정복 | PowerJ Tools">
+<meta property="og:description" content="SUMIF, VLOOKUP, 피벗테이블 등 업무 필수 엑셀 함수를 실전 예시와 함께 알아보세요.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://powerj.pages.dev/excel-tips.html">
+<link rel="icon" href="logo.svg">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7363737737828593" crossorigin="anonymous"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Pretendard',sans-serif;background:#1d1d1d;color:#A8ADB7;line-height:1.8;font-size:15px}
+  .wrap{max-width:880px;margin:0 auto;padding:48px 24px 80px}
+  header.site{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:#202020;border-bottom:1px solid #333;flex-wrap:wrap;gap:12px}
+  header.site .brand{color:#fff;font-weight:700;font-size:18px;text-decoration:none;display:flex;align-items:center;gap:10px}
+  header.site .brand svg{width:24px;height:24px}
+  header.site nav a{color:#A8ADB7;text-decoration:none;margin-left:16px;font-size:13px}
+  header.site nav a:hover{color:#00d47a}
+  h1{color:#fff;font-size:32px;margin-bottom:10px}
+  .sub{color:#828690;font-size:16px;margin-bottom:16px}
+  .toc{background:#252525;border:1px solid #333;border-radius:14px;padding:22px 28px;margin:32px 0}
+  .toc h3{color:#fff;font-size:14px;margin-bottom:12px}
+  .toc ol{margin-left:20px}
+  .toc li{margin-bottom:6px}
+  .toc a{color:#00d47a;font-size:14px;text-decoration:none}
+  .toc a:hover{text-decoration:underline}
+  .func-block{margin-bottom:56px;border-top:1px solid #2a2a2a;padding-top:48px}
+  .func-block:first-of-type{border-top:none;padding-top:0}
+  .func-title{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .func-title h2{color:#fff;font-size:24px}
+  .func-title .level{font-size:12px;padding:3px 10px;border-radius:12px;font-weight:600}
+  .level-basic{background:#1a2e24;border:1px solid #00A15D;color:#00d47a}
+  .level-mid{background:#1e2040;border:1px solid #3B82F6;color:#60a5fa}
+  .level-adv{background:#2a1e10;border:1px solid #f59e0b;color:#fbbf24}
+  p{margin-bottom:14px}
+  h3{color:#e0e0e0;font-size:16px;margin:24px 0 10px}
+  ul,ol{margin:10px 0 18px 22px}
+  li{margin-bottom:8px}
+  strong{color:#fff}
+  a{color:#00d47a;text-decoration:none}
+  a:hover{text-decoration:underline}
+  .syntax{background:#161616;border:1px solid #2a2a2a;border-radius:10px;padding:16px 20px;margin:14px 0;font-family:'Courier New',monospace;font-size:14px;color:#00d47a;overflow-x:auto}
+  .syntax .comment{color:#555}
+  .example-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+  .example-table th{background:#252525;color:#fff;padding:9px 14px;text-align:left;border-bottom:2px solid #333}
+  .example-table td{padding:9px 14px;border-bottom:1px solid #2a2a2a;color:#A8ADB7;font-family:'Courier New',monospace}
+  .example-table .result{color:#00d47a;font-weight:600}
+  .example-table tr:last-child td{border-bottom:none}
+  .tip{background:#1a2e24;border-left:3px solid #00A15D;border-radius:0 10px 10px 0;padding:14px 18px;margin:18px 0;font-size:14px}
+  .tip strong{color:#00d47a;display:block;margin-bottom:4px}
+  .warn{background:#2a2010;border-left:3px solid #f59e0b;border-radius:0 10px 10px 0;padding:14px 18px;margin:18px 0;font-size:14px}
+  .warn strong{color:#f59e0b;display:block;margin-bottom:4px}
+  .ad-wrap{margin:40px 0;text-align:center}.ad-wrap ins{min-height:0!important}.ad-wrap:empty,.ad-wrap:has(ins[style*="display: none"]){display:none}
+  .shortcuts{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin:16px 0}
+  .shortcut{background:#252525;border:1px solid #333;border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px}
+  .shortcut .keys{background:#1d1d1d;border:1px solid #444;border-radius:6px;padding:4px 10px;font-family:'Courier New',monospace;font-size:13px;color:#fff;white-space:nowrap;flex-shrink:0}
+  .shortcut .desc{font-size:13px;color:#A8ADB7}
+  footer.site{text-align:center;padding:32px 24px;border-top:1px solid #2a2a2a;color:#828690;font-size:13px;margin-top:48px}
+  footer.site a{color:#A8ADB7;text-decoration:none;margin:0 8px}
+  footer.site a:hover{color:#00d47a}
+  @media(max-width:640px){h1{font-size:26px}header.site nav{display:none}.shortcuts{grid-template-columns:1fr}}
+</style>
+<script>(function(){document.addEventListener('contextmenu',function(e){e.preventDefault();});document.addEventListener('keydown',function(e){if(e.key==='F12'){e.preventDefault();return false;}if(e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J'||e.key==='C')){e.preventDefault();return false;}if(e.ctrlKey&&e.key==='u'){e.preventDefault();return false;}});})();</script></head>
+<body>
+<header class="site">
+  <a href="index.html" class="brand">
+    <svg viewBox="0 0 24 24" fill="#00d47a"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+    PowerJ Tools
+  </a>
+  <nav>
+    <a href="index.html">홈</a>
+    <a href="qr-generator.html">QR 생성기</a>
+    <a href="templates.html">템플릿</a>
+    <a href="gallery.html">갤러리</a>
+    <a href="guide.html">가이드</a>
+    <a href="excel-tips.html" style="color:#00d47a">엑셀 팁</a>
+    <a href="about.html">소개</a>
+    <a href="contact.html">연락처</a>
+  </nav>
+</header>
+
+<div class="wrap">
+<h1>엑셀 함수 완전 정복</h1>
+<p class="sub">업무 필수 함수를 실전 예시와 함께 — 대시보드 데이터 준비에 바로 활용하세요.</p>
+
+<div class="toc">
+  <h3>목차</h3>
+  <ol>
+    <li><a href="#sumif">SUMIF / SUMIFS — 조건부 합계</a></li>
+    <li><a href="#countif">COUNTIF / COUNTIFS — 조건부 개수</a></li>
+    <li><a href="#vlookup">VLOOKUP / XLOOKUP — 데이터 찾기</a></li>
+    <li><a href="#if">IF / IFS — 조건 분기</a></li>
+    <li><a href="#text">TEXT / 날짜 함수 — 형식 변환</a></li>
+    <li><a href="#pivot">피벗 테이블 — 집계 자동화</a></li>
+    <li><a href="#shortcuts">엑셀 단축키 모음</a></li>
+  </ol>
+</div>
+
+<div class="ad-wrap">
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7363737737828593" data-ad-slot="1605418873" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<div class="func-block" id="sumif">
+  <div class="func-title"><h2>SUMIF / SUMIFS</h2><span class="level level-basic">기초</span></div>
+  <p>특정 조건을 만족하는 셀들의 합계를 계산합니다. 대시보드 데이터를 팀별·제품별·월별로 집계할 때 가장 많이 사용하는 함수입니다.</p>
+
+  <h3>기본 문법</h3>
+  <div class="syntax">=SUMIF(조건범위, 조건, 합계범위)<br>=SUMIFS(합계범위, 조건범위1, 조건1, 조건범위2, 조건2, ...)</div>
+
+  <h3>실전 예시</h3>
+  <table class="example-table">
+    <thead><tr><th>목표</th><th>수식</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>영업1팀 매출 합계</td><td>=SUMIF(B:B,"영업1팀",C:C)</td><td>B열에서 "영업1팀"인 행의 C열 합계</td></tr>
+      <tr><td>2026년 1분기 이익 합계</td><td>=SUMIFS(D:D,A:A,"1분기",B:B,2026)</td><td>두 조건 동시 적용</td></tr>
+      <tr><td>매출 100만 이상 건의 합계</td><td>=SUMIF(C:C,">="&1000000,C:C)</td><td>비교 연산자 사용</td></tr>
+      <tr><td class="result">결과</td><td class="result">숫자로 반환</td><td>텍스트 서식 셀은 계산에서 제외됨</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <strong>대시보드 활용 팁</strong>
+    원시 데이터 시트 따로, SUMIFS로 집계한 결과 시트 따로 만드세요. 집계 결과 시트를 PowerJ Tools에 업로드하면 훨씬 깔끔한 차트가 나옵니다.
+  </div>
+</div>
+
+<div class="func-block" id="countif">
+  <div class="func-title"><h2>COUNTIF / COUNTIFS</h2><span class="level level-basic">기초</span></div>
+  <p>조건을 만족하는 셀의 개수를 셉니다. 설문 결과 집계, 등급별 인원 수, 특정 상태의 건수를 파악할 때 사용합니다.</p>
+
+  <h3>기본 문법</h3>
+  <div class="syntax">=COUNTIF(범위, 조건)<br>=COUNTIFS(범위1, 조건1, 범위2, 조건2, ...)</div>
+
+  <h3>실전 예시</h3>
+  <table class="example-table">
+    <thead><tr><th>목표</th><th>수식</th></tr></thead>
+    <tbody>
+      <tr><td>A등급 학생 수</td><td>=COUNTIF(D:D,"A")</td></tr>
+      <tr><td>영업1팀 중 목표 달성 건수</td><td>=COUNTIFS(A:A,"영업1팀",C:C,">="&B2)</td></tr>
+      <tr><td>빈 셀 개수</td><td>=COUNTIF(A:A,"")</td></tr>
+      <tr><td>중복값 개수 확인</td><td>=COUNTIF(A:A,A2) → 2 이상이면 중복</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="ad-wrap">
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7363737837828593" data-ad-slot="1605418873" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<div class="func-block" id="vlookup">
+  <div class="func-title"><h2>VLOOKUP / XLOOKUP</h2><span class="level level-mid">중급</span></div>
+  <p>한 표에서 값을 찾아 다른 열의 값을 가져옵니다. 제품 코드로 제품명 가져오기, 직원 ID로 부서 가져오기 등에 사용합니다.</p>
+
+  <h3>VLOOKUP 문법</h3>
+  <div class="syntax">=VLOOKUP(찾는값, 범위, 열번호, [일치방식])<br><span class="comment">'일치방식: 0 = 완전일치(권장), 1 = 근사일치</span></div>
+
+  <h3>XLOOKUP 문법 (Excel 2021 이상, Microsoft 365)</h3>
+  <div class="syntax">=XLOOKUP(찾는값, 검색범위, 반환범위, [없을때값])<br><span class="comment">' VLOOKUP보다 유연하고 오류 처리가 편함</span></div>
+
+  <h3>실전 예시</h3>
+  <table class="example-table">
+    <thead><tr><th>목표</th><th>VLOOKUP 수식</th><th>XLOOKUP 수식</th></tr></thead>
+    <tbody>
+      <tr><td>품목코드로 제품명 가져오기</td><td>=VLOOKUP(A2,제품표!A:C,2,0)</td><td>=XLOOKUP(A2,제품표!A:A,제품표!B:B,"없음")</td></tr>
+      <tr><td>직원ID로 부서 가져오기</td><td>=VLOOKUP(B2,직원표!A:D,3,0)</td><td>=XLOOKUP(B2,직원표!A:A,직원표!C:C)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <strong>VLOOKUP 주의사항</strong>
+    찾는 값이 반드시 범위의 첫 번째 열에 있어야 합니다. 왼쪽 열을 가져오려면 INDEX+MATCH 또는 XLOOKUP을 사용하세요. 또한 숫자를 텍스트로 저장한 경우 찾기 실패(#N/A)가 납니다.
+  </div>
+</div>
+
+<div class="func-block" id="if">
+  <div class="func-title"><h2>IF / IFS</h2><span class="level level-basic">기초</span></div>
+  <p>조건에 따라 다른 값을 반환합니다. 등급 부여, 달성 여부 판단, 카테고리 분류 등에 활용합니다.</p>
+
+  <h3>기본 문법</h3>
+  <div class="syntax">=IF(조건, 참일때값, 거짓일때값)<br>=IFS(조건1, 값1, 조건2, 값2, ...)  <span class="comment">' 다중 조건</span></div>
+
+  <h3>실전 예시</h3>
+  <table class="example-table">
+    <thead><tr><th>목표</th><th>수식</th></tr></thead>
+    <tbody>
+      <tr><td>매출 목표 달성 여부</td><td>=IF(C2>=D2,"달성","미달성")</td></tr>
+      <tr><td>점수를 등급으로 변환</td><td>=IFS(B2>=90,"A",B2>=80,"B",B2>=70,"C",B2>=60,"D",TRUE,"F")</td></tr>
+      <tr><td>빈 셀이면 0, 아니면 원래 값</td><td>=IF(A2="",0,A2)</td></tr>
+      <tr><td>특정 값이면 "해당", 아니면 빈칸</td><td>=IF(A2="서울","해당","")</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="ad-wrap">
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7363737737828593" data-ad-slot="1605418873" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<div class="func-block" id="text">
+  <div class="func-title"><h2>TEXT / 날짜 함수</h2><span class="level level-mid">중급</span></div>
+  <p>숫자나 날짜를 원하는 형식의 텍스트로 변환하거나, 날짜에서 연·월·일·요일을 추출합니다. 대시보드 데이터 준비에 매우 유용합니다.</p>
+
+  <h3>날짜 관련 주요 함수</h3>
+  <table class="example-table">
+    <thead><tr><th>함수</th><th>예시</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td>YEAR</td><td>=YEAR(A2)</td><td>2026</td></tr>
+      <tr><td>MONTH</td><td>=MONTH(A2)</td><td>3 (3월)</td></tr>
+      <tr><td>TEXT (월 표시)</td><td>=TEXT(A2,"YYYY-MM")</td><td>2026-03</td></tr>
+      <tr><td>TEXT (요일 표시)</td><td>=TEXT(A2,"AAA")</td><td>월 (한국어 요일)</td></tr>
+      <tr><td>EOMONTH (월말)</td><td>=EOMONTH(A2,0)</td><td>해당 월 마지막 날</td></tr>
+      <tr><td>WEEKDAY</td><td>=WEEKDAY(A2,2)</td><td>1=월요일, 7=일요일</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <strong>월별 집계를 위한 YYYY-MM 컬럼 추가</strong>
+    일별 데이터를 월별로 집계하려면 날짜 컬럼 옆에 <code style="color:#00d47a">=TEXT(A2,"YYYY-MM")</code> 컬럼을 추가하세요. 이 컬럼을 X축으로 쓰면 월별 막대·라인 차트를 바로 만들 수 있습니다.
+  </div>
+</div>
+
+<div class="func-block" id="pivot">
+  <div class="func-title"><h2>피벗 테이블</h2><span class="level level-adv">고급</span></div>
+  <p>수천 행의 원시 데이터를 드래그 앤 드롭으로 즉시 집계합니다. 함수 없이 팀별·월별·제품별 합계를 1분 만에 만들 수 있어 대시보드 준비에 가장 강력한 도구입니다.</p>
+
+  <h3>피벗 테이블 만드는 방법</h3>
+  <ol>
+    <li>데이터 범위 아무 셀 클릭 → <strong style="color:#fff">삽입 → 피벗 테이블</strong></li>
+    <li>새 시트에 생성 선택 후 확인</li>
+    <li>오른쪽 필드 목록에서 <strong style="color:#fff">행</strong>에 팀/월 등 범주 컬럼 드래그</li>
+    <li><strong style="color:#fff">값</strong>에 매출/수량 등 숫자 컬럼 드래그 (자동으로 합계 계산)</li>
+    <li>완성된 피벗 결과를 복사 → <strong style="color:#fff">다른 시트에 값으로 붙여넣기</strong> → PowerJ Tools 업로드</li>
+  </ol>
+
+  <div class="tip">
+    <strong>피벗 결과를 업로드할 때 주의</strong>
+    피벗 테이블 자체를 업로드하면 인식이 어렵습니다. 피벗 결과를 선택 후 복사 → 새 시트에 <strong style="color:#fff">선택하여 붙여넣기 → 값</strong>으로 붙여넣은 다음 그 시트를 xlsx로 저장해 업로드하세요.
+  </div>
+</div>
+
+<div class="func-block" id="shortcuts">
+  <div class="func-title"><h2>엑셀 단축키 모음</h2><span class="level level-basic">참고</span></div>
+  <p>자주 쓰는 엑셀 단축키를 모았습니다. 마우스 없이 빠르게 작업하면 데이터 정리 시간을 크게 줄일 수 있습니다.</p>
+
+  <div class="shortcuts">
+    <div class="shortcut"><span class="keys">Ctrl + T</span><span class="desc">표(Table) 만들기 — 자동 필터+참조 범위</span></div>
+    <div class="shortcut"><span class="keys">Ctrl + Shift + L</span><span class="desc">자동 필터 켜기/끄기</span></div>
+    <div class="shortcut"><span class="keys">Ctrl + D</span><span class="desc">위 셀 내용 아래로 복사</span></div>
+    <div class="shortcut"><span class="keys">Ctrl + R</span><span class="desc">왼쪽 셀 내용 오른쪽으로 복사</span></div>
+    <div class="shortcut"><span class="keys">Ctrl + ;</span><span class="desc">오늘 날짜 입력</span></div>
+    <div class="shortcut"><span class="keys">Alt + =</span><span class="desc">자동 합계 (SUM)</span></div>
+    <div class="shortcut"><span class="keys">F4</span><span class="desc">절대참조 전환 ($A$1 ↔ A1)</span></div>
+    <div class="shortcut"><span class="keys">Ctrl + Shift + +</span><span class="desc">행/열 삽입</span></div>
+    <div class="shortcut"><span class="keys">Ctrl + -</span><span class="desc">행/열 삭제</span></div>
+    <div class="shortcut"><span class="keys">Ctrl + 1</span><span class="desc">셀 서식 창 열기</span></div>
+    <div class="shortcut"><span class="keys">Ctrl + Home</span><span class="desc">A1 셀로 이동</span></div>
+    <div class="shortcut"><span class="keys">Ctrl + End</span><span class="desc">데이터 마지막 셀로 이동</span></div>
+    <div class="shortcut"><span class="keys">Ctrl + Shift + End</span><span class="desc">현재 셀~마지막 셀까지 선택</span></div>
+    <div class="shortcut"><span class="keys">Alt + H + O + I</span><span class="desc">열 너비 자동 맞춤</span></div>
+    <div class="shortcut"><span class="keys">Ctrl + Z / Y</span><span class="desc">실행 취소 / 다시 실행</span></div>
+    <div class="shortcut"><span class="keys">Ctrl + F / H</span><span class="desc">찾기 / 바꾸기</span></div>
+  </div>
+</div>
+
+<div style="margin-top:48px;padding:28px;background:#252525;border:1px solid #333;border-radius:16px;text-align:center">
+  <p style="color:#fff;font-size:18px;font-weight:700;margin-bottom:10px">정리된 엑셀 파일, 바로 대시보드로</p>
+  <p style="margin-bottom:20px;font-size:14px">SUMIFS나 피벗으로 집계한 결과를 PowerJ Tools에 업로드해보세요.</p>
+  <a href="index.html" style="display:inline-block;background:#00A15D;color:#fff;font-weight:700;padding:13px 28px;border-radius:10px;text-decoration:none;font-size:15px;margin:6px">대시보드 만들기</a>
+  <a href="templates.html" style="display:inline-block;background:#252525;border:1.5px solid #00A15D;color:#00d47a;font-weight:700;padding:12px 28px;border-radius:10px;text-decoration:none;font-size:15px;margin:6px">샘플 파일 받기</a>
+</div>
+
+</div>
+
+<footer class="site">
+  <div>
+    <a href="index.html">홈</a> · <a href="qr-generator.html">QR 생성기</a> · <a href="templates.html">템플릿</a> · <a href="gallery.html">갤러리</a> · <a href="guide.html">가이드</a> · <a href="excel-tips.html">엑셀 팁</a> · <a href="about.html">소개</a> · <a href="privacy.html">개인정보처리방침</a> · <a href="contact.html">연락처</a>
+  </div>
+  <div style="margin-top:10px">© 2026 PowerJ Tools. All rights reserved.</div>
+</footer>
+</body>
+</html>
