@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>차트 갤러리 — 8가지 차트 예시 | PowerJ Tools</title>
+<meta name="description" content="막대, 라인, 파이, 도넛, 누적막대, 영역, 산점도, 히트맵 — 8가지 차트 유형을 실제 데이터로 미리 확인하세요. 어떤 차트가 내 데이터에 맞는지 비교해볼 수 있습니다.">
+<meta name="keywords" content="차트 갤러리, 막대 차트, 파이 차트, 라인 차트, 히트맵, 차트 종류, 데이터 시각화 예시">
+<meta name="author" content="PowerJ Tools">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://powerj.pages.dev/gallery.html">
+<meta property="og:title" content="차트 갤러리 | PowerJ Tools">
+<meta property="og:description" content="8가지 차트 유형을 실제 데이터로 미리 확인하고 내 데이터에 맞는 차트를 선택하세요.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://powerj.pages.dev/gallery.html">
+<link rel="icon" href="logo.svg">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7363737737828593" crossorigin="anonymous"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Pretendard',sans-serif;background:#1d1d1d;color:#A8ADB7;font-size:15px;line-height:1.7}
+  .wrap{max-width:1100px;margin:0 auto;padding:48px 24px 80px}
+  header.site{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:#202020;border-bottom:1px solid #333;flex-wrap:wrap;gap:12px}
+  header.site .brand{color:#fff;font-weight:700;font-size:18px;text-decoration:none;display:flex;align-items:center;gap:10px}
+  header.site .brand svg{width:24px;height:24px}
+  header.site nav a{color:#A8ADB7;text-decoration:none;margin-left:16px;font-size:13px}
+  header.site nav a:hover{color:#00d47a}
+  h1{color:#fff;font-size:32px;margin-bottom:10px}
+  .sub{color:#828690;font-size:16px;margin-bottom:40px}
+  h2{color:#fff;font-size:22px;margin:56px 0 24px;padding-top:16px;border-top:1px solid #2a2a2a}
+  h2:first-of-type{border-top:none;padding-top:0;margin-top:0}
+  .chart-section{background:#252525;border:1px solid #333;border-radius:16px;padding:28px;margin-bottom:24px}
+  .chart-header{margin-bottom:20px}
+  .chart-header h3{color:#fff;font-size:18px;margin-bottom:8px}
+  .chart-header .desc{font-size:14px;color:#A8ADB7;line-height:1.7}
+  .chart-header .use-when{display:inline-block;background:#1a2e24;border:1px solid #00A15D;color:#00d47a;font-size:12px;padding:4px 12px;border-radius:20px;margin-top:8px}
+  .chart-box{width:100%;height:320px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .grid2 .chart-box{height:280px}
+  .ad-wrap{margin:40px 0;text-align:center}.ad-wrap ins{min-height:0!important}.ad-wrap:empty,.ad-wrap:has(ins[style*="display: none"]){display:none}
+  .tag{display:inline-block;background:#252525;border:1px solid #333;border-radius:6px;padding:3px 10px;font-size:12px;color:#828690;margin:2px}
+  .filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px}
+  .filter-btn{background:#252525;border:1px solid #333;border-radius:20px;padding:8px 18px;font-size:13px;color:#A8ADB7;cursor:pointer;font-family:'Pretendard',sans-serif;transition:all .2s}
+  .filter-btn:hover,.filter-btn.active{background:#00A15D;border-color:#00A15D;color:#fff}
+  footer.site{text-align:center;padding:32px 24px;border-top:1px solid #2a2a2a;color:#828690;font-size:13px;margin-top:48px}
+  footer.site a{color:#A8ADB7;text-decoration:none;margin:0 8px}
+  footer.site a:hover{color:#00d47a}
+  @media(max-width:768px){.grid2{grid-template-columns:1fr}h1{font-size:26px}header.site nav{display:none}}
+</style>
+</head>
+<body>
+<header class="site">
+  <a href="index.html" class="brand">
+    <svg viewBox="0 0 24 24" fill="#00d47a"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+    PowerJ Tools
+  </a>
+  <nav>
+    <a href="index.html">홈</a>
+    <a href="qr-generator.html">QR 생성기</a>
+    <a href="templates.html">템플릿</a>
+    <a href="gallery.html" style="color:#00d47a">갤러리</a>
+    <a href="guide.html">가이드</a>
+    <a href="excel-tips.html">엑셀 팁</a>
+    <a href="about.html">소개</a>
+    <a href="contact.html">연락처</a>
+  </nav>
+</header>
+
+<div class="wrap">
+<h1>차트 갤러리</h1>
+<p class="sub">8가지 차트 유형을 실제 데이터로 미리 확인하세요. 내 데이터에 어떤 차트가 맞는지 비교해볼 수 있습니다.</p>
+
+<h2>비교 차트 — 항목 간 크기 비교</h2>
+
+<div class="chart-section">
+  <div class="chart-header">
+    <h3>막대 차트 (Bar Chart)</h3>
+    <div class="desc">범주형 데이터의 크기를 비교할 때 가장 직관적인 차트입니다. 팀별 매출, 제품별 판매량, 지역별 실적처럼 <strong style="color:#fff">여러 항목의 값을 나란히 비교</strong>할 때 사용하세요.</div>
+    <span class="use-when">✓ 팀별 실적 · 제품별 판매 · 지역별 비교</span>
+  </div>
+  <div id="chart-bar" class="chart-box"></div>
+</div>
+
+<div class="chart-section">
+  <div class="chart-header">
+    <h3>누적 막대 차트 (Stacked Bar)</h3>
+    <div class="desc">전체 합계와 각 항목의 구성 비중을 동시에 보여줍니다. <strong style="color:#fff">월별 제품군별 매출 구성</strong>처럼 시간의 흐름에 따라 구성이 어떻게 바뀌는지 파악할 때 적합합니다.</div>
+    <span class="use-when">✓ 월별 카테고리 구성 · 채널별 기여도</span>
+  </div>
+  <div id="chart-stacked" class="chart-box"></div>
+</div>
+
+<div class="ad-wrap">
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7363737737828593" data-ad-slot="1605418873" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<h2>추이 차트 — 시간에 따른 변화</h2>
+
+<div class="grid2">
+  <div class="chart-section">
+    <div class="chart-header">
+      <h3>라인 차트 (Line)</h3>
+      <div class="desc">시간 흐름에 따른 변화 추이를 보여줍니다. 날짜 컬럼이 있을 때 자동으로 선택됩니다.</div>
+      <span class="use-when">✓ 월별 매출 추이 · 방문자 변화</span>
+    </div>
+    <div id="chart-line" class="chart-box"></div>
+  </div>
+  <div class="chart-section">
+    <div class="chart-header">
+      <h3>영역 차트 (Area)</h3>
+      <div class="desc">라인 차트 아래 면적을 채워 누적량의 무게감을 강조합니다. 여러 항목 합산 변화를 볼 때 효과적입니다.</div>
+      <span class="use-when">✓ 누적 매출 · 채널별 합산 추이</span>
+    </div>
+    <div id="chart-area" class="chart-box"></div>
+  </div>
+</div>
+
+<h2>비율 차트 — 구성 비중 파악</h2>
+
+<div class="grid2">
+  <div class="chart-section">
+    <div class="chart-header">
+      <h3>파이 차트 (Pie)</h3>
+      <div class="desc">전체 대비 각 항목의 비율을 원형으로 표현합니다. 항목이 5개 이하일 때 가장 효과적입니다.</div>
+      <span class="use-when">✓ 제품별 매출 비중 · 카테고리 점유율</span>
+    </div>
+    <div id="chart-pie" class="chart-box"></div>
+  </div>
+  <div class="chart-section">
+    <div class="chart-header">
+      <h3>도넛 차트 (Donut)</h3>
+      <div class="desc">파이 차트의 변형으로 가운데 공간에 합계·주요 수치를 표시할 수 있어 가독성이 더 좋습니다.</div>
+      <span class="use-when">✓ 지출 구성 · 부서별 인원 비중</span>
+    </div>
+    <div id="chart-donut" class="chart-box"></div>
+  </div>
+</div>
+
+<div class="ad-wrap">
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7363737737828593" data-ad-slot="1605418873" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<h2>분포·관계 차트 — 패턴과 상관관계</h2>
+
+<div class="grid2">
+  <div class="chart-section">
+    <div class="chart-header">
+      <h3>산점도 (Scatter)</h3>
+      <div class="desc">두 수치 변수 간의 상관관계를 점으로 표현합니다. "광고비가 많을수록 매출이 높은가?"를 파악할 때 사용하세요.</div>
+      <span class="use-when">✓ 광고비 vs 매출 · 가격 vs 판매량</span>
+    </div>
+    <div id="chart-scatter" class="chart-box"></div>
+  </div>
+  <div class="chart-section">
+    <div class="chart-header">
+      <h3>히트맵 (Heatmap)</h3>
+      <div class="desc">두 범주형 변수의 교차 지점에서 값의 강도를 색으로 표현합니다. 요일·시간대별 집중도 분석에 최적입니다.</div>
+      <span class="use-when">✓ 요일×시간 주문 집중도 · 지역×제품 매출</span>
+    </div>
+    <div id="chart-heatmap" class="chart-box"></div>
+  </div>
+</div>
+
+<div style="margin-top:48px;padding:28px;background:#252525;border:1px solid #333;border-radius:16px;text-align:center">
+  <p style="color:#fff;font-size:18px;font-weight:700;margin-bottom:10px">내 데이터로 직접 만들어보세요</p>
+  <p style="margin-bottom:20px;font-size:14px">엑셀 파일을 업로드하면 위 차트들이 자동으로 생성됩니다.</p>
+  <a href="index.html" style="display:inline-block;background:#00A15D;color:#fff;font-weight:700;padding:13px 32px;border-radius:10px;text-decoration:none;font-size:15px;margin-right:12px">대시보드 만들기</a>
+  <a href="templates.html" style="display:inline-block;background:#252525;border:1.5px solid #00A15D;color:#00d47a;font-weight:700;padding:12px 32px;border-radius:10px;text-decoration:none;font-size:15px">샘플 파일 받기</a>
+</div>
+
+</div>
+
+<footer class="site">
+  <div>
+    <a href="index.html">홈</a> · <a href="qr-generator.html">QR 생성기</a> · <a href="templates.html">템플릿</a> · <a href="gallery.html">갤러리</a> · <a href="guide.html">가이드</a> · <a href="excel-tips.html">엑셀 팁</a> · <a href="about.html">소개</a> · <a href="privacy.html">개인정보처리방침</a> · <a href="contact.html">연락처</a>
+  </div>
+  <div style="margin-top:10px">© 2026 PowerJ Tools. All rights reserved.</div>
+</footer>
+
+<script>
+const C = ['#00A15D','#7B5EA7','#0097A7','#E91E8C','#F59E0B','#3B82F6'];
+const opt = {backgroundColor:'transparent',textStyle:{fontFamily:'Pretendard',color:'#A8ADB7'},grid:{top:40,bottom:50,left:50,right:20,containLabel:true}};
+
+// 막대
+echarts.init(document.getElementById('chart-bar')).setOption({...opt,
+  xAxis:{type:'category',data:['영업1팀','영업2팀','마케팅팀','개발팀','디자인팀'],axisLine:{lineStyle:{color:'#333'}},axisLabel:{color:'#828690'}},
+  yAxis:{type:'value',axisLine:{lineStyle:{color:'#333'}},splitLine:{lineStyle:{color:'#2a2a2a'}},axisLabel:{color:'#828690',formatter:v=>v>=1e8?v/1e8+'억':v>=1e4?v/1e4+'만':v}},
+  series:[{type:'bar',data:[4200,3800,5100,2900,1800].map((v,i)=>({value:v*10000,itemStyle:{color:C[i]}})),barMaxWidth:60}],
+  tooltip:{trigger:'axis',backgroundColor:'#252525',borderColor:'#333',textStyle:{color:'#fff'},formatter:p=>`${p[0].name}<br/>${(p[0].value/10000).toLocaleString()}만원`}
+});
+
+// 누적 막대
+const sb = echarts.init(document.getElementById('chart-stacked'));
+sb.setOption({...opt,
+  legend:{top:8,textStyle:{color:'#A8ADB7'},data:['클라우드','AI 솔루션','모바일 앱']},
+  xAxis:{type:'category',data:['1월','2월','3월','4월','5월','6월'],axisLine:{lineStyle:{color:'#333'}},axisLabel:{color:'#828690'}},
+  yAxis:{type:'value',axisLine:{lineStyle:{color:'#333'}},splitLine:{lineStyle:{color:'#2a2a2a'}},axisLabel:{color:'#828690',formatter:v=>v/10000+'만'}},
+  series:[
+    {name:'클라우드',type:'bar',stack:'s',data:[1200,1400,1100,1600,1800,2000].map(v=>v*10000),itemStyle:{color:C[0]}},
+    {name:'AI 솔루션',type:'bar',stack:'s',data:[800,900,1000,850,1100,1300].map(v=>v*10000),itemStyle:{color:C[1]}},
+    {name:'모바일 앱',type:'bar',stack:'s',data:[600,700,650,900,800,950].map(v=>v*10000),itemStyle:{color:C[5]}},
+  ],
+  tooltip:{trigger:'axis',backgroundColor:'#252525',borderColor:'#333',textStyle:{color:'#fff'}}
+});
+
+// 라인
+echarts.init(document.getElementById('chart-line')).setOption({...opt,
+  xAxis:{type:'category',data:['1월','2월','3월','4월','5월','6월','7월','8월'],axisLine:{lineStyle:{color:'#333'}},axisLabel:{color:'#828690'}},
+  yAxis:{type:'value',axisLine:{lineStyle:{color:'#333'}},splitLine:{lineStyle:{color:'#2a2a2a'}},axisLabel:{color:'#828690',formatter:v=>v/10000+'만'}},
+  series:[{type:'line',smooth:true,data:[3200,2900,3800,4100,3700,4500,4800,5200].map(v=>v*10000),lineStyle:{color:C[0],width:2.5},areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(0,161,93,.25)'},{offset:1,color:'rgba(0,161,93,0)'}]}},itemStyle:{color:C[0]}}],
+  tooltip:{trigger:'axis',backgroundColor:'#252525',borderColor:'#333',textStyle:{color:'#fff'}}
+});
+
+// 영역
+echarts.init(document.getElementById('chart-area')).setOption({...opt,
+  legend:{top:8,textStyle:{color:'#A8ADB7'},data:['네이버','카카오','구글']},
+  xAxis:{type:'category',data:['1Q','2Q','3Q','4Q'],axisLine:{lineStyle:{color:'#333'}},axisLabel:{color:'#828690'}},
+  yAxis:{type:'value',axisLine:{lineStyle:{color:'#333'}},splitLine:{lineStyle:{color:'#2a2a2a'}},axisLabel:{color:'#828690',formatter:v=>v/10000+'만'}},
+  series:[
+    {name:'네이버',type:'line',smooth:true,stack:'t',areaStyle:{color:'rgba(0,161,93,.3)'},data:[1200,1500,1800,2100].map(v=>v*10000),lineStyle:{color:C[0]},itemStyle:{color:C[0]}},
+    {name:'카카오',type:'line',smooth:true,stack:'t',areaStyle:{color:'rgba(123,94,167,.3)'},data:[800,900,1100,1300].map(v=>v*10000),lineStyle:{color:C[1]},itemStyle:{color:C[1]}},
+    {name:'구글',type:'line',smooth:true,stack:'t',areaStyle:{color:'rgba(0,151,167,.3)'},data:[600,700,900,1000].map(v=>v*10000),lineStyle:{color:C[2]},itemStyle:{color:C[2]}},
+  ],
+  tooltip:{trigger:'axis',backgroundColor:'#252525',borderColor:'#333',textStyle:{color:'#fff'}}
+});
+
+// 파이
+echarts.init(document.getElementById('chart-pie')).setOption({...opt,grid:undefined,
+  legend:{bottom:10,textStyle:{color:'#A8ADB7'}},
+  series:[{type:'pie',radius:['0%','65%'],center:['50%','48%'],
+    data:[{name:'클라우드',value:4200},{name:'AI 솔루션',value:3100},{name:'모바일 앱',value:2400},{name:'컨설팅',value:1800},{name:'기타',value:900}].map((d,i)=>({...d,itemStyle:{color:C[i]}})),
+    label:{color:'#A8ADB7',fontSize:12},labelLine:{lineStyle:{color:'#444'}}}],
+  tooltip:{backgroundColor:'#252525',borderColor:'#333',textStyle:{color:'#fff'}}
+});
+
+// 도넛
+echarts.init(document.getElementById('chart-donut')).setOption({...opt,grid:undefined,
+  legend:{bottom:10,textStyle:{color:'#A8ADB7'}},
+  series:[{type:'pie',radius:['45%','68%'],center:['50%','48%'],
+    data:[{name:'식비',value:320},{name:'주거',value:250},{name:'교통',value:120},{name:'여가',value:180},{name:'기타',value:130}].map((d,i)=>({...d,itemStyle:{color:C[i]}})),
+    label:{show:false},
+    graphic:[{type:'text',left:'center',top:'middle',style:{text:'총 100만원',fill:'#fff',fontSize:14,fontWeight:'bold',fontFamily:'Pretendard'}}]}],
+  tooltip:{backgroundColor:'#252525',borderColor:'#333',textStyle:{color:'#fff'}}
+});
+
+// 산점도
+const scData = Array.from({length:50},()=>{const x=Math.random()*500+50;return[Math.round(x),Math.round(x*(1.5+Math.random()*1.5)*10000)]});
+echarts.init(document.getElementById('chart-scatter')).setOption({...opt,
+  xAxis:{type:'value',name:'광고비(만원)',nameTextStyle:{color:'#828690'},axisLine:{lineStyle:{color:'#333'}},splitLine:{lineStyle:{color:'#2a2a2a'}},axisLabel:{color:'#828690'}},
+  yAxis:{type:'value',name:'매출(원)',nameTextStyle:{color:'#828690'},axisLine:{lineStyle:{color:'#333'}},splitLine:{lineStyle:{color:'#2a2a2a'}},axisLabel:{color:'#828690',formatter:v=>v>=10000?v/10000+'만':v}},
+  series:[{type:'scatter',data:scData,symbolSize:8,itemStyle:{color:'rgba(0,161,93,.7)',borderColor:'#00d47a',borderWidth:1}}],
+  tooltip:{backgroundColor:'#252525',borderColor:'#333',textStyle:{color:'#fff'},formatter:p=>`광고비 ${p.data[0]}만원<br>매출 ${(p.data[1]/10000).toFixed(0)}만원`}
+});
+
+// 히트맵
+const days=['월','화','수','목','금','토','일'];
+const hours=['9시','10시','11시','12시','13시','14시','15시','16시','17시','18시','19시','20시'];
+const hmData=[];
+days.forEach((d,di)=>hours.forEach((h,hi)=>{
+  let v=Math.floor(Math.random()*100);
+  if(di>=5)v=Math.floor(v*1.8);
+  if(hi>=2&&hi<=5)v=Math.floor(v*1.3);
+  hmData.push([hi,di,v]);
+}));
+echarts.init(document.getElementById('chart-heatmap')).setOption({
+  backgroundColor:'transparent',
+  grid:{top:10,bottom:30,left:40,right:60,containLabel:true},
+  xAxis:{type:'category',data:hours,axisLine:{lineStyle:{color:'#333'}},axisLabel:{color:'#828690',fontSize:11}},
+  yAxis:{type:'category',data:days,axisLine:{lineStyle:{color:'#333'}},axisLabel:{color:'#828690'}},
+  visualMap:{min:0,max:180,calculable:true,orient:'vertical',right:0,top:'center',textStyle:{color:'#828690',fontSize:11},inRange:{color:['#1a2e24','#00A15D','#00e87a']}},
+  series:[{type:'heatmap',data:hmData,label:{show:false},emphasis:{itemStyle:{shadowBlur:10}}}],
+  tooltip:{backgroundColor:'#252525',borderColor:'#333',textStyle:{color:'#fff'},formatter:p=>`${days[p.data[1]]} ${hours[p.data[0]]}<br>주문 ${p.data[2]}건`}
+});
+</script>
+</body>
+</html>

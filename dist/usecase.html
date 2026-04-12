@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>업종별 엑셀 대시보드 활용 가이드 | PowerJ Tools</title>
+<meta name="description" content="스마트스토어, 제조업, 음식점, 교육기관, 마케팅팀 등 업종별로 엑셀 데이터를 어떻게 정리하고 어떤 차트로 시각화할지 실전 가이드를 제공합니다.">
+<meta name="keywords" content="엑셀 대시보드 업종별, 스마트스토어 분석, 재고관리 엑셀, 매출 분석, 교육 데이터, HR 대시보드, 마케팅 성과분석">
+<meta name="author" content="PowerJ Tools">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://powerj.pages.dev/usecase.html">
+<meta property="og:title" content="업종별 엑셀 대시보드 활용 가이드 | PowerJ Tools">
+<meta property="og:description" content="스마트스토어, 제조업, 음식점 등 업종별 엑셀 데이터 정리법과 차트 활용법을 알려드립니다.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://powerj.pages.dev/usecase.html">
+<link rel="icon" href="logo.svg">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7363737737828593" crossorigin="anonymous"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Pretendard',sans-serif;background:#1d1d1d;color:#A8ADB7;line-height:1.8;font-size:15px}
+  .wrap{max-width:880px;margin:0 auto;padding:48px 24px 80px}
+  header.site{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:#202020;border-bottom:1px solid #333;flex-wrap:wrap;gap:12px}
+  header.site .brand{color:#fff;font-weight:700;font-size:18px;text-decoration:none;display:flex;align-items:center;gap:10px}
+  header.site .brand svg{width:24px;height:24px}
+  header.site nav a{color:#A8ADB7;text-decoration:none;margin-left:16px;font-size:13px}
+  header.site nav a:hover{color:#00d47a}
+  h1{color:#fff;font-size:32px;margin-bottom:10px}
+  .sub{color:#828690;font-size:16px;margin-bottom:16px}
+  .toc{background:#252525;border:1px solid #333;border-radius:14px;padding:22px 28px;margin:32px 0}
+  .toc h3{color:#fff;font-size:14px;margin-bottom:12px}
+  .toc-list{display:flex;flex-wrap:wrap;gap:8px}
+  .toc-list a{background:#1d1d1d;border:1px solid #333;border-radius:8px;padding:7px 14px;font-size:13px;color:#A8ADB7;text-decoration:none;transition:all .15s}
+  .toc-list a:hover{border-color:#00A15D;color:#00d47a}
+  .section{margin-bottom:60px;border-top:1px solid #2a2a2a;padding-top:48px}
+  .section:first-of-type{border-top:none;padding-top:0}
+  .section-head{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+  .section-icon{font-size:32px}
+  .section-head h2{color:#fff;font-size:24px}
+  .section-head .badge{background:#1a2e24;border:1px solid #00A15D;color:#00d47a;font-size:12px;padding:3px 10px;border-radius:12px}
+  p{margin-bottom:14px}
+  h3{color:#e0e0e0;font-size:17px;margin:28px 0 10px}
+  ul,ol{margin:10px 0 18px 22px}
+  li{margin-bottom:8px}
+  strong{color:#fff}
+  a{color:#00d47a;text-decoration:none}
+  a:hover{text-decoration:underline}
+  .col-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+  .col-table th{background:#252525;color:#fff;padding:10px 14px;text-align:left;border-bottom:2px solid #333}
+  .col-table td{padding:10px 14px;border-bottom:1px solid #2a2a2a;color:#A8ADB7}
+  .col-table tr:last-child td{border-bottom:none}
+  .chart-rec{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+  .chart-tag{background:#252525;border:1px solid #00A15D;border-radius:8px;padding:5px 14px;font-size:13px;color:#00d47a}
+  .tip{background:#1a2e24;border-left:3px solid #00A15D;border-radius:0 10px 10px 0;padding:14px 18px;margin:18px 0;font-size:14px}
+  .tip strong{color:#00d47a;display:block;margin-bottom:4px}
+  .ad-wrap{margin:40px 0;text-align:center}.ad-wrap ins{min-height:0!important}.ad-wrap:empty,.ad-wrap:has(ins[style*="display: none"]){display:none}
+  footer.site{text-align:center;padding:32px 24px;border-top:1px solid #2a2a2a;color:#828690;font-size:13px;margin-top:48px}
+  footer.site a{color:#A8ADB7;text-decoration:none;margin:0 8px}
+  footer.site a:hover{color:#00d47a}
+  @media(max-width:640px){h1{font-size:26px}.col-table{font-size:12px}header.site nav{display:none}}
+</style>
+</head>
+<body>
+<header class="site">
+  <a href="index.html" class="brand">
+    <svg viewBox="0 0 24 24" fill="#00d47a"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+    PowerJ Tools
+  </a>
+  <nav>
+    <a href="index.html">홈</a>
+    <a href="qr-generator.html">QR 생성기</a>
+    <a href="templates.html">템플릿</a>
+    <a href="gallery.html">갤러리</a>
+    <a href="guide.html">가이드</a>
+    <a href="excel-tips.html">엑셀 팁</a>
+    <a href="about.html">소개</a>
+    <a href="contact.html">연락처</a>
+  </nav>
+</header>
+
+<div class="wrap">
+<h1>업종별 활용 가이드</h1>
+<p class="sub">내 업종에서 어떤 데이터를 어떻게 정리하고, 어떤 차트로 시각화할지 알려드립니다.</p>
+
+<div class="toc">
+  <h3>업종 바로가기</h3>
+  <div class="toc-list">
+    <a href="#ecommerce">🛒 스마트스토어 / 이커머스</a>
+    <a href="#manufacturing">🏭 제조업 / 생산관리</a>
+    <a href="#restaurant">🍽️ 음식점 / 카페</a>
+    <a href="#education">🎓 교육기관 / 학원</a>
+    <a href="#hr">👥 인사 / HR</a>
+    <a href="#marketing">📣 마케팅 / 광고팀</a>
+  </div>
+</div>
+
+<div class="ad-wrap">
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7363737737828593" data-ad-slot="1605418873" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<div class="section" id="ecommerce">
+  <div class="section-head">
+    <div class="section-icon">🛒</div>
+    <div><h2>스마트스토어 / 이커머스</h2><span class="badge">판매·주문 분석</span></div>
+  </div>
+  <p>스마트스토어, 쿠팡 파트너스, 자사몰 등 온라인 판매 데이터를 분석해 어떤 상품이 잘 팔리고, 어느 채널에서 고객이 오는지 파악할 수 있습니다.</p>
+
+  <h3>엑셀 데이터 구성 방법</h3>
+  <p>각 플랫폼의 정산 내역 또는 주문 내역을 다운로드한 후 아래 컬럼 구조로 정리하세요.</p>
+  <table class="col-table">
+    <thead><tr><th>컬럼명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>주문일</td><td>날짜</td><td>2026-03-15</td><td>YYYY-MM-DD 형식 권장</td></tr>
+      <tr><td>카테고리</td><td>텍스트</td><td>의류, 식품, 전자기기</td><td>5개 이내로 분류</td></tr>
+      <tr><td>상품명</td><td>텍스트</td><td>린넨 셔츠</td><td>상세 분석 시 사용</td></tr>
+      <tr><td>수량</td><td>숫자</td><td>3</td><td>정수로 입력</td></tr>
+      <tr><td>판매가(원)</td><td>숫자</td><td>35000</td><td>단가 기준</td></tr>
+      <tr><td>매출(원)</td><td>숫자</td><td>105000</td><td>수량 × 판매가</td></tr>
+      <tr><td>판매채널</td><td>텍스트</td><td>네이버, 쿠팡, 자사몰</td><td>채널별 비교용</td></tr>
+    </tbody>
+  </table>
+
+  <h3>추천 차트 구성</h3>
+  <div class="chart-rec">
+    <span class="chart-tag">월별 매출 추이 → 라인 차트</span>
+    <span class="chart-tag">카테고리별 매출 비중 → 파이 차트</span>
+    <span class="chart-tag">채널별 판매량 비교 → 막대 차트</span>
+    <span class="chart-tag">상품별 판매 순위 → 수평 막대 차트</span>
+  </div>
+
+  <div class="tip">
+    <strong>실전 팁</strong>
+    스마트스토어 정산 내역 엑셀은 컬럼이 많고 형식이 복잡합니다. 분석에 필요한 컬럼(주문일, 카테고리, 매출금액)만 새 시트에 복사해서 업로드하세요. 합계 행이 중간에 있으면 삭제 후 사용하세요.
+  </div>
+</div>
+
+<div class="section" id="manufacturing">
+  <div class="section-head">
+    <div class="section-icon">🏭</div>
+    <div><h2>제조업 / 생산관리</h2><span class="badge">생산·재고·품질</span></div>
+  </div>
+  <p>생산량, 불량률, 재고 현황을 시각화해 생산 라인의 효율성을 파악하고 재고 과부족을 조기에 발견할 수 있습니다.</p>
+
+  <h3>생산 실적 데이터 구성</h3>
+  <table class="col-table">
+    <thead><tr><th>컬럼명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>생산일</td><td>날짜</td><td>2026-03-20</td><td>일별 집계 기준</td></tr>
+      <tr><td>제품코드</td><td>텍스트</td><td>P-001</td><td>품목 구분자</td></tr>
+      <tr><td>라인</td><td>텍스트</td><td>A라인, B라인</td><td>설비 단위 구분</td></tr>
+      <tr><td>생산목표</td><td>숫자</td><td>1000</td><td>계획 수량</td></tr>
+      <tr><td>생산실적</td><td>숫자</td><td>940</td><td>실제 생산량</td></tr>
+      <tr><td>불량수</td><td>숫자</td><td>12</td><td>불량 개수</td></tr>
+      <tr><td>달성률(%)</td><td>숫자</td><td>94</td><td>실적/목표×100</td></tr>
+    </tbody>
+  </table>
+
+  <h3>추천 차트 구성</h3>
+  <div class="chart-rec">
+    <span class="chart-tag">일별 생산실적 추이 → 라인 차트</span>
+    <span class="chart-tag">라인별 달성률 비교 → 막대 차트</span>
+    <span class="chart-tag">불량 유형별 비중 → 파이 차트</span>
+    <span class="chart-tag">목표 vs 실적 → 누적 막대</span>
+  </div>
+
+  <div class="tip">
+    <strong>실전 팁</strong>
+    달성률(%)과 같은 비율 컬럼은 라인 차트로, 생산수량과 같은 절대값은 막대 차트로 분리해서 보는 것이 더 명확합니다. 두 컬럼을 같은 차트에 넣으면 Y축 스케일이 달라 왜곡될 수 있습니다.
+  </div>
+</div>
+
+<div class="ad-wrap">
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7363737737828593" data-ad-slot="1605418873" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<div class="section" id="restaurant">
+  <div class="section-head">
+    <div class="section-icon">🍽️</div>
+    <div><h2>음식점 / 카페</h2><span class="badge">매출·메뉴 분석</span></div>
+  </div>
+  <p>POS 시스템에서 매출 데이터를 내려받아 메뉴별 인기도, 시간대별 혼잡도, 요일별 매출 패턴을 파악할 수 있습니다.</p>
+
+  <h3>POS 데이터 정리 방법</h3>
+  <table class="col-table">
+    <thead><tr><th>컬럼명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>주문일시</td><td>날짜</td><td>2026-03-15</td><td>날짜 부분만 추출해도 됨</td></tr>
+      <tr><td>요일</td><td>텍스트</td><td>월, 화, 수</td><td>히트맵 분석용</td></tr>
+      <tr><td>시간대</td><td>텍스트</td><td>점심, 저녁</td><td>또는 11시, 12시 등</td></tr>
+      <tr><td>메뉴</td><td>텍스트</td><td>아메리카노</td><td>카테고리로 묶어도 됨</td></tr>
+      <tr><td>수량</td><td>숫자</td><td>5</td><td>판매 건수</td></tr>
+      <tr><td>매출(원)</td><td>숫자</td><td>25000</td><td>수량 × 단가</td></tr>
+    </tbody>
+  </table>
+
+  <h3>추천 차트 구성</h3>
+  <div class="chart-rec">
+    <span class="chart-tag">메뉴별 판매 비중 → 파이/도넛 차트</span>
+    <span class="chart-tag">요일×시간대 혼잡도 → 히트맵</span>
+    <span class="chart-tag">월별 매출 추이 → 라인 차트</span>
+    <span class="chart-tag">메뉴별 매출 순위 → 막대 차트</span>
+  </div>
+
+  <div class="tip">
+    <strong>실전 팁</strong>
+    요일×시간대 히트맵은 특히 강력합니다. 언제 인력을 더 배치해야 할지, 어느 시간대에 이벤트를 해야 할지 한눈에 보입니다. 요일 컬럼(월~일)과 시간대 컬럼(11시~22시)이 있으면 히트맵 차트를 선택하세요.
+  </div>
+</div>
+
+<div class="section" id="education">
+  <div class="section-head">
+    <div class="section-icon">🎓</div>
+    <div><h2>교육기관 / 학원</h2><span class="badge">수강·성적 분석</span></div>
+  </div>
+  <p>수강생 현황, 성적 분포, 출석률을 시각화해 교육 효과를 측정하고 관리가 필요한 학생을 조기에 파악할 수 있습니다.</p>
+
+  <h3>학생 데이터 구성</h3>
+  <table class="col-table">
+    <thead><tr><th>컬럼명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>반/과목</td><td>텍스트</td><td>영어A반, 수학B반</td><td>그룹 구분</td></tr>
+      <tr><td>학년</td><td>텍스트</td><td>중1, 고2</td><td>또는 숫자 학년</td></tr>
+      <tr><td>성별</td><td>텍스트</td><td>남, 여</td><td></td></tr>
+      <tr><td>중간고사</td><td>숫자</td><td>85</td><td>점수(0~100)</td></tr>
+      <tr><td>기말고사</td><td>숫자</td><td>91</td><td>점수(0~100)</td></tr>
+      <tr><td>출석률(%)</td><td>숫자</td><td>95</td><td>백분율</td></tr>
+      <tr><td>등급</td><td>텍스트</td><td>A, B, C</td><td>성취도 구분</td></tr>
+    </tbody>
+  </table>
+
+  <h3>추천 차트 구성</h3>
+  <div class="chart-rec">
+    <span class="chart-tag">등급별 학생 분포 → 파이 차트</span>
+    <span class="chart-tag">반별 평균 성적 → 막대 차트</span>
+    <span class="chart-tag">중간·기말 점수 변화 → 라인 차트</span>
+    <span class="chart-tag">출석률 vs 성적 → 산점도</span>
+  </div>
+</div>
+
+<div class="section" id="hr">
+  <div class="section-head">
+    <div class="section-icon">👥</div>
+    <div><h2>인사 / HR</h2><span class="badge">조직·인원 현황</span></div>
+  </div>
+  <p>부서별 인원 구성, 연봉 분포, 근속 연수 분석으로 조직 현황 보고서를 빠르게 만들 수 있습니다.</p>
+
+  <h3>추천 차트 구성</h3>
+  <div class="chart-rec">
+    <span class="chart-tag">부서별 인원 비중 → 도넛 차트</span>
+    <span class="chart-tag">직급별 연봉 분포 → 막대 차트</span>
+    <span class="chart-tag">연도별 신규 입사자 추이 → 라인 차트</span>
+    <span class="chart-tag">성별×직급 분포 → 누적 막대</span>
+  </div>
+
+  <div class="tip">
+    <strong>개인정보 주의</strong>
+    실제 직원 정보를 업로드할 때는 이름, 주민번호, 연락처 등 식별 가능한 정보는 제거하거나 익명화하세요. PowerJ Tools는 파일을 서버로 전송하지 않지만, 화면에 표시되므로 공용 PC에서는 주의가 필요합니다.
+  </div>
+</div>
+
+<div class="section" id="marketing">
+  <div class="section-head">
+    <div class="section-icon">📣</div>
+    <div><h2>마케팅 / 광고팀</h2><span class="badge">성과·ROAS 분석</span></div>
+  </div>
+  <p>채널별 광고 성과를 비교하고 ROAS(광고비 대비 매출)를 시각화해 예산 배분 의사결정을 데이터로 지원할 수 있습니다.</p>
+
+  <h3>광고 성과 데이터 구성</h3>
+  <table class="col-table">
+    <thead><tr><th>컬럼명</th><th>타입</th><th>예시</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>월</td><td>날짜/텍스트</td><td>2026-03</td><td>월 단위 집계</td></tr>
+      <tr><td>채널</td><td>텍스트</td><td>네이버, 구글, 인스타</td><td>광고 플랫폼</td></tr>
+      <tr><td>캠페인</td><td>텍스트</td><td>브랜드, 전환, 리타겟</td><td>캠페인 유형</td></tr>
+      <tr><td>광고비(원)</td><td>숫자</td><td>2500000</td><td>집행 예산</td></tr>
+      <tr><td>클릭수</td><td>숫자</td><td>8500</td><td>클릭 수</td></tr>
+      <tr><td>전환수</td><td>숫자</td><td>320</td><td>구매/가입 수</td></tr>
+      <tr><td>매출(원)</td><td>숫자</td><td>12000000</td><td>전환 기여 매출</td></tr>
+    </tbody>
+  </table>
+
+  <h3>추천 차트 구성</h3>
+  <div class="chart-rec">
+    <span class="chart-tag">채널별 광고비 비중 → 도넛 차트</span>
+    <span class="chart-tag">월별 ROAS 추이 → 라인 차트</span>
+    <span class="chart-tag">채널별 전환수 비교 → 막대 차트</span>
+    <span class="chart-tag">광고비 vs 매출 → 산점도</span>
+  </div>
+
+  <div class="tip">
+    <strong>실전 팁</strong>
+    ROAS = 매출 / 광고비 컬럼을 미리 엑셀에서 계산해서 추가하면 라인 차트로 바로 시각화할 수 있습니다. Google Analytics, 네이버 광고 모두 csv 내보내기를 지원하니 직접 다운로드해 사용하세요.
+  </div>
+</div>
+
+<div class="ad-wrap">
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7363737737828593" data-ad-slot="1605418873" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+
+<div style="padding:28px;background:#252525;border:1px solid #333;border-radius:16px;text-align:center;margin-top:16px">
+  <p style="color:#fff;font-size:18px;font-weight:700;margin-bottom:10px">지금 바로 내 데이터로 만들어보세요</p>
+  <a href="index.html" style="display:inline-block;background:#00A15D;color:#fff;font-weight:700;padding:13px 28px;border-radius:10px;text-decoration:none;font-size:15px;margin:6px">대시보드 만들기</a>
+  <a href="templates.html" style="display:inline-block;background:#252525;border:1.5px solid #00A15D;color:#00d47a;font-weight:700;padding:12px 28px;border-radius:10px;text-decoration:none;font-size:15px;margin:6px">샘플 파일 받기</a>
+</div>
+</div>
+
+<footer class="site">
+  <div>
+    <a href="index.html">홈</a> · <a href="qr-generator.html">QR 생성기</a> · <a href="templates.html">템플릿</a> · <a href="gallery.html">갤러리</a> · <a href="guide.html">가이드</a> · <a href="excel-tips.html">엑셀 팁</a> · <a href="about.html">소개</a> · <a href="privacy.html">개인정보처리방침</a> · <a href="contact.html">연락처</a>
+  </div>
+  <div style="margin-top:10px">© 2026 PowerJ Tools. All rights reserved.</div>
+</footer>
+</body>
+</html>
