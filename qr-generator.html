@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR / 바코드 대량 생성기 | 엑셀 업로드 즉시 출력 — PowerJ Tools</title>
+  <meta name="description" content="엑셀 파일을 업로드하면 행 단위로 QR코드와 바코드를 대량 생성하여 바로 인쇄할 수 있습니다. 설치·회원가입 없이 무료로 사용하며, 파일은 브라우저에서만 처리되어 서버로 전송되지 않습니다.">
+  <meta name="keywords" content="QR코드 생성기, 바코드 생성기, 엑셀 QR, 대량 QR, 무료 QR, 라벨 인쇄, barcode generator">
+  <meta name="author" content="PowerJ Tools">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://powerj.pages.dev/qr-generator.html">
+  <meta property="og:title" content="QR / 바코드 대량 생성기 | PowerJ Tools">
+  <meta property="og:description" content="엑셀 파일로 QR코드·바코드를 대량 생성하고 바로 인쇄할 수 있는 무료 웹 도구.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://powerj.pages.dev/qr-generator.html">
+  <meta property="og:locale" content="ko_KR">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="QR / 바코드 대량 생성기 | PowerJ Tools">
+  <meta name="twitter:description" content="엑셀 파일로 QR/바코드를 대량 생성하는 무료 웹 도구.">
+  <link rel="icon" href="logo.svg">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7363737737828593" crossorigin="anonymous"></script>
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00A15D;
+      --primary-dim: rgba(0,161,93,.15);
+      --body-bg: #161717;
+      --card-bg: #202020;
+      --border: #2B2B2B;
+      --text: #A8ADB7;
+      --title: #fff;
+      --muted: #828690;
+      --radius: 1.25rem;
+      --sidebar-w: 248px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--body-bg);
+      color: var(--text);
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.22); }
+
+    /* ─── UPLOAD SCREEN ─── */
+    #upload-screen {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    #upload-screen .shared-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .8rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--card-bg);
+      flex-shrink: 0;
+      min-height: 52px;
+    }
+    .upload-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      padding: 2rem;
+    }
+
+    .app-title { text-align: center; }
+    .app-title h1 { font-size: 30px; font-weight: 800; color: var(--title); margin-bottom: .5rem; letter-spacing: -.02em; }
+    .app-title h1 em { font-style: normal; color: var(--primary); }
+    .app-title p { color: var(--muted); font-size: 14px; }
+
+    .upload-zone {
+      width: 100%; max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 2rem 2rem;
+    }
+    #file-input { display: none; }
+
+    .upload-btn-sample {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      border: 2px solid var(--border);
+      border-radius: .875rem;
+      background: transparent;
+      color: var(--title);
+      font-size: 16px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color .15s;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .upload-btn-sample:hover { border-color: var(--primary); }
+
+    .upload-divider {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      padding: .875rem 0;
+    }
+
+    .upload-btn-primary {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      border: none;
+      border-radius: .875rem;
+      background: var(--primary);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: center;
+      transition: opacity .15s;
+    }
+    .upload-btn-primary:hover { opacity: .85; }
+
+    .upload-note {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      margin-top: 1rem;
+      line-height: 1.6;
+    }
+
+    /* Material Icons 공통 */
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+      line-height: 1;
+      user-select: none;
+    }
+    .btn .material-symbols-outlined { font-size: 15px; margin-right: 3px; }
+    .btn-primary .material-symbols-outlined { font-size: 15px; }
+    .upload-icon .material-symbols-outlined {
+      font-size: 56px;
+      color: var(--muted);
+      display: block;
+      font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 48;
+    }
+
+    /* ─── GENERATOR SCREEN ─── */
+    #generator-screen {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .gen-header {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .8rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--card-bg);
+      flex-shrink: 0;
+      min-height: 52px;
+    }
+    /* ─── 헤더 네비 (대시보드와 동일 구조) ─── */
+    .gen-header-left { display: flex; align-items: center; }
+    .app-nav { display: flex; align-items: center; gap: 3px; }
+    .nav-item {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 6px 12px; border-radius: .625rem;
+      font-size: 13px; font-weight: 700;
+      text-decoration: none; white-space: nowrap;
+      color: var(--muted);
+      border: 1px solid transparent;
+      transition: all .15s; cursor: pointer;
+    }
+    .nav-item svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
+    .nav-item:hover { color: var(--title); background: rgba(255,255,255,.05); }
+    .nav-item.active {
+      color: var(--title);
+      background: rgba(255,255,255,.06);
+      border-color: var(--border);
+    }
+    .nav-item.active svg { fill: var(--primary); }
+    .nav-badge {
+      font-size: 9px; font-weight: 800; letter-spacing: .04em;
+      padding: 2px 5px; border-radius: 99px;
+      background: var(--primary); color: #fff;
+      line-height: 1.4; flex-shrink: 0;
+      animation: badge-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes badge-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .55; }
+    }
+    .gen-filename {
+      flex: 1; color: var(--muted); font-size: 12px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .hdr-btns { display: flex; gap: .4rem; flex-shrink: 0; align-items: center; }
+    .lang-switch { display: flex; align-items: center; height: 30px; border-radius: .5rem; border: 1px solid var(--border); overflow: hidden; margin-left: .25rem; }
+    .lang-btn { padding: 0 9px; height: 100%; border: none; background: transparent; color: var(--muted); font-family: 'Pretendard'; font-size: 11px; font-weight: 700; cursor: pointer; transition: all .15s; letter-spacing: .3px; }
+    .lang-btn.active { background: var(--primary); color: #fff; }
+    .lang-btn:not(.active):hover { color: var(--primary); }
+
+    /* Buttons */
+    .btn {
+      padding: .45rem .95rem;
+      border: 1px solid var(--border);
+      border-radius: .625rem;
+      background: transparent;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color .15s, color .15s, background .15s;
+      white-space: nowrap;
+    }
+    .btn:hover { border-color: var(--primary); color: var(--title); }
+    .btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 700; }
+    .btn-primary:hover { opacity: .85; }
+    .btn-sm { padding: .35rem .7rem; font-size: 12px; }
+    .btn-full { width: 100%; }
+    .btn-ghost { border-color: transparent; }
+
+    /* Layout */
+    .gen-layout { display: flex; flex: 1; overflow: hidden; }
+
+    /* Sidebar */
+    .gen-sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      background: var(--card-bg);
+      overflow-y: auto;
+      padding: 1.1rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .85rem;
+    }
+
+    .sg { display: flex; flex-direction: column; gap: .35rem; }
+    .sg > label {
+      font-size: 11px; font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+
+    .pill-tabs {
+      display: flex; gap: .2rem;
+      background: var(--body-bg);
+      border-radius: .5rem; padding: .2rem;
+    }
+    .pill-tabs button {
+      flex: 1; padding: .38rem 0;
+      border: none; background: transparent;
+      color: var(--text); font-size: 12px; font-family: inherit;
+      border-radius: .375rem; cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .pill-tabs button.active { background: var(--primary); color: #fff; font-weight: 700; }
+
+    select, .txt-input {
+      width: 100%;
+      background: var(--body-bg);
+      border: 1px solid var(--border);
+      border-radius: .5rem;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      padding: .42rem .7rem;
+      outline: none;
+      transition: border-color .15s;
+      -webkit-appearance: none;
+    }
+    select:focus, .txt-input:focus { border-color: var(--primary); }
+
+    input[type="range"] { width: 100%; accent-color: var(--primary); cursor: pointer; }
+
+    .sdiv { border: none; border-top: 1px solid var(--border); margin: .1rem 0; }
+
+    .stat-row { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .stat-row strong { color: var(--title); }
+
+    .sb-row { display: flex; gap: .4rem; }
+    .sb-row .btn { flex: 1; text-align: center; font-size: 12px; padding: .4rem .4rem; }
+
+    /* Main */
+    .gen-main { flex: 1; overflow-y: auto; padding: 1.1rem; }
+
+    #code-grid {
+      display: grid;
+      gap: .65rem;
+      grid-template-columns: repeat(var(--gc, 4), 1fr);
+    }
+
+    /* Code Card */
+    .code-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: .9rem .75rem .75rem;
+      display: flex; flex-direction: column; align-items: center;
+      gap: .45rem;
+      position: relative;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      user-select: none;
+    }
+    .code-card:hover { border-color: rgba(0,161,93,.45); }
+    .code-card.selected {
+    }
+
+    .card-cb {
+      position: absolute; top: .55rem; right: .55rem;
+      width: 17px; height: 17px;
+      border-radius: 4px;
+      border: 1.5px solid var(--border);
+      background: var(--body-bg);
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .15s, background .15s;
+      flex-shrink: 0;
+    }
+    .code-card.selected .card-cb { background: var(--primary); border-color: var(--primary); }
+    .card-cb::after {
+      content: '';
+      display: none;
+      width: 4px; height: 8px;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      transform: rotate(45deg) translate(-1px, -1px);
+    }
+    .code-card.selected .card-cb::after { display: block; }
+
+    .card-code {
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card-code img, .card-code canvas, .card-code svg { display: block; max-width: 100%; }
+    .card-code-qr { background: #fff; padding: 5px; border-radius: 5px; }
+
+    .card-label { font-size: 12px; font-weight: 700; color: var(--title); text-align: center; word-break: break-all; line-height: 1.4; }
+    .card-sublabel { font-size: 11px; color: var(--muted); text-align: center; word-break: break-all; }
+    .card-val { font-size: 10px; color: var(--muted); text-align: center; word-break: break-all; opacity: .65; }
+
+    .code-err { font-size: 11px; color: #f87171; text-align: center; padding: .5rem; }
+
+    /* ─── EMPTY / GHOST STATE ─── */
+    .empty-state {
+      grid-column: 1 / -1;
+      position: relative;
+      min-height: calc(100vh - 140px);
+    }
+
+    /* 고스트 카드 그리드 */
+    .ghost-grid {
+      display: grid;
+      gap: .65rem;
+      grid-template-columns: repeat(var(--gc, 4), 1fr);
+      opacity: 1;
+      pointer-events: none;
+    }
+
+    .ghost-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: .9rem .75rem .75rem;
+      display: flex; flex-direction: column; align-items: center;
+      gap: .55rem;
+    }
+
+    .ghost-qr {
+      width: 120px; height: 120px;
+      background: var(--body-bg);
+      border-radius: 6px;
+      display: grid;
+      grid-template-columns: repeat(7,1fr);
+      grid-template-rows: repeat(7,1fr);
+      gap: 2px;
+      padding: 8px;
+      overflow: hidden;
+    }
+    .ghost-qr-cell {
+      border-radius: 1px;
+      background: var(--border);
+    }
+    .ghost-qr-cell.dark { background: #3a3a3a; }
+
+    .ghost-bar {
+      width: 140px; height: 65px;
+      background: var(--body-bg);
+      border-radius: 4px;
+      display: flex; align-items: flex-end; gap: 2px; padding: 8px 6px;
+      overflow: hidden;
+    }
+    .ghost-bar-line {
+      flex: 1; background: var(--border); border-radius: 1px;
+    }
+
+    .ghost-line {
+      height: 10px; border-radius: 4px; background: var(--border);
+    }
+    .ghost-line.w80 { width: 80%; }
+    .ghost-line.w55 { width: 55%; }
+    .ghost-line.w40 { width: 40%; }
+
+    /* 시머 애니메이션 */
+    @keyframes shimmer {
+      0%   { opacity: .35; }
+      50%  { opacity: .7; }
+      100% { opacity: .35; }
+    }
+    .ghost-card { animation: shimmer 2s ease-in-out infinite; }
+    .ghost-card:nth-child(2n)   { animation-delay: .3s; }
+    .ghost-card:nth-child(3n)   { animation-delay: .6s; }
+    .ghost-card:nth-child(4n)   { animation-delay: .9s; }
+    .ghost-card:nth-child(5n)   { animation-delay: 1.2s; }
+
+    /* 가운데 CTA 오버레이 */
+    .empty-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .empty-cta {
+      background: rgba(22,23,23,.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: var(--radius);
+      padding: 2.25rem 3rem;
+      text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: .75rem;
+      pointer-events: auto;
+    }
+    .empty-cta .material-symbols-outlined {
+      font-size: 48px;
+      color: var(--primary);
+      font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 48;
+      opacity: .8;
+    }
+    .empty-cta h3 { font-size: 18px; font-weight: 700; color: var(--title); }
+    .empty-cta p  { font-size: 13px; color: var(--muted); }
+
+    /* Loading */
+    #loading {
+      position: fixed; inset: 0;
+      background: rgba(22,23,23,.85);
+      display: none;
+      align-items: center; justify-content: center;
+      z-index: 999; flex-direction: column; gap: .9rem;
+    }
+    .spinner {
+      width: 38px; height: 38px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loading-txt { color: var(--title); font-size: 13px; }
+
+    /* ─── PRINT ─── */
+    #print-area { display: none; }
+
+    @media print {
+      #upload-screen, #generator-screen, #loading { display: none !important; }
+      #print-area { display: block !important; }
+      body { background: white !important; }
+
+      @page { margin: 10mm; }
+
+      .print-grid {
+        display: grid;
+        gap: 5mm;
+        background: white;
+      }
+      .print-card {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 7px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        break-inside: avoid;
+        background: white;
+      }
+      .print-card img,
+      .print-card canvas,
+      .print-card svg { display: block; max-width: 100%; }
+      .p-label { font-weight: 700; font-size: 11pt; color: #000; font-family: sans-serif; text-align: center; }
+      .p-sub   { font-size: 9pt; color: #555; font-family: sans-serif; text-align: center; }
+      .p-val   { font-size: 8pt; color: #888; font-family: sans-serif; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════
+     UPLOAD SCREEN
+═══════════════════════════════════ -->
+<div id="upload-screen">
+  <!-- 공유 헤더 (generator 화면과 동일 구조) -->
+  <header class="shared-header">
+    <nav class="app-nav">
+      <a href="index.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+        Dashboard Builder
+      </a>
+      <span class="nav-item active">
+        <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3V3zm1.5 1.5v4h4v-4h-4zm-.5 9h7v7H4v-7zm1.5 1.5v4h4v-4h-4zM14 3h7v7h-7V3zm1.5 1.5v4h4v-4h-4z"/><rect x="5.75" y="5.75" width="1.5" height="1.5"/><rect x="5.75" y="15.75" width="1.5" height="1.5"/><rect x="15.75" y="5.75" width="1.5" height="1.5"/><rect x="14" y="14" width="1.5" height="1.5"/><rect x="16.5" y="14" width="1.5" height="1.5"/><rect x="19" y="14" width="1.5" height="1.5"/><rect x="14" y="16.5" width="1.5" height="1.5"/><rect x="16.5" y="16.5" width="1.5" height="1.5"/><rect x="19" y="16.5" width="1.5" height="1.5"/><rect x="14" y="19" width="1.5" height="1.5"/><rect x="16.5" y="19" width="1.5" height="1.5"/><rect x="19" y="19" width="1.5" height="1.5"/></svg>
+        QR / <span data-i18n="nav_barcode">바코드</span> <span class="nav-badge">NEW</span>
+      </span>
+    </nav>
+    <div class="lang-switch" id="langSwitchUpload">
+      <button class="lang-btn active" data-lang="ko">KO</button>
+      <button class="lang-btn" data-lang="en">EN</button>
+    </div>
+  </header>
+
+  <!-- 본문 -->
+  <div class="upload-body">
+    <div class="app-title">
+      <h1 data-i18n-html="hero_title">QR / <em>바코드</em> 생성기</h1>
+      <p data-i18n="hero_sub">엑셀 파일을 업로드하면 QR코드·바코드를 대량 생성하고 바로 인쇄할 수 있습니다</p>
+    </div>
+
+    <div class="upload-zone" id="upload-zone">
+      <input type="file" id="file-input" accept=".xlsx,.xls,.csv">
+
+      <button class="upload-btn-sample" onclick="loadSampleData()" data-i18n="btn_sample">
+        샘플로 먼저 테스트하기
+      </button>
+
+      <div class="upload-divider" data-i18n="or">또는</div>
+
+      <button class="upload-btn-primary" onclick="document.getElementById('file-input').click()" data-i18n="btn_upload">
+        엑셀파일 업로드
+      </button>
+    </div>
+
+    <p class="upload-note" data-i18n-html="security_msg">파일은 서버로 전송되지 않습니다.<br>브라우저에서만 처리되며, 저장/유출/재사용이 불가능합니다.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     GENERATOR SCREEN
+═══════════════════════════════════ -->
+<div id="generator-screen">
+  <!-- Header -->
+  <header class="gen-header">
+    <div class="gen-header-left">
+      <nav class="app-nav">
+        <a href="index.html" class="nav-item">
+          <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+          Dashboard Builder
+        </a>
+        <span class="nav-item active">
+          <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3V3zm1.5 1.5v4h4v-4h-4zm-.5 9h7v7H4v-7zm1.5 1.5v4h4v-4h-4zM14 3h7v7h-7V3zm1.5 1.5v4h4v-4h-4z"/><rect x="5.75" y="5.75" width="1.5" height="1.5"/><rect x="5.75" y="15.75" width="1.5" height="1.5"/><rect x="15.75" y="5.75" width="1.5" height="1.5"/><rect x="14" y="14" width="1.5" height="1.5"/><rect x="16.5" y="14" width="1.5" height="1.5"/><rect x="19" y="14" width="1.5" height="1.5"/><rect x="14" y="16.5" width="1.5" height="1.5"/><rect x="16.5" y="16.5" width="1.5" height="1.5"/><rect x="19" y="16.5" width="1.5" height="1.5"/><rect x="14" y="19" width="1.5" height="1.5"/><rect x="16.5" y="19" width="1.5" height="1.5"/><rect x="19" y="19" width="1.5" height="1.5"/></svg>
+          QR / <span data-i18n="nav_barcode">바코드</span>
+        </span>
+      </nav>
+    </div>
+    <div class="gen-filename" id="gen-filename">—</div>
+    <div class="hdr-btns">
+      <button class="btn btn-sm btn-ghost" id="btn-reset"><span class="material-symbols-outlined">upload</span><span data-i18n="btn_reset">다시 올리기</span></button>
+      <button class="btn btn-sm" id="btn-sel-all-hdr"><span class="material-symbols-outlined">select_all</span><span data-i18n="btn_sel_all">전체 선택</span></button>
+      <button class="btn btn-sm" id="btn-desel-all-hdr"><span class="material-symbols-outlined">deselect</span><span data-i18n="btn_desel_all">전체 해제</span></button>
+      <button class="btn btn-sm btn-primary" id="btn-print-sel"><span class="material-symbols-outlined">print</span><span data-i18n="btn_print_sel">선택 인쇄</span></button>
+      <button class="btn btn-sm btn-primary" id="btn-print-all"><span class="material-symbols-outlined">print</span><span data-i18n="btn_print_all">전체 인쇄</span></button>
+      <div class="lang-switch" id="langSwitch">
+        <button class="lang-btn active" data-lang="ko">KO</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="gen-layout">
+    <!-- Sidebar -->
+    <aside class="gen-sidebar">
+
+      <div class="sg">
+        <label data-i18n="label_code_type">코드 타입</label>
+        <div class="pill-tabs" id="type-tabs">
+          <button data-type="qr" class="active" data-i18n="tab_qr">QR코드</button>
+          <button data-type="barcode" data-i18n="tab_barcode">바코드</button>
+        </div>
+      </div>
+
+      <div class="sg" id="bc-fmt-wrap" style="display:none;">
+        <label data-i18n="label_barcode_fmt">바코드 형식</label>
+        <select id="barcode-format">
+          <option value="CODE128" data-i18n="fmt_code128">Code 128 (범용)</option>
+          <option value="CODE39">Code 39</option>
+          <option value="EAN13" data-i18n="fmt_ean13">EAN-13 (숫자 13자리)</option>
+          <option value="EAN8" data-i18n="fmt_ean8">EAN-8 (숫자 8자리)</option>
+          <option value="UPC" data-i18n="fmt_upc">UPC-A (숫자 12자리)</option>
+        </select>
+      </div>
+
+      <hr class="sdiv">
+
+      <div class="sg">
+        <label><span data-i18n="label_content_col">내용 컬럼</span> <span style="text-transform:none;font-weight:400;" data-i18n="label_content_col_hint">(인코딩 값)</span></label>
+        <select id="content-col"></select>
+      </div>
+
+      <div class="sg">
+        <label><span data-i18n="label_label_col">라벨 컬럼</span> <span style="text-transform:none;font-weight:400;" data-i18n="label_label_col_hint">(상단 표시)</span></label>
+        <select id="label-col"><option value="" data-i18n="opt_none">— 없음 —</option></select>
+      </div>
+
+      <div class="sg">
+        <label><span data-i18n="label_sublabel_col">보조 라벨</span> <span style="text-transform:none;font-weight:400;" data-i18n="label_sublabel_col_hint">(하단 표시)</span></label>
+        <select id="sublabel-col"><option value="" data-i18n="opt_none">— 없음 —</option></select>
+      </div>
+
+      <hr class="sdiv">
+
+      <div class="sg">
+        <label data-i18n="label_size">크기</label>
+        <div class="pill-tabs" id="size-tabs">
+          <button data-size="sm" data-i18n="size_sm">소</button>
+          <button data-size="md" class="active" data-i18n="size_md">중</button>
+          <button data-size="lg" data-i18n="size_lg">대</button>
+        </div>
+      </div>
+
+      <div class="sg">
+        <label id="cols-label"><span data-i18n="label_cols_per_row">한 줄에</span> <strong id="cols-val" style="color:var(--title)">4</strong><span data-i18n="label_cols_unit">개</span></label>
+        <input type="range" id="cols-range" min="2" max="8" value="4">
+      </div>
+
+      <hr class="sdiv">
+
+      <div class="sg">
+        <label data-i18n="label_search">검색 / 필터</label>
+        <input type="text" class="txt-input" id="search-input" data-i18n-placeholder="placeholder_search" placeholder="텍스트 필터...">
+      </div>
+
+      <hr class="sdiv">
+
+      <div class="stat-row" id="stat-row">
+        <span data-i18n="stat_total">총</span> <strong id="total-count">0</strong><span data-i18n="stat_unit">개</span> &nbsp;·&nbsp; <span data-i18n="stat_selected">선택</span> <strong id="selected-count">0</strong><span data-i18n="stat_unit">개</span>
+      </div>
+
+      <div class="sb-row">
+        <button class="btn btn-sm" id="btn-sel-all-sb"><span class="material-symbols-outlined">select_all</span><span data-i18n="btn_sel_all">전체 선택</span></button>
+        <button class="btn btn-sm" id="btn-desel-all-sb"><span class="material-symbols-outlined">deselect</span><span data-i18n="btn_desel_all">전체 해제</span></button>
+      </div>
+
+      <button class="btn btn-full btn-primary" id="btn-generate"><span class="material-symbols-outlined">qr_code_scanner</span><span data-i18n="btn_generate">생성하기</span></button>
+
+    </aside>
+
+    <!-- Main grid -->
+    <main class="gen-main">
+      <div id="code-grid" style="--gc:4;"></div>
+      <!-- 하단 광고 -->
+      <div class="ad-container" id="adBottom" style="display:none; margin-top:20px; text-align:center;">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-7363737737828593"
+             data-ad-slot="1605418873"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     PRINT AREA (only visible on print)
+═══════════════════════════════════ -->
+<div id="print-area"></div>
+
+<!-- ═══════════════════════════════════
+     LOADING
+═══════════════════════════════════ -->
+<div id="loading">
+  <div class="spinner"></div>
+  <div id="loading-txt" data-i18n="loading_txt">처리 중...</div>
+</div>
+
+<!-- ─── CDN Libraries ─── -->
+<script src="https://cdn.sheetjs.com/xlsx-0.18.5/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+
+<script>
+'use strict';
+
+/* ══════════════════════════════════════
+   i18n
+══════════════════════════════════════ */
+const LANGS = {
+  ko: {
+    nav_barcode: '바코드',
+    hero_title: 'QR / <em>바코드</em> 생성기',
+    hero_sub: '엑셀 파일을 업로드하면 QR코드·바코드를 대량 생성하고 바로 인쇄할 수 있습니다',
+    btn_sample: '샘플로 먼저 테스트하기',
+    or: '또는',
+    btn_upload: '엑셀파일 업로드',
+    security_msg: '파일은 서버로 전송되지 않습니다.<br>브라우저에서만 처리되며, 저장/유출/재사용이 불가능합니다.',
+    btn_reset: '다시 올리기',
+    btn_sel_all: '전체 선택',
+    btn_desel_all: '전체 해제',
+    btn_print_sel: '선택 인쇄',
+    btn_print_all: '전체 인쇄',
+    label_code_type: '코드 타입',
+    tab_qr: 'QR코드',
+    tab_barcode: '바코드',
+    label_barcode_fmt: '바코드 형식',
+    fmt_code128: 'Code 128 (범용)',
+    fmt_ean13: 'EAN-13 (숫자 13자리)',
+    fmt_ean8: 'EAN-8 (숫자 8자리)',
+    fmt_upc: 'UPC-A (숫자 12자리)',
+    label_content_col: '내용 컬럼',
+    label_content_col_hint: '(인코딩 값)',
+    label_label_col: '라벨 컬럼',
+    label_label_col_hint: '(상단 표시)',
+    label_sublabel_col: '보조 라벨',
+    label_sublabel_col_hint: '(하단 표시)',
+    opt_none: '— 없음 —',
+    label_size: '크기',
+    size_sm: '소', size_md: '중', size_lg: '대',
+    label_cols_per_row: '한 줄에',
+    label_cols_unit: '개',
+    label_search: '검색 / 필터',
+    placeholder_search: '텍스트 필터...',
+    stat_total: '총', stat_selected: '선택', stat_unit: '개',
+    btn_generate: '생성하기',
+    loading_txt: '처리 중...',
+    parsing: '엑셀 파싱 중...',
+    err_no_header: '헤더 행을 찾을 수 없습니다',
+    col_prefix: '컬럼',
+    err_file: '파일 오류: ',
+    sample_filename: '샘플데이터',
+    generating: (n, total) => `코드 생성 중... ${n} / ${total}`,
+    filename_row: (name, n) => `${name}  ·  ${n}행`,
+    empty_data: '데이터 없음',
+    filter_hint: '필터 조건을 확인해주세요',
+    barcode_no_items: '바코드로 변환 가능한 항목 없음',
+    barcode_no_items_desc: (n) => `${n}개 항목 모두 바코드 인코딩 불가 (한글·특수문자 포함)<br>숫자 또는 영문 데이터가 있는 컬럼을 <strong>내용 컬럼</strong>으로 선택하거나,<br>코드 타입을 <strong>QR코드</strong>로 변경해주세요.`,
+    err_empty: '값 없음',
+    err_qr: 'QR 오류: ',
+    err_barcode: '바코드 오류',
+    err_unsupported: '지원하지 않는 문자 포함',
+    alert_print_select: '인쇄할 항목을 선택해주세요 (카드 클릭으로 선택)',
+    cta_title: '생성하기를 눌러주세요',
+    cta_desc: '왼쪽에서 컬럼을 선택하고<br>아래 버튼을 클릭하세요',
+  },
+  en: {
+    nav_barcode: 'Barcode',
+    hero_title: 'QR / <em>Barcode</em> Generator',
+    hero_sub: 'Upload an Excel file to bulk-generate QR codes & barcodes and print them instantly',
+    btn_sample: 'Try with sample data',
+    or: 'or',
+    btn_upload: 'Upload Excel File',
+    security_msg: 'Files are never sent to a server.<br>Processed locally in your browser — no storage, no leaks.',
+    btn_reset: 'Upload again',
+    btn_sel_all: 'Select all',
+    btn_desel_all: 'Deselect all',
+    btn_print_sel: 'Print selected',
+    btn_print_all: 'Print all',
+    label_code_type: 'Code type',
+    tab_qr: 'QR Code',
+    tab_barcode: 'Barcode',
+    label_barcode_fmt: 'Barcode format',
+    fmt_code128: 'Code 128 (universal)',
+    fmt_ean13: 'EAN-13 (13 digits)',
+    fmt_ean8: 'EAN-8 (8 digits)',
+    fmt_upc: 'UPC-A (12 digits)',
+    label_content_col: 'Content column',
+    label_content_col_hint: '(encoded value)',
+    label_label_col: 'Label column',
+    label_label_col_hint: '(shown above)',
+    label_sublabel_col: 'Sub-label',
+    label_sublabel_col_hint: '(shown below)',
+    opt_none: '— None —',
+    label_size: 'Size',
+    size_sm: 'S', size_md: 'M', size_lg: 'L',
+    label_cols_per_row: 'Per row:',
+    label_cols_unit: '',
+    label_search: 'Search / Filter',
+    placeholder_search: 'Text filter...',
+    stat_total: 'Total', stat_selected: 'Selected', stat_unit: '',
+    btn_generate: 'Generate',
+    loading_txt: 'Processing...',
+    parsing: 'Parsing Excel...',
+    err_no_header: 'Could not find a header row',
+    col_prefix: 'Col',
+    err_file: 'File error: ',
+    sample_filename: 'SampleData',
+    generating: (n, total) => `Generating... ${n} / ${total}`,
+    filename_row: (name, n) => `${name}  ·  ${n} rows`,
+    empty_data: 'No data',
+    filter_hint: 'Check your filter conditions',
+    barcode_no_items: 'No items can be converted to barcode',
+    barcode_no_items_desc: (n) => `All ${n} items failed barcode encoding (non-ASCII characters)<br>Select a column with numeric or English data as the <strong>content column</strong>,<br>or switch the code type to <strong>QR Code</strong>.`,
+    err_empty: 'Empty value',
+    err_qr: 'QR error: ',
+    err_barcode: 'Barcode error',
+    err_unsupported: 'Unsupported characters',
+    alert_print_select: 'Please select items to print (click cards to select)',
+    cta_title: 'Press Generate',
+    cta_desc: 'Select columns on the left<br>and click the button below',
+  }
+};
+
+let currentLang = (navigator.language || navigator.userLanguage || 'ko').startsWith('ko') ? 'ko' : 'en';
+
+function t(key) { return LANGS[currentLang][key] ?? LANGS['ko'][key] ?? key; }
+
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    const val = LANGS[currentLang][key];
+    if (val != null && typeof val === 'string') el.textContent = val;
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.dataset.i18nHtml;
+    const val = LANGS[currentLang][key];
+    if (val != null) el.innerHTML = val;
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.dataset.i18nPlaceholder;
+    const val = LANGS[currentLang][key];
+    if (val != null) el.placeholder = val;
+  });
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === currentLang));
+}
+
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.lang-btn');
+  if (!btn) return;
+  currentLang = btn.dataset.lang;
+  applyLang();
+});
+
+/* ══════════════════════════════════════
+   STATE
+══════════════════════════════════════ */
+let rows = [], columns = [], fileName = '';
+let codeType = 'qr';
+let barcodeFormat = 'CODE128';
+let sizeMode = 'md';
+let gridCols = 4;
+let selectedIdx = new Set();
+
+const SIZES = {
+  sm: { qr: 80,  bw: 1.2, bh: 45 },
+  md: { qr: 120, bw: 1.8, bh: 65 },
+  lg: { qr: 160, bw: 2.4, bh: 90 },
+};
+
+/* ══════════════════════════════════════
+   ELEMENTS
+══════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+const uploadScreen    = $('upload-screen');
+const generatorScreen = $('generator-screen');
+const uploadZone      = $('upload-zone');
+const fileInput       = $('file-input');
+const loadingEl       = $('loading');
+const loadingTxt      = $('loading-txt');
+const codeGrid        = $('code-grid');
+const printArea       = $('print-area');
+
+/* ══════════════════════════════════════
+   UPLOAD
+══════════════════════════════════════ */
+uploadZone.addEventListener('click', e => { if (!e.target.closest('a,button')) fileInput.click(); });
+fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault(); uploadZone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+
+function showLoad(txt) { loadingTxt.textContent = txt; loadingEl.style.display = 'flex'; }
+function hideLoad()    { loadingEl.style.display = 'none'; }
+
+async function handleFile(file) {
+  showLoad(t('parsing'));
+  fileName = file.name;
+  try {
+    const buf = await file.arrayBuffer();
+    const wb  = XLSX.read(buf, { cellDates: true, raw: false });
+    const ws  = wb.Sheets[wb.SheetNames[0]];
+    const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+    const hdrIdx = findHeaderRow(raw);
+    if (hdrIdx < 0) throw new Error(t('err_no_header'));
+
+    columns = raw[hdrIdx].map((c, i) => c !== '' ? String(c).trim() : `${t('col_prefix')}${i+1}`);
+    rows    = raw.slice(hdrIdx + 1).filter(r => r.some(c => c !== ''));
+
+    $('gen-filename').textContent = t('filename_row')(file.name, rows.length.toLocaleString());
+    populateCols();
+    switchToGen();
+  } catch (err) {
+    alert(t('err_file') + err.message);
+  } finally {
+    hideLoad();
+  }
+}
+
+function loadSampleData() {
+  columns = ['상품코드', 'EAN13코드', '상품명', '카테고리', '단가', '재고', '창고위치', '상품URL'];
+  rows = [
+    // 상품코드: CODE128 호환 (영문+숫자), EAN13코드: 유효한 13자리 (체크디짓 포함)
+    ['BV31042', '8804128376519', '코카콜라',     '음료',    1500, 120, 'A-01-03', 'https://shop.example.com/product/bv31042'],
+    ['BV72915', '8807192837467', '펩시',          '음료',     980,  87, 'A-01-07', 'https://shop.example.com/product/bv72915'],
+    ['BV58341', '8805834192677', '스프라이트',    '음료',    1200,  54, 'A-02-01', 'https://shop.example.com/product/bv58341'],
+    ['BV94726', '8809472618353', '환타',          '음료',    1200,  33, 'A-02-04', 'https://shop.example.com/product/bv94726'],
+    ['BV13857', '8801385749261', '파워에이드',    '음료',    1800,  61, 'A-03-02', 'https://shop.example.com/product/bv13857'],
+    ['SN24691', '8802469185739', '포카칩',        '스낵',    1500,  98, 'B-01-05', 'https://shop.example.com/product/sn24691'],
+    ['SN73824', '8807382415963', '새우깡',        '스낵',     980, 142, 'B-01-09', 'https://shop.example.com/product/sn73824'],
+    ['SN61053', '8806105372842', '꼬깔콘',        '스낵',    1200,  75, 'B-02-03', 'https://shop.example.com/product/sn61053'],
+    ['SN49271', '8804927186302', '오레오',        '스낵',    2500,  29, 'B-02-11', 'https://shop.example.com/product/sn49271'],
+    ['SN82647', '8808264739511', '프링글스',      '스낵',    3200,  41, 'B-03-06', 'https://shop.example.com/product/sn82647'],
+    ['DY35819', '8803581972641', '서울우유',      '유제품',  1800,  88, 'C-01-02', 'https://shop.example.com/product/dy35819'],
+    ['DY60274', '8806027483152', '남양유업',      '유제품',  1500,  66, 'C-01-08', 'https://shop.example.com/product/dy60274'],
+    ['DY91736', '8809173648529', '매일유업',      '유제품',  1800,  53, 'C-02-04', 'https://shop.example.com/product/dy91736'],
+    ['FZ48203', '8804820319678', '비비고만두',    '냉동식품', 5900, 37, 'D-01-01', 'https://shop.example.com/product/fz48203'],
+    ['FZ75391', '8807539162849', '동원참치',      '냉동식품', 4500, 22, 'D-01-06', 'https://shop.example.com/product/fz75391'],
+    ['HH29847', '8802984715633', '다우니',        '생활용품', 7800, 18, 'E-01-03', 'https://shop.example.com/product/hh29847'],
+    ['HH64512', '8806451287395', '피죤',          '생활용품', 5900, 44, 'E-01-07', 'https://shop.example.com/product/hh64512'],
+    ['HH83726', '8808372640518', '케라시스',      '생활용품', 7800, 31, 'E-02-02', 'https://shop.example.com/product/hh83726'],
+    ['HH17463', '8801746385206', '헤드앤숄더',   '생활용품', 9800, 15, 'E-02-09', 'https://shop.example.com/product/hh17463'],
+    ['HH52981', '8805298173649', '리엔',          '생활용품', 7800, 27, 'E-03-05', 'https://shop.example.com/product/hh52981'],
+  ];
+
+  fileName = t('sample_filename');
+  $('gen-filename').textContent = t('filename_row')(t('sample_filename'), rows.length);
+  populateCols();
+
+  // 코드 타입에 따라 최적 컬럼 자동 선택
+  if (codeType === 'barcode') {
+    $('content-col').value  = '1'; // EAN13코드
+    $('label-col').value    = '2'; // 상품명
+    $('sublabel-col').value = '0'; // 상품코드
+  } else {
+    $('content-col').value  = '7'; // 상품URL (QR에 최적)
+    $('label-col').value    = '2'; // 상품명
+    $('sublabel-col').value = '3'; // 카테고리
+  }
+
+  switchToGen();
+  generateCodes();
+}
+
+function findHeaderRow(raw) {
+  let best = -1, bestN = 0;
+  for (let i = 0; i < Math.min(10, raw.length); i++) {
+    const n = raw[i].filter(c => c !== '' && isNaN(String(c).trim())).length;
+    if (n > bestN) { bestN = n; best = i; }
+  }
+  return best;
+}
+
+function populateCols() {
+  const contentSel  = $('content-col');
+  const labelSel    = $('label-col');
+  const sublabelSel = $('sublabel-col');
+
+  contentSel.innerHTML  = '';
+  labelSel.innerHTML    = `<option value="">${t('opt_none')}</option>`;
+  sublabelSel.innerHTML = `<option value="">${t('opt_none')}</option>`;
+
+  columns.forEach((col, i) => {
+    const mkOpt = () => Object.assign(document.createElement('option'), { value: i, textContent: col });
+    contentSel.appendChild(mkOpt());
+    labelSel.appendChild(mkOpt());
+    sublabelSel.appendChild(mkOpt());
+  });
+}
+
+function switchToGen() {
+  uploadScreen.style.display    = 'none';
+  generatorScreen.style.display = 'flex';
+  selectedIdx.clear();
+  updateStats(0, 0);
+  showGhostState();
+}
+
+/* QR 셀 패턴 (7×7) — finder pattern + 랜덤 데이터 모듈 */
+const QR_PATTERN = [
+  1,1,1,1,1,1,1,
+  1,0,0,0,0,0,1,
+  1,0,1,0,1,0,1,
+  1,0,0,0,0,0,1,
+  1,1,1,1,1,1,1,
+  0,0,0,1,0,1,0,
+  1,0,1,0,0,1,1,
+];
+
+function makeGhostQR() {
+  const wrap = document.createElement('div');
+  wrap.className = 'ghost-qr';
+  QR_PATTERN.forEach(v => {
+    const c = document.createElement('div');
+    c.className = 'ghost-qr-cell' + (v ? ' dark' : '');
+    wrap.appendChild(c);
+  });
+  return wrap;
+}
+
+function makeGhostBar() {
+  const wrap = document.createElement('div');
+  wrap.className = 'ghost-bar';
+  const heights = [30,60,45,80,35,55,70,40,65,50,75,45,55,35,80,60,40,70,50,65];
+  heights.forEach(h => {
+    const b = document.createElement('div');
+    b.className = 'ghost-bar-line';
+    b.style.height = h + '%';
+    wrap.appendChild(b);
+  });
+  return wrap;
+}
+
+function showGhostState() {
+  const cols = gridCols;
+  const total = cols * 3; // 3줄
+  codeGrid.innerHTML = '';
+  codeGrid.style.setProperty('--gc', cols);
+
+  // 고스트 카드 그리드
+  const ghost = document.createElement('div');
+  ghost.className = 'ghost-grid';
+  ghost.id = 'ghost-grid';
+  ghost.style.setProperty('--gc', cols);
+
+  for (let i = 0; i < total; i++) {
+    const card = document.createElement('div');
+    card.className = 'ghost-card';
+
+    card.appendChild(codeType === 'barcode' ? makeGhostBar() : makeGhostQR());
+
+    const l1 = document.createElement('div');
+    l1.className = 'ghost-line w80';
+    const l2 = document.createElement('div');
+    l2.className = 'ghost-line w55';
+    card.appendChild(l1);
+    card.appendChild(l2);
+    ghost.appendChild(card);
+  }
+
+  // 빈 상태 래퍼
+  const empty = document.createElement('div');
+  empty.className = 'empty-state';
+  empty.id = 'empty-state';
+  empty.appendChild(ghost);
+
+  // CTA 오버레이
+  const overlay = document.createElement('div');
+  overlay.className = 'empty-overlay';
+  const cta = document.createElement('div');
+  cta.className = 'empty-cta';
+  cta.innerHTML = `
+    <span class="material-symbols-outlined">qr_code_scanner</span>
+    <h3>${t('cta_title')}</h3>
+    <p>${t('cta_desc')}</p>
+  `;
+  overlay.appendChild(cta);
+  empty.appendChild(overlay);
+  codeGrid.appendChild(empty);
+}
+
+/* ══════════════════════════════════════
+   SETTINGS WIRING
+══════════════════════════════════════ */
+$('type-tabs').addEventListener('click', e => {
+  const btn = e.target.closest('[data-type]');
+  if (!btn || btn.classList.contains('active')) return;
+  codeType = btn.dataset.type;
+  document.querySelectorAll('#type-tabs button').forEach(b => b.classList.toggle('active', b === btn));
+  $('bc-fmt-wrap').style.display = codeType === 'barcode' ? 'flex' : 'none';
+  if (rows.length > 0) {
+    generateCodes(); // 데이터가 있으면 자동 재생성
+  } else if ($('empty-state')) {
+    showGhostState();
+  }
+});
+
+$('barcode-format').addEventListener('change', e => { barcodeFormat = e.target.value; });
+
+$('size-tabs').addEventListener('click', e => {
+  const btn = e.target.closest('[data-size]');
+  if (!btn) return;
+  sizeMode = btn.dataset.size;
+  document.querySelectorAll('#size-tabs button').forEach(b => b.classList.toggle('active', b === btn));
+});
+
+$('cols-range').addEventListener('input', e => {
+  gridCols = parseInt(e.target.value);
+  $('cols-val').textContent = gridCols;
+  codeGrid.style.setProperty('--gc', gridCols);
+  if ($('empty-state')) showGhostState();
+});
+
+/* ══════════════════════════════════════
+   GENERATE
+══════════════════════════════════════ */
+$('btn-generate').addEventListener('click', generateCodes);
+
+async function generateCodes() {
+  const contentIdx  = parseInt($('content-col').value);
+  const labelIdx    = $('label-col').value    !== '' ? parseInt($('label-col').value)    : null;
+  const sublabelIdx = $('sublabel-col').value !== '' ? parseInt($('sublabel-col').value) : null;
+  const search      = $('search-input').value.trim().toLowerCase();
+
+  const filtered = search
+    ? rows.filter(r => columns.some((_, i) => String(r[i] ?? '').toLowerCase().includes(search)))
+    : rows;
+
+  updateStats(filtered.length, 0);
+  selectedIdx = new Set(filtered.map((_, i) => i));
+
+  showLoad(t('generating')(0, filtered.length));
+  codeGrid.innerHTML = '';
+  codeGrid.style.setProperty('--gc', gridCols);
+
+  if (!filtered.length) {
+    codeGrid.innerHTML = `<div class="empty-state"><h3>${t('empty_data')}</h3><p>${t('filter_hint')}</p></div>`;
+    hideLoad();
+    return;
+  }
+
+  const size = SIZES[sizeMode];
+  const frag = document.createDocumentFragment();
+
+  for (let i = 0; i < filtered.length; i++) {
+    const r       = filtered[i];
+    const content = String(r[contentIdx] ?? '').trim();
+    const label   = labelIdx    !== null ? String(r[labelIdx]    ?? '').trim() : '';
+    const sublabel= sublabelIdx !== null ? String(r[sublabelIdx] ?? '').trim() : '';
+
+    frag.appendChild(await buildCard(i, content, label, sublabel, size));
+
+    if (i % 20 === 0) {
+      loadingTxt.textContent = t('generating')(i+1, filtered.length);
+      await tick();
+    }
+  }
+
+  codeGrid.appendChild(frag);
+
+  // 바코드 모드: 생성 불가 카드 숨김
+  if (codeType === 'barcode') {
+    let visible = 0, hidden = 0;
+    document.querySelectorAll('.code-card').forEach(c => {
+      if (c.dataset.err === 'true') {
+        c.style.display = 'none';
+        selectedIdx.delete(parseInt(c.dataset.idx));
+        hidden++;
+      } else {
+        visible++;
+      }
+    });
+    updateStats(visible, selectedIdx.size);
+    if (visible === 0 && hidden > 0) {
+      codeGrid.innerHTML = `<div class="empty-state"><h3>${t('barcode_no_items')}</h3><p>${t('barcode_no_items_desc')(hidden)}</p></div>`;
+    }
+  } else {
+    updateStats(filtered.length, selectedIdx.size);
+  }
+  hideLoad();
+  // 광고 표시
+  const adEl = $('adBottom'); if (adEl) { adEl.style.display = ''; try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e){} }
+}
+
+function tick() { return new Promise(r => setTimeout(r, 0)); }
+
+// UTF-8 바이트 배열을 Latin-1 문자열로 변환 (qrcode-generator가 charCodeAt 기반이므로 필수)
+function toUtf8ByteString(str) {
+  const bytes = new TextEncoder().encode(str);
+  return String.fromCharCode(...bytes);
+}
+
+// qrcode-generator: 한글 등 비ASCII는 UTF-8 바이트로 직접 인코딩
+function makeQRDataURL(content, size) {
+  return new Promise((resolve, reject) => {
+    try {
+      const qr = qrcode(0, 'M');
+      const isAscii = /^[\x00-\x7F]*$/.test(content);
+      qr.addData(isAscii ? content : toUtf8ByteString(content), 'Byte');
+      qr.make();
+      const moduleCount = qr.getModuleCount();
+      const cellSize = Math.max(2, Math.floor(size / moduleCount));
+      resolve(qr.createDataURL(cellSize, 2));
+    } catch(ex) {
+      reject(ex);
+    }
+  });
+}
+
+async function buildCard(idx, content, label, sublabel, size) {
+  const card = document.createElement('div');
+  card.className = 'code-card selected';
+  card.dataset.idx      = idx;
+  card.dataset.content  = content;
+  card.dataset.label    = label;
+  card.dataset.sublabel = sublabel;
+
+  // Checkbox
+  const cb = document.createElement('div');
+  cb.className = 'card-cb';
+  card.appendChild(cb);
+
+  // Code area
+  const codeWrap = document.createElement('div');
+  codeWrap.className = 'card-code';
+
+  if (!content) {
+    const e = document.createElement('div');
+    e.className = 'code-err'; e.textContent = t('err_empty');
+    codeWrap.appendChild(e);
+  } else if (codeType === 'qr') {
+    codeWrap.classList.add('card-code-qr');
+    try {
+      const url = await makeQRDataURL(content, size.qr);
+      const img = Object.assign(document.createElement('img'), { src: url, width: size.qr, height: size.qr });
+      codeWrap.appendChild(img);
+    } catch(ex) {
+      const e = document.createElement('div');
+      e.className = 'code-err'; e.textContent = t('err_qr') + ex.message;
+      codeWrap.appendChild(e);
+    }
+  } else {
+    try {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      JsBarcode(svg, String(content), {
+        format: barcodeFormat,
+        width: size.bw, height: size.bh,
+        displayValue: false,
+        background: '#ffffff',
+        lineColor: '#000000',
+        margin: 5,
+      });
+      codeWrap.appendChild(svg);
+    } catch(ex) {
+      const e = document.createElement('div');
+      e.className = 'code-err';
+      const msg = ex.message || (typeof ex === 'string' ? ex : t('err_unsupported'));
+      e.innerHTML = `${t('err_barcode')}<br><span style="font-size:10px;opacity:.7">${msg}</span>`;
+      codeWrap.appendChild(e);
+      card.dataset.err = 'true';
+    }
+  }
+
+  card.appendChild(codeWrap);
+
+  if (label) {
+    const d = document.createElement('div');
+    d.className = 'card-label'; d.textContent = label;
+    card.appendChild(d);
+  }
+  if (sublabel) {
+    const d = document.createElement('div');
+    d.className = 'card-sublabel'; d.textContent = sublabel;
+    card.appendChild(d);
+  }
+  if (content) {
+    const d = document.createElement('div');
+    d.className = 'card-val';
+    d.textContent = content.length > 32 ? content.slice(0, 32) + '…' : content;
+    card.appendChild(d);
+  }
+
+  card.addEventListener('click', () => {
+    const i = parseInt(card.dataset.idx);
+    if (selectedIdx.has(i)) { selectedIdx.delete(i); card.classList.remove('selected'); }
+    else                    { selectedIdx.add(i);    card.classList.add('selected');    }
+    updateStats(document.querySelectorAll('.code-card').length, selectedIdx.size);
+  });
+
+  return card;
+}
+
+/* ══════════════════════════════════════
+   SELECT / DESELECT
+══════════════════════════════════════ */
+function selectAll() {
+  document.querySelectorAll('.code-card').forEach(c => {
+    selectedIdx.add(parseInt(c.dataset.idx)); c.classList.add('selected');
+  });
+  updateStats(document.querySelectorAll('.code-card').length, selectedIdx.size);
+}
+function deselectAll() {
+  selectedIdx.clear();
+  document.querySelectorAll('.code-card').forEach(c => c.classList.remove('selected'));
+  updateStats(document.querySelectorAll('.code-card').length, 0);
+}
+
+$('btn-sel-all-hdr').addEventListener('click', selectAll);
+$('btn-desel-all-hdr').addEventListener('click', deselectAll);
+
+// 초기 언어 적용
+applyLang();
+$('btn-sel-all-sb').addEventListener('click', selectAll);
+$('btn-desel-all-sb').addEventListener('click', deselectAll);
+
+function updateStats(total, sel) {
+  $('total-count').textContent    = total;
+  $('selected-count').textContent = sel;
+}
+
+/* ══════════════════════════════════════
+   RESET
+══════════════════════════════════════ */
+$('btn-reset').addEventListener('click', () => {
+  rows = []; columns = []; fileName = '';
+  selectedIdx.clear();
+  codeGrid.innerHTML = '';
+  fileInput.value = '';
+  generatorScreen.style.display = 'none';
+  uploadScreen.style.display    = 'flex';
+});
+
+/* ══════════════════════════════════════
+   PRINT
+══════════════════════════════════════ */
+$('btn-print-all').addEventListener('click', () => {
+  buildPrintArea(false);
+  window.print();
+});
+
+$('btn-print-sel').addEventListener('click', () => {
+  if (selectedIdx.size === 0) { alert(t('alert_print_select')); return; }
+  buildPrintArea(true);
+  window.print();
+});
+
+function buildPrintArea(onlySelected) {
+  const cards = Array.from(document.querySelectorAll('.code-card'));
+  const list  = onlySelected
+    ? cards.filter(c => selectedIdx.has(parseInt(c.dataset.idx)))
+    : cards;
+
+  printArea.innerHTML = '';
+
+  const grid = document.createElement('div');
+  grid.className = 'print-grid';
+  grid.style.gridTemplateColumns = `repeat(${gridCols}, 1fr)`;
+
+  list.forEach(card => {
+    const pc = document.createElement('div');
+    pc.className = 'print-card';
+
+    // Clone code image
+    const codeEl = card.querySelector('.card-code');
+    if (codeEl) {
+      const clone = codeEl.cloneNode(true);
+      clone.style.cssText = 'display:flex;align-items:center;justify-content:center;background:white;padding:4px;';
+      // Remove dark-mode qr background class effect
+      pc.appendChild(clone);
+    }
+
+    const { label, sublabel, content } = card.dataset;
+
+    if (label) {
+      const d = document.createElement('div');
+      d.className = 'p-label'; d.textContent = label; pc.appendChild(d);
+    }
+    if (sublabel) {
+      const d = document.createElement('div');
+      d.className = 'p-sub'; d.textContent = sublabel; pc.appendChild(d);
+    }
+    // Show content value if no label exists
+    if (!label && content) {
+      const d = document.createElement('div');
+      d.className = 'p-val';
+      d.textContent = content.length > 40 ? content.slice(0,40)+'…' : content;
+      pc.appendChild(d);
+    }
+
+    grid.appendChild(pc);
+  });
+
+  printArea.appendChild(grid);
+}
+</script>
+
+<section style="max-width:900px;margin:60px auto 0;padding:0 24px;font-family:'Pretendard',sans-serif;color:#A8ADB7">
+
+  <!-- 소개 -->
+  <div style="text-align:center;margin-bottom:56px">
+    <h2 style="color:#fff;font-size:28px;margin-bottom:12px">엑셀 한 장으로 QR·바코드 대량 생성</h2>
+    <p style="color:#828690;font-size:16px;line-height:1.7">열 단위로 데이터를 입력한 엑셀 파일을 업로드하면<br>각 행마다 QR코드 또는 바코드를 자동 생성해 인쇄 레이아웃까지 만들어드립니다.<br>서버 전송 없이 브라우저에서만 처리됩니다.</p>
+  </div>
+
+  <!-- 사용 사례 -->
+  <div style="margin-bottom:56px">
+    <h2 style="color:#fff;font-size:22px;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid #2a2a2a">이런 상황에서 쓰세요</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
+      <div style="background:#202020;border:1px solid #2a2a2a;border-radius:14px;padding:20px">
+        <div style="font-size:24px;margin-bottom:8px">🏷️</div>
+        <strong style="color:#fff;display:block;margin-bottom:6px">매장 상품 가격표·바코드 스티커</strong>
+        <span style="font-size:14px">상품명·가격·코드가 담긴 엑셀을 올리면 라벨지에 맞는 바코드 스티커를 한 번에 출력합니다.</span>
+      </div>
+      <div style="background:#202020;border:1px solid #2a2a2a;border-radius:14px;padding:20px">
+        <div style="font-size:24px;margin-bottom:8px">🎟️</div>
+        <strong style="color:#fff;display:block;margin-bottom:6px">행사 참가자 명찰·입장 QR</strong>
+        <span style="font-size:14px">참가자 명단 엑셀에서 이름·소속·QR코드가 포함된 명찰을 대량 인쇄할 수 있습니다.</span>
+      </div>
+      <div style="background:#202020;border:1px solid #2a2a2a;border-radius:14px;padding:20px">
+        <div style="font-size:24px;margin-bottom:8px">📦</div>
+        <strong style="color:#fff;display:block;margin-bottom:6px">창고·비품 재고 관리</strong>
+        <span style="font-size:14px">재고 목록 엑셀에서 각 품목의 QR 태그를 만들어 선반·박스에 부착하세요.</span>
+      </div>
+      <div style="background:#202020;border:1px solid #2a2a2a;border-radius:14px;padding:20px">
+        <div style="font-size:24px;margin-bottom:8px">💒</div>
+        <strong style="color:#fff;display:block;margin-bottom:6px">결혼식·행사 좌석 안내</strong>
+        <span style="font-size:14px">하객 명단 엑셀로 좌석 번호·안내 QR이 포함된 카드를 대량 제작합니다.</span>
+      </div>
+      <div style="background:#202020;border:1px solid #2a2a2a;border-radius:14px;padding:20px">
+        <div style="font-size:24px;margin-bottom:8px">📚</div>
+        <strong style="color:#fff;display:block;margin-bottom:6px">도서관·학교 도서 관리</strong>
+        <span style="font-size:14px">도서 목록에서 각 책의 바코드나 QR 태그를 만들어 도서 관리 시스템에 활용.</span>
+      </div>
+      <div style="background:#202020;border:1px solid #2a2a2a;border-radius:14px;padding:20px">
+        <div style="font-size:24px;margin-bottom:8px">🏫</div>
+        <strong style="color:#fff;display:block;margin-bottom:6px">학원 학생증·출결 QR</strong>
+        <span style="font-size:14px">학생 명단 엑셀에서 이름·학번·QR코드가 담긴 학생증을 한꺼번에 출력합니다.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 사용법 -->
+  <div style="margin-bottom:56px">
+    <h2 style="color:#fff;font-size:22px;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid #2a2a2a">사용법 — 4단계로 완성</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
+      <div style="background:#202020;border:1px solid #2a2a2a;border-radius:14px;padding:22px">
+        <div style="width:30px;height:30px;background:#00A15D;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;margin-bottom:10px">1</div>
+        <strong style="color:#fff;display:block;margin-bottom:6px">엑셀 파일 준비</strong>
+        <span style="font-size:14px">1행에 항목명(헤더), 2행부터 데이터를 입력합니다. QR에 담을 내용이 있는 컬럼 하나가 반드시 포함되어야 합니다. 샘플 파일을 참고하세요.</span>
+      </div>
+      <div style="background:#202020;border:1px solid #2a2a2a;border-radius:14px;padding:22px">
+        <div style="width:30px;height:30px;background:#00A15D;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;margin-bottom:10px">2</div>
+        <strong style="color:#fff;display:block;margin-bottom:6px">파일 업로드</strong>
+        <span style="font-size:14px">파일을 업로드 영역에 드래그하거나 버튼으로 선택합니다. 처음이라면 "샘플로 먼저 테스트하기"를 눌러 결과를 미리 확인해보세요.</span>
+      </div>
+      <div style="background:#202020;border:1px solid #2a2a2a;border-radius:14px;padding:22px">
+        <div style="width:30px;height:30px;background:#00A15D;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;margin-bottom:10px">3</div>
+        <strong style="color:#fff;display:block;margin-bottom:6px">QR / 바코드 설정</strong>
+        <span style="font-size:14px">QR코드 또는 바코드(Code 128) 중 선택하고, 어떤 컬럼을 코드에 담을지 지정합니다. 표시할 텍스트 컬럼도 함께 설정할 수 있습니다.</span>
+      </div>
+      <div style="background:#202020;border:1px solid #2a2a2a;border-radius:14px;padding:22px">
+        <div style="width:30px;height:30px;background:#00A15D;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;margin-bottom:10px">4</div>
+        <strong style="color:#fff;display:block;margin-bottom:6px">레이아웃 확인 후 인쇄</strong>
+        <span style="font-size:14px">A4 기준 자동 레이아웃이 구성됩니다. 인쇄 버튼을 누르면 브라우저 인쇄 창이 열리며, 라벨지·일반 용지 모두 사용 가능합니다.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 지원 코드 형식 -->
+  <div style="margin-bottom:56px">
+    <h2 style="color:#fff;font-size:22px;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid #2a2a2a">지원하는 코드 형식</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">
+      <div style="background:#202020;border:1px solid #2a2a2a;border-radius:12px;padding:18px 20px">
+        <strong style="color:#00d47a;font-size:15px">QR 코드</strong>
+        <p style="font-size:13px;margin-top:8px;line-height:1.6">URL, 텍스트, 연락처, Wi-Fi 정보 등 최대 4,000자까지 저장 가능. 스마트폰 카메라로 바로 인식됩니다.</p>
+      </div>
+      <div style="background:#202020;border:1px solid #2a2a2a;border-radius:12px;padding:18px 20px">
+        <strong style="color:#00d47a;font-size:15px">Code 128 바코드</strong>
+        <p style="font-size:13px;margin-top:8px;line-height:1.6">상품 관리, 물류, 도서 관리에 널리 쓰이는 1차원 바코드. 숫자·영문·특수문자 모두 지원합니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div style="margin-bottom:56px">
+    <h2 style="color:#fff;font-size:22px;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid #2a2a2a">자주 묻는 질문 (FAQ)</h2>
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <details style="background:#202020;border:1px solid #2a2a2a;border-radius:12px;padding:18px 20px">
+        <summary style="color:#fff;font-weight:600;cursor:pointer;list-style:none">엑셀 파일이 서버로 전송되나요?</summary>
+        <p style="margin-top:12px;font-size:14px;line-height:1.7">아니요. 업로드한 파일은 이용자의 브라우저 메모리에서만 처리되며 외부 서버로 전송되지 않습니다. 개인정보가 포함된 명단 파일도 안심하고 사용할 수 있습니다.</p>
+      </details>
+      <details style="background:#202020;border:1px solid #2a2a2a;border-radius:12px;padding:18px 20px">
+        <summary style="color:#fff;font-weight:600;cursor:pointer;list-style:none">한 번에 생성할 수 있는 QR / 바코드 수 제한이 있나요?</summary>
+        <p style="margin-top:12px;font-size:14px;line-height:1.7">브라우저 메모리 한도 내에서 처리됩니다. 일반적으로 1,000~2,000개까지 문제없이 생성되며, 수천 개 이상은 PC 환경에서 크롬 브라우저 사용을 권장합니다.</p>
+      </details>
+      <details style="background:#202020;border:1px solid #2a2a2a;border-radius:12px;padding:18px 20px">
+        <summary style="color:#fff;font-weight:600;cursor:pointer;list-style:none">라벨지에 맞게 인쇄하려면 어떻게 하나요?</summary>
+        <p style="margin-top:12px;font-size:14px;line-height:1.7">브라우저 인쇄 창에서 "여백 없음(없음)" 또는 "최소 여백"을 선택하고, 용지 크기를 라벨지 규격(A4 등)으로 설정하면 됩니다. 주요 라벨지 규격에 맞게 그리드가 자동 조정됩니다.</p>
+      </details>
+      <details style="background:#202020;border:1px solid #2a2a2a;border-radius:12px;padding:18px 20px">
+        <summary style="color:#fff;font-weight:600;cursor:pointer;list-style:none">QR 코드 안에 로고 이미지를 넣을 수 있나요?</summary>
+        <p style="margin-top:12px;font-size:14px;line-height:1.7">현재 버전에서는 로고 삽입 기능을 지원하지 않습니다. 로고 포함 QR이 필요하시면 <a href="contact.html" style="color:#00d47a">연락처</a>로 요청해주시면 검토하겠습니다.</p>
+      </details>
+      <details style="background:#202020;border:1px solid #2a2a2a;border-radius:12px;padding:18px 20px">
+        <summary style="color:#fff;font-weight:600;cursor:pointer;list-style:none">QR코드에 URL을 넣으면 스마트폰에서 바로 열리나요?</summary>
+        <p style="margin-top:12px;font-size:14px;line-height:1.7">네. 엑셀 컬럼에 https://로 시작하는 URL을 입력하면 스마트폰 기본 카메라로 스캔 시 해당 주소로 바로 연결됩니다.</p>
+      </details>
+      <details style="background:#202020;border:1px solid #2a2a2a;border-radius:12px;padding:18px 20px">
+        <summary style="color:#fff;font-weight:600;cursor:pointer;list-style:none">PNG나 PDF로 저장할 수 있나요?</summary>
+        <p style="margin-top:12px;font-size:14px;line-height:1.7">현재는 브라우저 인쇄 기능을 통해 PDF로 저장하거나 직접 인쇄할 수 있습니다. 인쇄 창에서 "PDF로 저장"을 선택하면 파일로 저장됩니다.</p>
+      </details>
+    </div>
+  </div>
+
+  <!-- 관련 도구 링크 -->
+  <div style="margin-bottom:40px">
+    <h2 style="color:#fff;font-size:22px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #2a2a2a">함께 쓰면 좋은 도구</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">
+      <a href="index.html" style="background:#202020;border:1px solid #2a2a2a;border-radius:14px;padding:20px;text-decoration:none;display:block">
+        <strong style="color:#00d47a;font-size:16px">Excel Dashboard Builder</strong>
+        <p style="color:#A8ADB7;font-size:14px;margin-top:6px">엑셀 파일을 막대·라인·파이 등 8가지 차트 대시보드로 즉시 변환하는 무료 도구.</p>
+      </a>
+    </div>
+  </div>
+
+</section>
+
+<footer style="margin-top:40px;padding:28px 24px;border-top:1px solid #2a2a2a;background:#181818;text-align:center;color:#828690;font-size:13px;font-family:'Pretendard',sans-serif">
+  <nav style="margin-bottom:10px">
+    <a href="index.html" style="color:#A8ADB7;text-decoration:none;margin:0 10px">홈</a>·
+    <a href="qr-generator.html" style="color:#A8ADB7;text-decoration:none;margin:0 10px">QR / 바코드</a>·
+    <a href="about.html" style="color:#A8ADB7;text-decoration:none;margin:0 10px">소개</a>·
+    <a href="privacy.html" style="color:#A8ADB7;text-decoration:none;margin:0 10px">개인정보처리방침</a>·
+    <a href="contact.html" style="color:#A8ADB7;text-decoration:none;margin:0 10px">연락처</a>
+  </nav>
+  <div>© 2026 PowerJ Tools. All rights reserved. · 파일은 서버로 전송되지 않고 브라우저에서만 처리됩니다.</div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Google AdSense crawler
+User-agent: Mediapartners-Google
+Allow: /
+
+# Google AdsBot (landing page quality)
+User-agent: AdsBot-Google
+Allow: /
+
+Sitemap: https://powerj.pages.dev/sitemap.xml

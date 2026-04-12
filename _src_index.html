@@ -1,9 +1,23 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" id="htmlRoot">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Excel Dashboard Builder</title>
+    <title>Excel Dashboard Builder | 엑셀을 즉시 대시보드로 — PowerJ Tools</title>
+    <meta name="description" content="엑셀(xlsx/csv) 파일을 업로드하면 막대, 라인, 파이 등 8가지 차트로 구성된 대시보드를 즉시 자동 생성합니다. 설치·회원가입 없이 무료로 사용하며, 파일은 브라우저에서만 처리되어 서버로 전송되지 않습니다.">
+    <meta name="keywords" content="엑셀 대시보드, 엑셀 시각화, 차트 자동 생성, Excel Dashboard, 무료 대시보드, xlsx 차트, CSV 시각화">
+    <meta name="author" content="PowerJ Tools">
+    <meta name="robots" content="index,follow">
+    <link rel="canonical" href="https://powerj.pages.dev/">
+    <meta property="og:title" content="Excel Dashboard Builder | PowerJ Tools">
+    <meta property="og:description" content="엑셀 파일을 업로드하면 즉시 시각화된 대시보드가 자동으로 만들어집니다. 서버 전송 없이 브라우저에서만 처리되는 무료 도구.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://powerj.pages.dev/">
+    <meta property="og:locale" content="ko_KR">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Excel Dashboard Builder | PowerJ Tools">
+    <meta name="twitter:description" content="엑셀 파일을 즉시 시각화 대시보드로 변환하는 무료 웹 도구.">
+    <link rel="icon" href="logo.svg">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -14,7 +28,7 @@
         /* ===== 테마: 배경/텍스트/보더는 고정, primary + 차트 팔레트만 변경 ===== */
         :root {
             --primary: #00A15D; --primary-light: #00d47a; --accent: #00E396;
-            --body-bg: #1d1d1d; --card-bg: #252525; --header-bg: #252525;
+            --body-bg: #1d1d1d; --card-bg: #252525; --header-bg: #202020;
             --border-color: #333; --text-color: #A8ADB7; --title-color: #fff; --text-muted: #828690;
             --radius: 1.25rem;
         }
@@ -35,11 +49,40 @@
         body { font-family: 'Pretendard', sans-serif; font-size: 15px; line-height: 1.5; background: var(--body-bg); color: var(--text-color); }
 
         /* ===== 헤더 ===== */
-        .header { background: var(--header-bg); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
+        .header { background: var(--header-bg); padding: .8rem 1.25rem; min-height: 52px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; gap: .75rem; }
         .header-left { display: flex; align-items: center; gap: 12px; }
         .header-logo { display: flex; align-items: center; }
         .header-logo svg { width: 28px; height: 28px; fill: var(--primary); }
         .header h1 { font-size: 18px; font-weight: 700; color: var(--title-color); }
+        .app-nav { display: flex; align-items: center; gap: 3px; }
+        .nav-item {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 6px 12px; border-radius: .625rem;
+            font-size: 13px; font-weight: 700;
+            text-decoration: none; white-space: nowrap;
+            color: var(--text-muted);
+            border: 1px solid transparent;
+            transition: all .15s; cursor: pointer;
+        }
+        .nav-item svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
+        .nav-item:hover { color: var(--title); background: rgba(255,255,255,.05); }
+        .nav-item.active {
+            color: var(--title-color);
+            background: rgba(255,255,255,.06);
+            border-color: var(--border-color);
+        }
+        .nav-item.active svg { fill: var(--primary); }
+        .nav-badge {
+            font-size: 9px; font-weight: 800; letter-spacing: .04em;
+            padding: 2px 5px; border-radius: 99px;
+            background: var(--primary); color: #fff;
+            line-height: 1.4; flex-shrink: 0;
+            animation: badge-pulse 2.4s ease-in-out infinite;
+        }
+        @keyframes badge-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .55; }
+        }
         .header-actions { display: flex; align-items: center; gap: 8px; }
 
         /* 버튼 */
@@ -62,6 +105,12 @@
             .hdr-btn { width: 36px; padding: 0; }
             .hdr-btn .hdr-label { display: none; }
         }
+
+        /* 언어 스위처 */
+        .lang-switch { display: flex; align-items: center; height: 36px; border-radius: .5rem; border: 1px solid var(--border-color); overflow: hidden; }
+        .lang-btn { padding: 0 10px; height: 100%; border: none; background: transparent; color: var(--text-muted); font-family: 'Pretendard'; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .15s; letter-spacing: .3px; }
+        .lang-btn.active { background: var(--primary); color: #fff; }
+        .lang-btn:not(.active):hover { color: var(--primary); }
 
         /* 테마 팝업 */
         .theme-wrap { position: relative; }
@@ -297,7 +346,7 @@
             .chart-meta { font-size: 13px; }
         }
         @media (max-width: 576px) {
-            .header { padding: 10px 14px; }
+            .header { padding: .6rem 1rem; }
             .header-left h1 { font-size: 15px; }
             .header-logo svg { width: 22px; height: 22px; }
             .builder { padding: 0 12px 40px; }
@@ -309,26 +358,38 @@
 
 <div class="header">
     <div class="header-left">
-        <div class="header-logo"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg></div>
-        <h1>Dashboard Builder</h1>
+        <nav class="app-nav">
+            <a href="index.html" class="nav-item active">
+                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+                Dashboard Builder
+            </a>
+            <a href="qr-generator.html" class="nav-item">
+                <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3V3zm1.5 1.5v4h4v-4h-4zm-.5 9h7v7H4v-7zm1.5 1.5v4h4v-4h-4zM14 3h7v7h-7V3zm1.5 1.5v4h4v-4h-4z"/><rect x="5.75" y="5.75" width="1.5" height="1.5"/><rect x="5.75" y="15.75" width="1.5" height="1.5"/><rect x="15.75" y="5.75" width="1.5" height="1.5"/><rect x="14" y="14" width="1.5" height="1.5"/><rect x="16.5" y="14" width="1.5" height="1.5"/><rect x="19" y="14" width="1.5" height="1.5"/><rect x="14" y="16.5" width="1.5" height="1.5"/><rect x="16.5" y="16.5" width="1.5" height="1.5"/><rect x="19" y="16.5" width="1.5" height="1.5"/><rect x="14" y="19" width="1.5" height="1.5"/><rect x="16.5" y="19" width="1.5" height="1.5"/><rect x="19" y="19" width="1.5" height="1.5"/></svg>
+                QR / 바코드 <span class="nav-badge">NEW</span>
+            </a>
+        </nav>
     </div>
     <div class="header-actions">
+        <div class="lang-switch" id="langSwitch">
+            <button class="lang-btn active" data-lang="ko">KO</button>
+            <button class="lang-btn" data-lang="en">EN</button>
+        </div>
     </div>
 </div>
 
 <div class="upload-section" id="uploadSection">
     <div class="upload-left">
-        <h2>엑셀 파일을<br><em>멋진 대시보드</em>로<br>바꿔드립니다.</h2>
-        <p class="upload-sub">복잡한 엑셀 데이터를 업로드하면<br>즉시 시각화된 대시보드가 자동으로 만들어집니다.</p>
+        <h2 data-i18n-html="hero_title">엑셀 파일을<br><em>멋진 대시보드</em>로<br>바꿔드립니다.</h2>
+        <p class="upload-sub" data-i18n-html="hero_sub">복잡한 엑셀 데이터를 업로드하면<br>즉시 시각화된 대시보드가 자동으로 만들어집니다.</p>
 
         <div class="upload-features">
-            <div class="uf-item"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 20h3V10H4zm5 0h3V4H9zm5 0h3v-8h-3z" fill="currentColor"/></svg><span>막대/라인/파이 등 8가지 차트 자동 생성</span></div>
-            <div class="uf-item"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z" fill="currentColor"/></svg><span>헤더, 날짜, 금액 컬럼 자동 인식</span></div>
-            <div class="uf-item"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z" fill="currentColor"/></svg><span>5가지 테마 + 이미지 저장</span></div>
+            <div class="uf-item"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 20h3V10H4zm5 0h3V4H9zm5 0h3v-8h-3z" fill="currentColor"/></svg><span data-i18n="feat_charts">막대/라인/파이 등 8가지 차트 자동 생성</span></div>
+            <div class="uf-item"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-2h2zm0-4h-2V7h2z" fill="currentColor"/></svg><span data-i18n="feat_detect">헤더, 날짜, 금액 컬럼 자동 인식</span></div>
+            <div class="uf-item"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z" fill="currentColor"/></svg><span data-i18n="feat_theme">5가지 테마 + 이미지 저장</span></div>
         </div>
 
         <div class="upload-security">
-            <span>파일은 서버로 전송되지 않습니다.<br>브라우저에서만 처리되며, 저장/유출/재사용이 불가능합니다.</span>
+            <span data-i18n-html="security_msg">파일은 서버로 전송되지 않습니다.<br>브라우저에서만 처리되며, 저장/유출/재사용이 불가능합니다.</span>
         </div>
     </div>
 
@@ -339,23 +400,23 @@
             </video>
         </div>
         <div class="drop-zone" id="dropZone">
-            <span class="btn btn-outline btn-sample" id="btnSample">샘플로 먼저 테스트하기</span>
-            <p class="drop-or">또는</p>
-            <span class="btn btn-primary btn-upload">엑셀파일 업로드</span>
-            <p class="drop-security">파일은 서버로 전송되지 않습니다.<br>브라우저에서만 처리되며, 저장/유출/재사용이 불가능합니다.</p>
+            <span class="btn btn-outline btn-sample" id="btnSample" data-i18n="btn_sample">샘플로 먼저 테스트하기</span>
+            <p class="drop-or" data-i18n="or">또는</p>
+            <span class="btn btn-primary btn-upload" data-i18n="btn_upload">엑셀파일 업로드</span>
+            <p class="drop-security" data-i18n-html="security_msg">파일은 서버로 전송되지 않습니다.<br>브라우저에서만 처리되며, 저장/유출/재사용이 불가능합니다.</p>
         </div>
         <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
     </div>
 </div>
 
-<div class="loader-wrap" id="loader"><div class="spinner"></div><p style="color:var(--text-muted)">분석 중...</p></div>
+<div class="loader-wrap" id="loader"><div class="spinner"></div><p style="color:var(--text-muted)" data-i18n="analyzing">분석 중...</p></div>
 
 <div class="builder" id="builder">
     <div class="manage-bar">
-        <button class="btn-manage" id="btnReset"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15.01l1.41 1.41L11 14.84V19h2v-4.16l1.59 1.59L16 15.01 12.01 11z"/></svg> 엑셀파일 업로드</button>
+        <button class="btn-manage" id="btnReset"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15.01l1.41 1.41L11 14.84V19h2v-4.16l1.59 1.59L16 15.01 12.01 11z"/></svg> <span data-i18n="btn_upload">엑셀파일 업로드</span></button>
         <span class="manage-divider"></span>
         <div class="theme-wrap">
-            <button class="btn-manage-sub" id="btnTheme"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-1 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg> 테마
+            <button class="btn-manage-sub" id="btnTheme"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-1 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg> <span data-i18n="btn_theme">테마</span>
                 <div class="theme-popup" id="themePopup">
                     <div class="theme-dot active" data-t="midnight" title="Midnight"></div>
                     <div class="theme-dot" data-t="purple" title="Purple"></div>
@@ -366,19 +427,19 @@
         </button>
         </div>
         <div class="dl-wrap" id="dlWrap">
-            <button class="btn-manage-sub" id="btnDownload"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> 이미지로 저장</button>
+            <button class="btn-manage-sub" id="btnDownload"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> <span data-i18n="btn_save_img">이미지로 저장</span></button>
             <div class="dl-popup" id="dlPopup">
-                <button class="dl-item" id="dlPng"><span class="mi">image</span>이미지 (PNG)</button>
-                <button class="dl-item" id="dlHtml"><span class="mi">code</span>HTML 파일</button>
+                <button class="dl-item" id="dlPng"><span class="mi">image</span><span data-i18n="dl_png">이��지 (PNG)</span></button>
+                <button class="dl-item" id="dlHtml"><span class="mi">code</span><span data-i18n="dl_html">HTML 파일</span></button>
             </div>
         </div>
-        <button class="btn-manage-sub" id="btnManage"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg> 위젯 관리
+        <button class="btn-manage-sub" id="btnManage"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg> <span data-i18n="btn_manage">위젯 관리</span>
             <div class="btn-manage-tip">
-                <div class="tip-title">위젯 설정을 변경할 수 있습니다</div>
-                <div class="tip-item"><span class="tip-dot"></span>차트 유형 변경 (막대/라인/파이 등)</div>
-                <div class="tip-item"><span class="tip-dot"></span>X축, Y축 컬럼 선택</div>
-                <div class="tip-item"><span class="tip-dot"></span>위젯 추가/삭제</div>
-                <div class="tip-item"><span class="tip-dot"></span>제목 변경</div>
+                <div class="tip-title" data-i18n="tip_title">위젯 설정을 변경할 수 있습니다</div>
+                <div class="tip-item"><span class="tip-dot"></span><span data-i18n="tip_1">차트 유형 변경 (막대/라인/파이 등)</span></div>
+                <div class="tip-item"><span class="tip-dot"></span><span data-i18n="tip_2">X축, Y축 컬럼 선택</span></div>
+                <div class="tip-item"><span class="tip-dot"></span><span data-i18n="tip_3">위젯 추가/삭제</span></div>
+                <div class="tip-item"><span class="tip-dot"></span><span data-i18n="tip_4">제목 변경</span></div>
             </div>
         </button>
         <span class="manage-info" id="manageInfo"></span>
@@ -400,16 +461,16 @@
     <div class="modal" id="modal">
         <div class="modal-header">
             <div class="modal-header-left">
-                <h3>위젯 관리</h3>
-                <p class="modal-desc">위젯의 유형과 설정을 변경한 후 저장하세요.</p>
+                <h3 data-i18n="modal_title">위젯 관리</h3>
+                <p class="modal-desc" data-i18n="modal_desc">위젯의 유형과 설정을 변경한 후 저장하세요.</p>
             </div>
             <button class="modal-close" id="modalClose"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" fill="none"/></svg></button>
         </div>
         <div class="modal-scroll" id="modalBody"></div>
         <div class="modal-actions">
-            <button class="btn btn-outline btn-sm" id="modalCancel">취소</button>
+            <button class="btn btn-outline btn-sm" id="modalCancel" data-i18n="btn_cancel">취소</button>
             <div class="modal-actions-right">
-                <button class="btn btn-primary btn-sm" id="modalSave">저장</button>
+                <button class="btn btn-primary btn-sm" id="modalSave" data-i18n="btn_save">저장</button>
             </div>
         </div>
     </div>
@@ -418,6 +479,174 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ===== i18n =====
+const LANGS = {
+    ko: {
+        hero_title: '엑셀 파일을<br><em>멋진 대시보드</em>로<br>바꿔드립니다.',
+        hero_sub: '복잡한 엑셀 데이터를 업로드하면<br>즉시 시각화된 대시보드가 자동으로 만들어집니다.',
+        feat_charts: '막대/라인/파이 등 8가지 차트 자동 생성',
+        feat_detect: '헤더, 날짜, 금액 컬럼 자동 인식',
+        feat_theme: '5가지 테마 + 이미지 저장',
+        security_msg: '파일은 서버로 전송되지 않습니다.<br>브라우저에서만 처리되며, 저장/유출/재사용이 불가능합니다.',
+        btn_sample: '샘플로 먼저 테스트하기',
+        or: '또는',
+        btn_upload: '엑셀파일 업로드',
+        analyzing: '분석 중...',
+        btn_theme: '테마',
+        btn_save_img: '이미지로 저장',
+        dl_png: '이미지 (PNG)',
+        dl_html: 'HTML 파일',
+        btn_manage: '위젯 관리',
+        tip_title: '위젯 설정을 변경할 수 있습니다',
+        tip_1: '차트 유형 변경 (막대/라인/파이 등)',
+        tip_2: 'X축, Y축 컬럼 선택',
+        tip_3: '위젯 추가/삭제',
+        tip_4: '제목 변경',
+        modal_title: '위젯 관리',
+        modal_desc: '위젯의 유형과 설정을 변경한 후 저장하세요.',
+        btn_cancel: '취소',
+        btn_save: '저장',
+        widget_name: '위젯 이름',
+        widget_count: (n) => `${n}개 위젯`,
+        toast_capture: '캡처 중...',
+        toast_download: '다운로드 완료',
+        toast_fail: '실패: ',
+        toast_html_gen: 'HTML 생성 중...',
+        toast_html_done: 'HTML 다운로드 완료',
+        toast_saved: '위젯이 저장되었습니다',
+        toast_select_y: (t) => `"${t}" Y축 컬럼을 선택하세요`,
+        toast_select_col: (t) => `"${t}" 컬럼을 선택하세요`,
+        empty_data: '데이터가 비어 있습니다.',
+        file_error: '파일 읽기 실패: ',
+        type_card: '카드', type_list: '리스트', type_bar: '막대 차트', type_line: '라인 차트',
+        type_area: '영역 차트', type_pie: '파이', type_donut: '도넛', type_scatter: '산점도',
+        label_x_axis: 'X축 (기준 컬럼)',
+        label_y_axis: 'Y축 숫자 컬럼',
+        label_x_text: '기준 컬럼 (텍스트)',
+        label_x_num: 'X축 (숫자)',
+        label_y_num: 'Y축 (숫자)',
+        label_num_cols: '표시할 숫자 컬럼',
+        label_cols: '표시할 컬럼',
+        label_rows: '표시 행 수',
+        label_row_num: '행 번호',
+        drag_move: '드래그하여 이동',
+        title_edit: '제목 편집',
+        tip_resize: '크기 변경',
+        tip_delete: '삭제',
+        hint_expand: '확장하면 전체 보기 →',
+        summary: '요약',
+        avg: '평균',
+        man: '만',
+        trend: '추세',
+        distribution: '분포',
+        by: '별',
+        data_preview: '데이터 미리보기',
+        chart_basis: '기준',
+        chart_group_sum: '(그룹별 합계)',
+        pie_etc: '기타',
+        sample_filename: '샘플_영업실적.xlsx',
+        sample_quarter: '분기', sample_team: '팀', sample_product: '제품',
+        sample_region: '지역', sample_grade: '등급',
+        sample_sales: '매출', sample_cost: '비용', sample_profit: '이익', sample_customers: '고객수',
+        sample_teams: ['영업1팀','영업2팀','마케팅','개발팀','디자인'],
+        sample_products: ['클라우드','AI 솔루션','모바일 앱','웹 플랫폼'],
+        sample_regions: ['서울','부산','대구','인천','광주'],
+        sample_grades: ['A','B','C'],
+        sample_quarters: ['1분기','2분기','3분기','4분기'],
+    },
+    en: {
+        hero_title: 'Turn your Excel<br>into a <em>stunning dashboard</em><br>instantly.',
+        hero_sub: 'Upload your Excel data and get<br>an auto-generated visual dashboard in seconds.',
+        feat_charts: 'Auto-generate 8 chart types: bar, line, pie & more',
+        feat_detect: 'Auto-detect headers, dates & currency columns',
+        feat_theme: '5 themes + image export',
+        security_msg: 'Files are never sent to a server.<br>Processed locally in your browser — no storage, no leaks.',
+        btn_sample: 'Try with sample data',
+        or: 'or',
+        btn_upload: 'Upload Excel File',
+        analyzing: 'Analyzing...',
+        btn_theme: 'Theme',
+        btn_save_img: 'Save as Image',
+        dl_png: 'Image (PNG)',
+        dl_html: 'HTML File',
+        btn_manage: 'Manage Widgets',
+        tip_title: 'You can change widget settings',
+        tip_1: 'Change chart type (bar/line/pie, etc.)',
+        tip_2: 'Select X-axis, Y-axis columns',
+        tip_3: 'Add/remove widgets',
+        tip_4: 'Edit titles',
+        modal_title: 'Manage Widgets',
+        modal_desc: 'Change widget types and settings, then save.',
+        btn_cancel: 'Cancel',
+        btn_save: 'Save',
+        widget_name: 'Widget Name',
+        widget_count: (n) => `${n} widgets`,
+        toast_capture: 'Capturing...',
+        toast_download: 'Download complete',
+        toast_fail: 'Failed: ',
+        toast_html_gen: 'Generating HTML...',
+        toast_html_done: 'HTML download complete',
+        toast_saved: 'Widgets saved',
+        toast_select_y: (t) => `"${t}" — select Y-axis columns`,
+        toast_select_col: (t) => `"${t}" — select columns`,
+        empty_data: 'The data is empty.',
+        file_error: 'Failed to read file: ',
+        type_card: 'Card', type_list: 'List', type_bar: 'Bar Chart', type_line: 'Line Chart',
+        type_area: 'Area Chart', type_pie: 'Pie', type_donut: 'Donut', type_scatter: 'Scatter',
+        label_x_axis: 'X-Axis (category)',
+        label_y_axis: 'Y-Axis (numeric)',
+        label_x_text: 'Category Column (text)',
+        label_x_num: 'X-Axis (numeric)',
+        label_y_num: 'Y-Axis (numeric)',
+        label_num_cols: 'Numeric columns to display',
+        label_cols: 'Columns to display',
+        label_rows: 'Number of rows',
+        label_row_num: 'Row #',
+        drag_move: 'Drag to move',
+        title_edit: 'Edit title',
+        tip_resize: 'Resize',
+        tip_delete: 'Delete',
+        hint_expand: 'Expand to see all →',
+        summary: 'Summary',
+        avg: 'Avg',
+        man: 'M',
+        trend: 'Trend',
+        distribution: 'Distribution',
+        by: 'by',
+        data_preview: 'Data Preview',
+        chart_basis: 'Basis',
+        chart_group_sum: '(grouped sum)',
+        pie_etc: 'Others',
+        sample_filename: 'Sample_Sales.xlsx',
+        sample_quarter: 'Quarter', sample_team: 'Team', sample_product: 'Product',
+        sample_region: 'Region', sample_grade: 'Grade',
+        sample_sales: 'Sales', sample_cost: 'Cost', sample_profit: 'Profit', sample_customers: 'Customers',
+        sample_teams: ['Sales 1','Sales 2','Marketing','Dev','Design'],
+        sample_products: ['Cloud','AI Solution','Mobile App','Web Platform'],
+        sample_regions: ['Seoul','Busan','Daegu','Incheon','Gwangju'],
+        sample_grades: ['A','B','C'],
+        sample_quarters: ['Q1','Q2','Q3','Q4'],
+    }
+};
+
+let currentLang = (navigator.language || navigator.userLanguage || 'ko').startsWith('ko') ? 'ko' : 'en';
+
+function t(key) { return LANGS[currentLang][key] ?? LANGS['ko'][key] ?? key; }
+
+function applyLang() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (LANGS[currentLang][key] != null) el.textContent = typeof LANGS[currentLang][key] === 'function' ? '' : LANGS[currentLang][key];
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+        const key = el.dataset.i18nHtml;
+        if (LANGS[currentLang][key] != null) el.innerHTML = LANGS[currentLang][key];
+    });
+    document.documentElement.lang = currentLang === 'ko' ? 'ko' : 'en';
+    // update lang switch UI
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === currentLang));
+}
+
 const THEME_PALETTES = {
     midnight: ['#00E396','#775DD0','#00D9F5','#39FF14','#B57BFF','#00FFC8','#7B61FF','#22D1EE','#ADFF2F','#C084FC'],
     purple:   ['#A78BFA','#F472B6','#818CF8','#C084FC','#FB7185','#67E8F9','#E879F9','#FCD34D','#34D399','#A5B4FC'],
@@ -456,6 +685,15 @@ document.querySelectorAll('.theme-dot').forEach(dot => dot.addEventListener('cli
     themePopup.classList.remove('show');
 }));
 
+// 언어 스위처
+document.querySelectorAll('.lang-btn').forEach(btn => btn.addEventListener('click', () => {
+    currentLang = btn.dataset.lang;
+    applyLang();
+    // 위젯 카운트 갱신
+    if (parsedData) updateManageInfo();
+}));
+applyLang();
+
 // 업로드
 dropZone.addEventListener('click', (e) => { if (e.target.id === 'btnSample' || e.target.closest('#btnSample')) return; fileInput.click(); });
 
@@ -463,28 +701,28 @@ dropZone.addEventListener('click', (e) => { if (e.target.id === 'btnSample' || e
 $('btnSample').addEventListener('click', (e) => {
     e.stopPropagation();
     uploadSec.style.display = 'none'; loader.classList.add('show');
-    const teams = ['영업1팀','영업2팀','마케팅','개발팀','디자인'];
-    const products = ['클라우드','AI 솔루션','모바일 앱','웹 플랫폼'];
-    const regions = ['서울','부산','대구','인천','광주'];
-    const grades = ['A','B','C'];
-    const quarters = ['1분기','2분기','3분기','4분기'];
+    const teams = t('sample_teams');
+    const products = t('sample_products');
+    const regions = t('sample_regions');
+    const grades = t('sample_grades');
+    const quarters = t('sample_quarters');
     const rows = [];
     for (let i = 0; i < 80; i++) {
         const sales = Math.round(Math.random()*800+200);
         const cost = Math.round(sales*(0.3+Math.random()*0.35));
         rows.push({
-            '분기': quarters[Math.floor(Math.random()*quarters.length)],
-            '팀': teams[Math.floor(Math.random()*teams.length)],
-            '제품': products[Math.floor(Math.random()*products.length)],
-            '지역': regions[Math.floor(Math.random()*regions.length)],
-            '등급': grades[Math.floor(Math.random()*grades.length)],
-            '매출': sales,
-            '비용': cost,
-            '이익': sales - cost,
-            '고객수': Math.floor(Math.random()*50+5)
+            [t('sample_quarter')]: quarters[Math.floor(Math.random()*quarters.length)],
+            [t('sample_team')]: teams[Math.floor(Math.random()*teams.length)],
+            [t('sample_product')]: products[Math.floor(Math.random()*products.length)],
+            [t('sample_region')]: regions[Math.floor(Math.random()*regions.length)],
+            [t('sample_grade')]: grades[Math.floor(Math.random()*grades.length)],
+            [t('sample_sales')]: sales,
+            [t('sample_cost')]: cost,
+            [t('sample_profit')]: sales - cost,
+            [t('sample_customers')]: Math.floor(Math.random()*50+5)
         });
     }
-    setTimeout(() => parseAndInit('샘플_영업실적.xlsx', rows), 300);
+    setTimeout(() => parseAndInit(t('sample_filename'), rows), 300);
 });
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
@@ -513,7 +751,7 @@ function getDownloadName() {
 // PNG 다운로드
 $('dlPng').addEventListener('click', async () => {
     $('dlPopup').classList.remove('show');
-    showToast('캡처 중...');
+    showToast(t('toast_capture'));
     const header = document.querySelector('.header');
     const manageBar = document.querySelector('.manage-bar');
     const bg = getComputedStyle(document.body).getPropertyValue('--body-bg').trim();
@@ -534,8 +772,8 @@ $('dlPng').addEventListener('click', async () => {
         a.download = fname + '_' + new Date().toISOString().slice(0,10) + '.png';
         a.href = c.toDataURL('image/png');
         a.click();
-        showToast('다운로드 완료');
-    } catch(e) { showToast('실패: '+e.message); }
+        showToast(t('toast_download'));
+    } catch(e) { showToast(t('toast_fail')+e.message); }
     finally {
         header.style.display = '';
         manageBar.style.display = '';
@@ -546,7 +784,7 @@ $('dlPng').addEventListener('click', async () => {
 // HTML 다운로드
 $('dlHtml').addEventListener('click', () => {
     $('dlPopup').classList.remove('show');
-    showToast('HTML 생성 중...');
+    showToast(t('toast_html_gen'));
     const fname = getDownloadName();
 
     // 차트 canvas → 이미지로 변환
@@ -603,7 +841,7 @@ $('dlHtml').addEventListener('click', () => {
     a.href = URL.createObjectURL(blob);
     a.click();
     URL.revokeObjectURL(a.href);
-    showToast('HTML 다운로드 완료');
+    showToast(t('toast_html_done'));
 });
 
 function showToast(m) { const t=$('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
@@ -617,9 +855,9 @@ function handleFile(file) {
             const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array', cellDates: true, dateNF: 'yyyy-mm-dd' });
             const sheet = wb.Sheets[wb.SheetNames[0]];
             let rows = smartParseSheet(sheet);
-            if (!rows.length) { alert('데이터가 비어 있습니다.'); uploadSec.style.display = ''; loader.classList.remove('show'); return; }
+            if (!rows.length) { alert(t('empty_data')); uploadSec.style.display = ''; loader.classList.remove('show'); return; }
             parseAndInit(file.name, rows);
-        } catch(err) { alert('파일 읽기 실패: '+err.message); uploadSec.style.display = ''; loader.classList.remove('show'); }
+        } catch(err) { alert(t('file_error')+err.message); uploadSec.style.display = ''; loader.classList.remove('show'); }
     };
     reader.readAsArrayBuffer(file);
 }
@@ -763,7 +1001,7 @@ function parseAndInit(filename, rows) {
     reclassify.forEach(c => { numericCols.splice(numericCols.indexOf(c),1); textCols.push(c); });
 
     // 의미 있는 금액 컬럼 찾기 (이름에 금액/단가/합계 등 포함)
-    const moneyKw = ['금액','단가','합계','매출','비용','가격','총액','계약','원가','이익'];
+    const moneyKw = ['금액','단가','합계','매출','비용','가격','총액','계약','원가','이익','sales','cost','price','total','amount','revenue','profit'];
     const moneyCols = numericCols.filter(c => moneyKw.some(k => c.includes(k)));
     const goodNumCols = moneyCols.length ? moneyCols : numericCols;
 
@@ -789,32 +1027,32 @@ function parseAndInit(filename, rows) {
 
     // ===== 스마트 위젯 자동 생성 =====
     // 1) 요약 카드 (금액 컬럼 우선)
-    if (goodNumCols.length) addWidget('card', { title: '요약', cols: goodNumCols.slice(0, 6) });
+    if (goodNumCols.length) addWidget('card', { title: t('summary'), cols: goodNumCols.slice(0, 6) });
 
     // 2) 막대 차트: 카테고리 컬럼 × 금액 컬럼
     if (bestXCol && goodNumCols.length) {
-        addWidget('bar', { title: bestXCol + ' 별 ' + goodNumCols[0], xCol: bestXCol, yCols: [goodNumCols[0]] });
+        addWidget('bar', { title: bestXCol + ' ' + t('by') + ' ' + goodNumCols[0], xCol: bestXCol, yCols: [goodNumCols[0]] });
     }
 
     // 3) 라인/추세: 날짜 또는 카테고리 × 금액 (2개 이상)
     if (goodNumCols.length >= 2 && bestXCol) {
-        addWidget('line', { title: '추세', xCol: bestXCol, yCols: goodNumCols.slice(0, 3) });
+        addWidget('line', { title: t('trend'), xCol: bestXCol, yCols: goodNumCols.slice(0, 3) });
     }
 
     // 4) 파이 차트: 카테고리형 컬럼
     if (bestPieCol) {
-        addWidget('pie', { title: bestPieCol + ' 분포', xCol: bestPieCol });
+        addWidget('pie', { title: bestPieCol + ' ' + t('distribution'), xCol: bestPieCol });
         // 두 번째 카테고리도 있으면 도넛
-        if (catCols.length >= 2) addWidget('donut', { title: catCols[1] + ' 분포', xCol: catCols[1] });
+        if (catCols.length >= 2) addWidget('donut', { title: catCols[1] + ' ' + t('distribution'), xCol: catCols[1] });
     }
 
     // 5) 리스트
-    addWidget('list', { title: '데이터 미리보기', cols: columns.slice(0, 8), limit: 20 });
+    addWidget('list', { title: t('data_preview'), cols: columns.slice(0, 8), limit: 20 });
     updateManageInfo();
 }
 
 // ===== 위젯 관리 모달 =====
-const TYPE_LABELS = { card:'카드', list:'리스트', bar:'막대 차트', line:'라인 차트', area:'영역 차트', pie:'파이', donut:'도넛', scatter:'산점도' };
+function getTypeLabels() { return { card:t('type_card'), list:t('type_list'), bar:t('type_bar'), line:t('type_line'), area:t('type_area'), pie:t('type_pie'), donut:t('type_donut'), scatter:t('type_scatter') }; }
 const NEEDS_XY = { bar:true, line:true, area:true }; // X축(텍스트) + Y축(숫자 복수)
 const NEEDS_X_ONLY = { pie:true, donut:true }; // 기준 컬럼(텍스트)
 const NEEDS_SCATTER = { scatter:true }; // X숫자 + Y숫자
@@ -842,11 +1080,11 @@ function renderManageModal() {
 
     modalWidgets.forEach((mw, idx) => {
         html += `<div class="wrow" data-idx="${idx}">`;
-        html += `<div class="wrow-title-label">위젯 이름</div>`;
+        html += `<div class="wrow-title-label">${t('widget_name')}</div>`;
         html += `<div class="wrow-top">`;
         html += `<div class="wrow-title"><input type="text" class="mw-title" data-idx="${idx}" value="${mw.cfg.title}"></div>`;
         html += `<div class="wrow-type"><select class="mw-type" data-idx="${idx}">`;
-        Object.entries(TYPE_LABELS).forEach(([k,v]) => html += `<option value="${k}" ${k===mw.type?'selected':''}>${v}</option>`);
+        Object.entries(getTypeLabels()).forEach(([k,v]) => html += `<option value="${k}" ${k===mw.type?'selected':''}>${v}</option>`);
         html += `</select></div>`;
         html += `<button class="wrow-del" data-idx="${idx}"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" fill="none"/></svg></button>`;
         html += `</div>`;
@@ -866,33 +1104,33 @@ function renderManageModal() {
 function buildOptionFields(type, cfg, idx, numericCols, textCols, columns) {
     let h = '';
     if (NEEDS_XY[type]) {
-        h += `<div class="opt-group"><label>X축 (기준 컬럼)</label><select class="mw-xcol" data-idx="${idx}">`;
+        h += `<div class="opt-group"><label>${t('label_x_axis')}</label><select class="mw-xcol" data-idx="${idx}">`;
         textCols.forEach(c => h += `<option value="${c}" ${cfg.xCol===c?'selected':''}>${c}</option>`);
-        if (!textCols.length) h += '<option value="">행 번호</option>';
+        if (!textCols.length) h += `<option value="">${t('label_row_num')}</option>`;
         h += `</select></div>`;
-        h += `<div class="opt-group"><label>Y축 숫자 컬럼</label><div class="col-checks mw-ycols" data-idx="${idx}">`;
+        h += `<div class="opt-group"><label>${t('label_y_axis')}</label><div class="col-checks mw-ycols" data-idx="${idx}">`;
         numericCols.forEach(c => h += `<div class="col-check ${cfg.yCols&&cfg.yCols.includes(c)?'selected':''}" data-col="${c}">${c}</div>`);
         h += `</div></div>`;
     } else if (NEEDS_X_ONLY[type]) {
-        h += `<div class="opt-group"><label>기준 컬럼 (텍스트)</label><select class="mw-xcol" data-idx="${idx}">`;
+        h += `<div class="opt-group"><label>${t('label_x_text')}</label><select class="mw-xcol" data-idx="${idx}">`;
         textCols.forEach(c => h += `<option value="${c}" ${cfg.xCol===c?'selected':''}>${c}</option>`);
         h += `</select></div>`;
     } else if (NEEDS_SCATTER[type]) {
-        h += `<div class="opt-group"><label>X축 (숫자)</label><select class="mw-xnum" data-idx="${idx}">`;
+        h += `<div class="opt-group"><label>${t('label_x_num')}</label><select class="mw-xnum" data-idx="${idx}">`;
         numericCols.forEach(c => h += `<option value="${c}" ${cfg.xNum===c?'selected':''}>${c}</option>`);
         h += `</select></div>`;
-        h += `<div class="opt-group"><label>Y축 (숫자)</label><select class="mw-ynum" data-idx="${idx}">`;
+        h += `<div class="opt-group"><label>${t('label_y_num')}</label><select class="mw-ynum" data-idx="${idx}">`;
         numericCols.forEach(c => h += `<option value="${c}" ${cfg.yNum===c?'selected':''}>${c}</option>`);
         h += `</select></div>`;
     } else if (NEEDS_COLS[type]) {
-        h += `<div class="opt-group"><label>표시할 숫자 컬럼</label><div class="col-checks mw-cols" data-idx="${idx}">`;
+        h += `<div class="opt-group"><label>${t('label_num_cols')}</label><div class="col-checks mw-cols" data-idx="${idx}">`;
         numericCols.forEach(c => h += `<div class="col-check ${cfg.cols&&cfg.cols.includes(c)?'selected':''}" data-col="${c}">${c}</div>`);
         h += `</div></div>`;
     } else if (NEEDS_LIST_COLS[type]) {
-        h += `<div class="opt-group"><label>표시할 컬럼</label><div class="col-checks mw-cols" data-idx="${idx}">`;
+        h += `<div class="opt-group"><label>${t('label_cols')}</label><div class="col-checks mw-cols" data-idx="${idx}">`;
         columns.forEach(c => h += `<div class="col-check ${cfg.cols&&cfg.cols.includes(c)?'selected':''}" data-col="${c}">${c}</div>`);
         h += `</div></div>`;
-        h += `<div class="opt-group"><label>표시 행 수</label><select class="mw-limit" data-idx="${idx}">`;
+        h += `<div class="opt-group"><label>${t('label_rows')}</label><select class="mw-limit" data-idx="${idx}">`;
         [10,20,30,50].forEach(n => h += `<option value="${n}" ${cfg.limit===n?'selected':''}>${n}</option>`);
         h += `</select></div>`;
     }
@@ -933,7 +1171,7 @@ function bindModalEvents() {
 
     // 새 위젯 추가
     $('addNewWidget')?.addEventListener('click', () => {
-        modalWidgets.push({ id: null, type: 'bar', cfg: { title: '새 위젯', xCol: textCols[0]||'', yCols: [numericCols[0]].filter(Boolean) } });
+        modalWidgets.push({ id: null, type: 'bar', cfg: { title: currentLang==='en'?'New Widget':'새 위젯', xCol: textCols[0]||'', yCols: [numericCols[0]].filter(Boolean) } });
         renderManageModal();
         // 스크롤 하단으로
         const modal = $('modal');
@@ -961,7 +1199,7 @@ $('modalSave').addEventListener('click', () => {
             const xSel = document.querySelector(`.mw-xcol[data-idx="${idx}"]`);
             cfg.xCol = xSel?.value || '';
             const yCols = [...document.querySelectorAll(`.mw-ycols[data-idx="${idx}"] .col-check.selected`)].map(e=>e.dataset.col);
-            if (!yCols.length) { showToast(`"${title}" Y축 컬럼을 선택하세요`); return; }
+            if (!yCols.length) { showToast(t('toast_select_y')(title)); return; }
             cfg.yCols = yCols;
         } else if (NEEDS_X_ONLY[type]) {
             cfg.xCol = document.querySelector(`.mw-xcol[data-idx="${idx}"]`)?.value || '';
@@ -970,11 +1208,11 @@ $('modalSave').addEventListener('click', () => {
             cfg.yNum = document.querySelector(`.mw-ynum[data-idx="${idx}"]`)?.value || '';
         } else if (NEEDS_COLS[type]) {
             const cols = [...document.querySelectorAll(`.mw-cols[data-idx="${idx}"] .col-check.selected`)].map(e=>e.dataset.col);
-            if (!cols.length) { showToast(`"${title}" 컬럼을 선택하세요`); return; }
+            if (!cols.length) { showToast(t('toast_select_col')(title)); return; }
             cfg.cols = cols;
         } else if (NEEDS_LIST_COLS[type]) {
             const cols = [...document.querySelectorAll(`.mw-cols[data-idx="${idx}"] .col-check.selected`)].map(e=>e.dataset.col);
-            if (!cols.length) { showToast(`"${title}" 컬럼을 선택하세요`); return; }
+            if (!cols.length) { showToast(t('toast_select_col')(title)); return; }
             cfg.cols = cols;
             cfg.limit = parseInt(document.querySelector(`.mw-limit[data-idx="${idx}"]`)?.value || 20);
         }
@@ -989,12 +1227,12 @@ $('modalSave').addEventListener('click', () => {
 
     $('modalOverlay').classList.remove('show');
     updateManageInfo();
-    showToast('위젯이 저장되었습니다');
+    showToast(t('toast_saved'));
 });
 
 function updateManageInfo() {
     const count = document.querySelectorAll('.widget').length;
-    $('manageInfo').textContent = `${count}개 위젯`;
+    $('manageInfo').textContent = t('widget_count')(count);
 }
 
 // ===== 위젯 렌더링 =====
@@ -1007,7 +1245,7 @@ function addWidget(type, cfg) {
     div.dataset.cfg = JSON.stringify(cfg);
     div.draggable = false;
 
-    div.innerHTML = `<div class="widget-resize-handle left"></div><div class="widget-resize-handle right"></div><div class="widget-header"><div class="widget-actions"><button class="widget-drag" title="드래그하여 이동"><svg viewBox="0 0 24 24"><path d="M9 5h2v2H9zm4 0h2v2h-2zM9 9h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2z"/></svg></button><h3><span class="title-text">${cfg.title}</span><button class="title-edit" title="제목 편집"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button></h3></div><div class="widget-actions"><button class="widget-resize" data-id="${id}" data-tip="크기 변경"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4zm10 0h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm16 0v6h-6v-2h4v-4h2z"/></svg></button><button class="widget-remove" data-id="${id}" data-tip="삭제"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" fill="none"/></svg></button></div></div><div class="widget-body" id="${id}_body"></div>`;
+    div.innerHTML = `<div class="widget-resize-handle left"></div><div class="widget-resize-handle right"></div><div class="widget-header"><div class="widget-actions"><button class="widget-drag" title="${t('drag_move')}"><svg viewBox="0 0 24 24"><path d="M9 5h2v2H9zm4 0h2v2h-2zM9 9h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2zm-4 4h2v2H9zm4 0h2v2h-2z"/></svg></button><h3><span class="title-text">${cfg.title}</span><button class="title-edit" title="${t('title_edit')}"><svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button></h3></div><div class="widget-actions"><button class="widget-resize" data-id="${id}" data-tip="${t('tip_resize')}"><svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4zm10 0h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm16 0v6h-6v-2h4v-4h2z"/></svg></button><button class="widget-remove" data-id="${id}" data-tip="${t('tip_delete')}"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" fill="none"/></svg></button></div></div><div class="widget-body" id="${id}_body"></div>`;
     widgetGrid.appendChild(div);
     div.querySelector('.title-edit').addEventListener('click', function(e) { e.stopPropagation(); startTitleEdit(id); });
     div.querySelector('.title-text').addEventListener('click', function() { startTitleEdit(id); });
@@ -1198,7 +1436,7 @@ function renderWidgetContent(id, type, cfg) {
         cfg.cols.forEach(col => {
             const vals = rows.map(r => num(r[col]));
             const sum = vals.reduce((a,b)=>a+b,0);
-            html += `<div class="stat-card"><div class="sc-label">${col}</div><div class="sc-value">${sum>=10000?(sum/10000).toFixed(1)+'만':sum.toLocaleString()}</div><div class="sc-sub">평균 ${(sum/vals.length).toFixed(1)}</div></div>`;
+            html += `<div class="stat-card"><div class="sc-label">${col}</div><div class="sc-value">${sum>=10000?(sum/10000).toFixed(1)+t('man'):sum.toLocaleString()}</div><div class="sc-sub">${t('avg')} ${(sum/vals.length).toFixed(1)}</div></div>`;
         });
         body.innerHTML = html + '</div>';
         return;
@@ -1218,8 +1456,8 @@ function renderWidgetContent(id, type, cfg) {
         rows.slice(0, cfg.limit||20).forEach(row => {
             html += '<tr>' + cfg.cols.map(c => {
                 let v = row[c]!=null?row[c]:'';
-                if (typeof v==='number' && isFinite(v)) v = v.toLocaleString('ko-KR');
-                else if (typeof v==='string' && /^-?\d[\d,]*(\.\d+)?$/.test(v.trim()) && !isNaN(Number(v.replace(/,/g,'')))) v = Number(v.replace(/,/g,'')).toLocaleString('ko-KR');
+                if (typeof v==='number' && isFinite(v)) v = v.toLocaleString(currentLang==='ko'?'ko-KR':'en-US');
+                else if (typeof v==='string' && /^-?\d[\d,]*(\.\d+)?$/.test(v.trim()) && !isNaN(Number(v.replace(/,/g,'')))) v = Number(v.replace(/,/g,'')).toLocaleString(currentLang==='ko'?'ko-KR':'en-US');
                 return `<td${longCols.has(c)?' class="td-long"':''}>${v}</td>`;
             }).join('') + '</tr>';
         });
@@ -1233,17 +1471,17 @@ function renderWidgetContent(id, type, cfg) {
     // 차트 유형 - 데이터 정보 표시
     let metaHtml = '';
     if (type === 'pie' || type === 'donut') {
-        metaHtml = `<div class="chart-meta">기준: <strong>${cfg.xCol}</strong></div>`;
+        metaHtml = `<div class="chart-meta">${t('chart_basis')}: <strong>${cfg.xCol}</strong></div>`;
     } else if (type === 'scatter') {
         metaHtml = `<div class="chart-meta">X: <strong>${cfg.xNum}</strong> &nbsp; Y: <strong>${cfg.yNum}</strong></div>`;
     } else if (cfg.xCol || cfg.yCols) {
-        const xLabel = cfg.xCol || '행 번호';
+        const xLabel = cfg.xCol || t('label_row_num');
         const yLabel = cfg.yCols ? cfg.yCols.join(', ') : '';
         // 집계 여부 판단
         let aggLabel = '';
         if (cfg.xCol) {
             const uniqX = new Set(rows.map(r => String(r[cfg.xCol]??''))).size;
-            if (uniqX < rows.length * 0.5 && uniqX <= 50) aggLabel = ' (그룹별 합계)';
+            if (uniqX < rows.length * 0.5 && uniqX <= 50) aggLabel = ' ' + t('chart_group_sum');
         }
         metaHtml = `<div class="chart-meta">X: <strong>${xLabel}</strong> &nbsp; Y: <strong>${yLabel}</strong>${aggLabel}</div>`;
     }
@@ -1264,7 +1502,7 @@ function renderWidgetContent(id, type, cfg) {
             if (!hintEl) {
                 const hint = document.createElement('span');
                 hint.className = 'widget-hint';
-                hint.textContent = '확장하면 전체 보기 →';
+                hint.textContent = t('hint_expand');
                 const resizeBtn = widget.querySelector('.widget-resize');
                 resizeBtn.parentElement.insertBefore(hint, resizeBtn);
             }
@@ -1293,7 +1531,7 @@ function buildChartOption(type, cfg) {
         if (sorted.length > 8) {
             const top = sorted.slice(0, 8);
             const rest = sorted.slice(8).reduce((a, s) => a + s[1], 0);
-            if (rest > 0) top.push(['기타', rest]);
+            if (rest > 0) top.push([t('pie_etc'), rest]);
             sorted = top;
         }
 
@@ -1406,7 +1644,7 @@ function buildChartOption(type, cfg) {
             const data = seriesDataMap[col];
             const base = {
                 name: col, data,
-                label: type==='bar' && data.length<=15 ? { show:true, position:'top', color:textCol, fontSize:11, fontWeight:600, fontFamily:'Pretendard', formatter: p=>p.value>=10000?(p.value/10000).toFixed(1)+'만':p.value>=1000?(p.value/1000).toFixed(1)+'k':p.value } : undefined,
+                label: type==='bar' && data.length<=15 ? { show:true, position:'top', color:textCol, fontSize:11, fontWeight:600, fontFamily:'Pretendard', formatter: p=>p.value>=10000?(p.value/10000).toFixed(1)+t('man'):p.value>=1000?(p.value/1000).toFixed(1)+'k':p.value } : undefined,
             };
             if (type === 'bar') return { ...base, type:'bar', barMaxWidth:36, itemStyle: { borderRadius:[6,6,0,0], color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:PALETTE[i%PALETTE.length]},{offset:1,color:PALETTE[i%PALETTE.length]+'33'}]), shadowBlur:8, shadowColor:PALETTE[i%PALETTE.length]+'40' }, emphasis: { itemStyle: { shadowBlur:20, shadowColor: PALETTE[i%PALETTE.length]+'AA' } } };
             if (type === 'line' || type === 'area') return { ...base, type:'line', smooth:true, symbol:'circle', symbolSize:5,
@@ -1439,5 +1677,171 @@ function rebuildAllCharts() {
     });
 }
 </script>
+
+<section style="max-width:900px;margin:60px auto 0;padding:0 24px;font-family:'Pretendard',sans-serif;color:#A8ADB7">
+
+  <!-- 소개 -->
+  <div style="text-align:center;margin-bottom:56px">
+    <h2 style="color:#fff;font-size:28px;margin-bottom:12px">엑셀을 대시보드로 — 설치도, 회원가입도 없이</h2>
+    <p style="color:#828690;font-size:16px;line-height:1.7">복잡한 엑셀 데이터를 URL 하나로 접근해 30초 만에 시각화 대시보드로 바꿔드립니다.<br>파일은 서버로 전송되지 않고 브라우저에서만 처리됩니다.</p>
+  </div>
+
+  <!-- 사용 사례 -->
+  <div style="margin-bottom:56px">
+    <h2 style="color:#fff;font-size:22px;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid #2a2a2a">이런 상황에서 쓰세요</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
+      <div style="background:#252525;border:1px solid #333;border-radius:14px;padding:20px">
+        <div style="font-size:24px;margin-bottom:8px">📊</div>
+        <strong style="color:#fff;display:block;margin-bottom:6px">주간·월간 매출 보고서</strong>
+        <span style="font-size:14px">엑셀로 관리하던 매출 데이터를 바로 시각화해 회의에 활용하세요.</span>
+      </div>
+      <div style="background:#252525;border:1px solid #333;border-radius:14px;padding:20px">
+        <div style="font-size:24px;margin-bottom:8px">📈</div>
+        <strong style="color:#fff;display:block;margin-bottom:6px">KPI 현황 대시보드</strong>
+        <span style="font-size:14px">목표 대비 실적, 팀별 현황 등 KPI 지표를 차트 한 장으로 정리.</span>
+      </div>
+      <div style="background:#252525;border:1px solid #333;border-radius:14px;padding:20px">
+        <div style="font-size:24px;margin-bottom:8px">🛒</div>
+        <strong style="color:#fff;display:block;margin-bottom:6px">스마트스토어 판매 분석</strong>
+        <span style="font-size:14px">주문 내역 엑셀을 업로드하면 카테고리·기간별 매출 차트가 즉시 생성됩니다.</span>
+      </div>
+      <div style="background:#252525;border:1px solid #333;border-radius:14px;padding:20px">
+        <div style="font-size:24px;margin-bottom:8px">👥</div>
+        <strong style="color:#fff;display:block;margin-bottom:6px">설문·응답 결과 분석</strong>
+        <span style="font-size:14px">구글 폼·네이버 폼 결과를 엑셀로 내려받아 파이·막대 차트로 변환.</span>
+      </div>
+      <div style="background:#252525;border:1px solid #333;border-radius:14px;padding:20px">
+        <div style="font-size:24px;margin-bottom:8px">💰</div>
+        <strong style="color:#fff;display:block;margin-bottom:6px">가계부·지출 분석</strong>
+        <span style="font-size:14px">카드사 엑셀 명세서를 업로드해 월별 지출 패턴을 한눈에 파악.</span>
+      </div>
+      <div style="background:#252525;border:1px solid #333;border-radius:14px;padding:20px">
+        <div style="font-size:24px;margin-bottom:8px">📋</div>
+        <strong style="color:#fff;display:block;margin-bottom:6px">프로젝트 진행 현황</strong>
+        <span style="font-size:14px">태스크 목록과 완료율이 담긴 엑셀을 차트로 바꿔 팀 보고에 사용.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 사용법 -->
+  <div style="margin-bottom:56px">
+    <h2 style="color:#fff;font-size:22px;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid #2a2a2a">사용법 — 딱 3단계</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+      <div style="background:#252525;border:1px solid #333;border-radius:14px;padding:24px;position:relative">
+        <div style="width:32px;height:32px;background:#00A15D;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;margin-bottom:12px">1</div>
+        <strong style="color:#fff;display:block;margin-bottom:8px">엑셀 파일 업로드</strong>
+        <span style="font-size:14px">xlsx, xls, csv 형식을 지원합니다. 파일을 드래그 앤 드롭하거나 버튼을 눌러 선택하세요. 처음이라면 샘플 파일로 먼저 체험해보세요.</span>
+      </div>
+      <div style="background:#252525;border:1px solid #333;border-radius:14px;padding:24px">
+        <div style="width:32px;height:32px;background:#00A15D;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;margin-bottom:12px">2</div>
+        <strong style="color:#fff;display:block;margin-bottom:8px">자동 분석 확인</strong>
+        <span style="font-size:14px">헤더 행과 날짜·금액·수량 컬럼을 자동으로 감지합니다. 컬럼 타입이 잘못 인식된 경우 우측 설정 패널에서 수동 조정 가능합니다.</span>
+      </div>
+      <div style="background:#252525;border:1px solid #333;border-radius:14px;padding:24px">
+        <div style="width:32px;height:32px;background:#00A15D;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;margin-bottom:12px">3</div>
+        <strong style="color:#fff;display:block;margin-bottom:8px">테마 선택 후 저장</strong>
+        <span style="font-size:14px">그린·퍼플·오션·로즈·엠버 5가지 테마 중 선택하세요. 완성된 대시보드는 PNG 이미지로 저장하거나 화면에서 바로 인쇄할 수 있습니다.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 기능 요약 -->
+  <div style="margin-bottom:56px">
+    <h2 style="color:#fff;font-size:22px;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid #2a2a2a">주요 기능</h2>
+    <ul style="list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px">
+      <li style="display:flex;align-items:flex-start;gap:10px"><span style="color:#00d47a;font-size:18px;flex-shrink:0">✓</span><span><strong style="color:#fff">8가지 차트 자동 생성</strong> — 막대, 누적 막대, 라인, 영역, 파이, 도넛, 산점도, 히트맵</span></li>
+      <li style="display:flex;align-items:flex-start;gap:10px"><span style="color:#00d47a;font-size:18px;flex-shrink:0">✓</span><span><strong style="color:#fff">컬럼 자동 인식</strong> — 날짜 형식, 금액(원/달러), 수량·비율 컬럼을 자동 구분</span></li>
+      <li style="display:flex;align-items:flex-start;gap:10px"><span style="color:#00d47a;font-size:18px;flex-shrink:0">✓</span><span><strong style="color:#fff">5가지 색상 테마</strong> — 보고 목적에 맞는 분위기로 전환 가능</span></li>
+      <li style="display:flex;align-items:flex-start;gap:10px"><span style="color:#00d47a;font-size:18px;flex-shrink:0">✓</span><span><strong style="color:#fff">PNG 이미지 저장</strong> — 대시보드 전체를 고화질 이미지로 내보내기</span></li>
+      <li style="display:flex;align-items:flex-start;gap:10px"><span style="color:#00d47a;font-size:18px;flex-shrink:0">✓</span><span><strong style="color:#fff">KO / EN 인터페이스</strong> — 한국어·영어 전환 지원</span></li>
+      <li style="display:flex;align-items:flex-start;gap:10px"><span style="color:#00d47a;font-size:18px;flex-shrink:0">✓</span><span><strong style="color:#fff">서버 전송 없음</strong> — 파일이 인터넷으로 나가지 않아 기밀 자료도 안심 사용</span></li>
+    </ul>
+  </div>
+
+  <!-- 지원 파일 형식 -->
+  <div style="margin-bottom:56px">
+    <h2 style="color:#fff;font-size:22px;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid #2a2a2a">지원 파일 형식 및 제한</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+      <div style="background:#252525;border:1px solid #333;border-radius:12px;padding:16px 20px">
+        <strong style="color:#00d47a;font-size:15px">xlsx / xls</strong>
+        <p style="font-size:13px;margin-top:6px">Excel 2007 이상 (.xlsx) 및 구버전 (.xls) 지원</p>
+      </div>
+      <div style="background:#252525;border:1px solid #333;border-radius:12px;padding:16px 20px">
+        <strong style="color:#00d47a;font-size:15px">csv</strong>
+        <p style="font-size:13px;margin-top:6px">쉼표 구분 텍스트 파일. UTF-8 및 EUC-KR 한글 인코딩 지원</p>
+      </div>
+      <div style="background:#252525;border:1px solid #333;border-radius:12px;padding:16px 20px">
+        <strong style="color:#00d47a;font-size:15px">권장 구조</strong>
+        <p style="font-size:13px;margin-top:6px">1행이 헤더(항목명), 2행부터 데이터. 시트가 여러 개면 첫 번째 시트를 사용</p>
+      </div>
+      <div style="background:#252525;border:1px solid #333;border-radius:12px;padding:16px 20px">
+        <strong style="color:#00d47a;font-size:15px">파일 크기</strong>
+        <p style="font-size:13px;margin-top:6px">브라우저 메모리 한도 내에서 처리. 일반적으로 10MB / 50,000행 이내 권장</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div style="margin-bottom:56px">
+    <h2 style="color:#fff;font-size:22px;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid #2a2a2a">자주 묻는 질문 (FAQ)</h2>
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <details style="background:#252525;border:1px solid #333;border-radius:12px;padding:18px 20px">
+        <summary style="color:#fff;font-weight:600;cursor:pointer;list-style:none">파일이 서버로 전송되지 않는다는 게 사실인가요?</summary>
+        <p style="margin-top:12px;font-size:14px;line-height:1.7">네, 사실입니다. Excel Dashboard Builder는 JavaScript로만 동작하며, 업로드한 파일은 브라우저의 메모리에서만 읽고 처리됩니다. 외부 서버에 네트워크 요청을 보내지 않으므로, 인터넷이 끊긴 상태(오프라인)에서도 사용 가능합니다.</p>
+      </details>
+      <details style="background:#252525;border:1px solid #333;border-radius:12px;padding:18px 20px">
+        <summary style="color:#fff;font-weight:600;cursor:pointer;list-style:none">한글이 포함된 엑셀 파일도 제대로 불러와지나요?</summary>
+        <p style="margin-top:12px;font-size:14px;line-height:1.7">xlsx/xls 형식은 유니코드 기반이라 한글이 정상적으로 처리됩니다. CSV 파일의 경우 저장 시 UTF-8 인코딩을 선택하시면 됩니다. EUC-KR로 저장된 CSV도 내부적으로 자동 변환을 시도합니다.</p>
+      </details>
+      <details style="background:#252525;border:1px solid #333;border-radius:12px;padding:18px 20px">
+        <summary style="color:#fff;font-weight:600;cursor:pointer;list-style:none">차트 종류는 어떻게 바꾸나요?</summary>
+        <p style="margin-top:12px;font-size:14px;line-height:1.7">대시보드가 생성된 후, 각 차트 카드 우측 상단의 아이콘을 클릭하면 해당 차트의 종류를 막대·라인·파이·도넛 등으로 변경할 수 있습니다.</p>
+      </details>
+      <details style="background:#252525;border:1px solid #333;border-radius:12px;padding:18px 20px">
+        <summary style="color:#fff;font-weight:600;cursor:pointer;list-style:none">데이터가 너무 많아서 차트가 느린데 어떻게 하나요?</summary>
+        <p style="margin-top:12px;font-size:14px;line-height:1.7">50,000행 이상이거나 컬럼이 매우 많은 경우 렌더링이 느려질 수 있습니다. 엑셀에서 분석에 필요한 컬럼만 남기거나, 기간을 잘라서 여러 파일로 나눠 불러오는 방법을 권장합니다.</p>
+      </details>
+      <details style="background:#252525;border:1px solid #333;border-radius:12px;padding:18px 20px">
+        <summary style="color:#fff;font-weight:600;cursor:pointer;list-style:none">저장한 PNG를 파워포인트에 바로 쓸 수 있나요?</summary>
+        <p style="margin-top:12px;font-size:14px;line-height:1.7">네. PNG로 내보낸 이미지는 PowerPoint, Keynote, Google Slides 등에 바로 삽입할 수 있습니다. 배경이 어두운 다크 테마와 밝은 테마 모두 제공하므로 보고서 스타일에 맞게 선택하세요.</p>
+      </details>
+      <details style="background:#252525;border:1px solid #333;border-radius:12px;padding:18px 20px">
+        <summary style="color:#fff;font-weight:600;cursor:pointer;list-style:none">모바일에서도 사용할 수 있나요?</summary>
+        <p style="margin-top:12px;font-size:14px;line-height:1.7">기본적인 업로드와 차트 확인은 모바일 브라우저에서도 가능합니다. 다만 대형 데이터나 세밀한 차트 설정은 PC 환경을 권장합니다.</p>
+      </details>
+      <details style="background:#252525;border:1px solid #333;border-radius:12px;padding:18px 20px">
+        <summary style="color:#fff;font-weight:600;cursor:pointer;list-style:none">무료인가요? 광고가 붙는 이유가 뭔가요?</summary>
+        <p style="margin-top:12px;font-size:14px;line-height:1.7">완전 무료입니다. 서비스 유지 및 개선 비용을 충당하기 위해 Google AdSense 광고를 게재하고 있습니다. 워터마크 없이, 모든 기능을 제한 없이 사용할 수 있습니다.</p>
+      </details>
+      <details style="background:#252525;border:1px solid #333;border-radius:12px;padding:18px 20px">
+        <summary style="color:#fff;font-weight:600;cursor:pointer;list-style:none">기능 추가나 버그 제보는 어디서 하나요?</summary>
+        <p style="margin-top:12px;font-size:14px;line-height:1.7"><a href="contact.html" style="color:#00d47a">연락처 페이지</a>로 문의 주시면 확인 후 반영합니다. 특히 "이런 차트가 있었으면 좋겠다", "이 데이터 형식이 안 읽힌다"는 피드백을 적극 수집하고 있습니다.</p>
+      </details>
+    </div>
+  </div>
+
+  <!-- 관련 도구 링크 -->
+  <div style="margin-bottom:40px">
+    <h2 style="color:#fff;font-size:22px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #2a2a2a">함께 쓰면 좋은 도구</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">
+      <a href="qr-generator.html" style="background:#252525;border:1px solid #333;border-radius:14px;padding:20px;text-decoration:none;display:block">
+        <strong style="color:#00d47a;font-size:16px">QR / 바코드 생성기</strong>
+        <p style="color:#A8ADB7;font-size:14px;margin-top:6px">엑셀 파일로 QR코드·바코드를 대량 생성하고 바로 인쇄할 수 있는 무료 도구.</p>
+      </a>
+    </div>
+  </div>
+
+</section>
+
+<footer style="margin-top:40px;padding:28px 24px;border-top:1px solid #2a2a2a;background:#181818;text-align:center;color:#828690;font-size:13px;font-family:'Pretendard',sans-serif">
+    <nav style="margin-bottom:10px">
+        <a href="index.html" style="color:#A8ADB7;text-decoration:none;margin:0 10px">홈</a>·
+        <a href="qr-generator.html" style="color:#A8ADB7;text-decoration:none;margin:0 10px">QR / 바코드</a>·
+        <a href="about.html" style="color:#A8ADB7;text-decoration:none;margin:0 10px">소개</a>·
+        <a href="privacy.html" style="color:#A8ADB7;text-decoration:none;margin:0 10px">개인정보처리방침</a>·
+        <a href="contact.html" style="color:#A8ADB7;text-decoration:none;margin:0 10px">연락처</a>
+    </nav>
+    <div>© 2026 PowerJ Tools. All rights reserved. · 파일은 서버로 전송되지 않고 브라우저에서만 처리됩니다.</div>
+</footer>
 </body>
 </html>
