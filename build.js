@@ -121,6 +121,8 @@ async function buildFile(src, out, label, distName) {
     if (distName) console.log(`  dist: dist/${distName}`);
 }
 
+const STATIC_PROTECTION_SCRIPT = `<script>(function(){document.addEventListener('contextmenu',function(e){e.preventDefault();});document.addEventListener('keydown',function(e){if(e.key==='F12'){e.preventDefault();return false;}if(e.ctrlKey&&e.shiftKey&&(e.key==='I'||e.key==='J'||e.key==='C')){e.preventDefault();return false;}if(e.ctrlKey&&e.key==='u'){e.preventDefault();return false;}});})();</script>`;
+
 function copyStaticAssets() {
     if (!fs.existsSync(DIST_DIR)) fs.mkdirSync(DIST_DIR, { recursive: true });
     let copied = 0;
@@ -130,7 +132,14 @@ function copyStaticAssets() {
             console.warn(`  ⚠ ${name} 없음 — 건너뜀`);
             continue;
         }
-        fs.copyFileSync(src, path.join(DIST_DIR, name));
+        // HTML 파일은 소스보호 스크립트 주입, 나머지는 그대로 복사
+        if (name.endsWith('.html')) {
+            let content = fs.readFileSync(src, 'utf-8');
+            content = content.replace('</head>', STATIC_PROTECTION_SCRIPT + '</head>');
+            fs.writeFileSync(path.join(DIST_DIR, name), content, 'utf-8');
+        } else {
+            fs.copyFileSync(src, path.join(DIST_DIR, name));
+        }
         copied++;
     }
     console.log(`\n✓ 정적 파일 ${copied}/${STATIC_ASSETS.length}개 dist/에 복사 완료`);
