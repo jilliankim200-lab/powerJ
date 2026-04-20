@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="google-site-verification" content="fJBa9bTkNG07KvadRpmyMhGuiL79chOeqx8wZ4E4Ng0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내 연봉 수준 비교 — 전체 직장인 몇 %? | PowerJ Tools</title>
+<meta name="description" content="내 연봉이 전체 직장인 중 상위 몇 %인지 즉시 확인하세요. 연령대별·성별·산업별 평균 연봉과 비교. 2023년 고용노동부 통계 기반.">
+<meta name="keywords" content="연봉 비교, 내 연봉 수준, 직장인 평균 연봉, 연봉 상위 몇퍼센트, 연봉 순위, 연봉 랭킹">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://powerj.net/salary-rank.html">
+<meta property="og:title" content="내 연봉 수준 비교 | PowerJ Tools">
+<meta property="og:description" content="내 연봉이 전체 직장인 중 상위 몇 %인지 즉시 확인. 연령대·산업별 평균과 비교.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://powerj.net/salary-rank.html">
+<meta property="og:locale" content="ko_KR">
+<link rel="icon" href="logo.svg">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7363737737828593" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard',sans-serif;background:#1d1d1d;color:#A8ADB7;line-height:1.7;font-size:15px}
+a{color:#00d47a;text-decoration:none}
+a:hover{text-decoration:underline}
+strong{color:#fff}
+
+header.site{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:#202020;border-bottom:1px solid #333;flex-wrap:wrap;gap:12px}
+header.site .brand{color:#fff;font-weight:700;font-size:18px;text-decoration:none;display:flex;align-items:center;gap:10px}
+header.site .brand svg{width:24px;height:24px}
+header.site nav a{color:#A8ADB7;text-decoration:none;margin-left:20px;font-size:14px}
+header.site nav a:hover{color:#00d47a}
+
+.wrap{max-width:800px;margin:0 auto;padding:48px 24px 80px}
+.hero{margin-bottom:28px}
+.hero h1{color:#fff;font-size:32px;margin-bottom:8px}
+.hero .sub{color:#828690;font-size:15px}
+.badge{display:inline-block;background:#1a2535;border:1px solid #2563eb44;color:#60a5fa;font-size:12px;padding:3px 10px;border-radius:20px;margin-bottom:14px}
+
+/* ── 입력 패널 ── */
+.input-panel{background:#252525;border:1px solid #333;border-radius:16px;padding:28px;margin-bottom:20px}
+.panel-title{color:#fff;font-size:15px;font-weight:700;margin-bottom:20px}
+.salary-display{font-size:28px;font-weight:800;color:#60a5fa;margin-bottom:10px;letter-spacing:-0.5px}
+.salary-display span{font-size:16px;font-weight:500;color:#A8ADB7}
+input[type=range]{
+  width:100%;-webkit-appearance:none;height:6px;border-radius:6px;
+  background:linear-gradient(to right,#2563eb var(--pct,20%),#3a3a3a var(--pct,20%));
+  outline:none;cursor:pointer;margin-bottom:4px
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+  background:#2563eb;cursor:pointer;box-shadow:0 0 0 4px #1a2535
+}
+.slider-labels{display:flex;justify-content:space-between;font-size:11px;color:#555;margin-bottom:14px}
+.options-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:4px}
+.field label{display:block;font-size:12px;color:#828690;margin-bottom:5px;font-weight:500}
+.field select,.field input[type=text]{
+  width:100%;background:#1d1d1d;border:1px solid #3a3a3a;border-radius:10px;
+  color:#fff;font-size:14px;font-family:'Pretendard',sans-serif;
+  padding:9px 12px;outline:none;transition:border-color .2s
+}
+.field select:focus,.field input[type=text]:focus{border-color:#2563eb}
+
+/* ── 결과 요약 ── */
+.rank-card{background:linear-gradient(135deg,#1a2535,#172030);border:1px solid #2563eb55;border-radius:16px;padding:28px 32px;margin-bottom:20px}
+.rank-title{font-size:13px;color:#828690;margin-bottom:6px}
+.rank-main{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.rank-pct{font-size:56px;font-weight:900;color:#60a5fa;line-height:1;letter-spacing:-2px}
+.rank-pct em{font-size:22px;font-weight:600;font-style:normal}
+.rank-desc{font-size:16px;color:#fff;font-weight:600;line-height:1.5}
+.rank-desc span{color:#60a5fa}
+
+/* 퍼센타일 바 */
+.pct-bar-wrap{margin:4px 0 8px}
+.pct-bar-bg{height:14px;background:#2a2a2a;border-radius:99px;position:relative;overflow:hidden}
+.pct-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#1d4ed8,#60a5fa);transition:width .6s cubic-bezier(.4,0,.2,1)}
+.pct-bar-labels{display:flex;justify-content:space-between;font-size:11px;color:#555;margin-top:4px}
+.pct-marker{position:absolute;top:-2px;width:2px;height:18px;background:#fff;border-radius:2px}
+
+/* 비교 수치 그리드 */
+.compare-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.c-item{background:#1d1d1d;border-radius:12px;padding:14px}
+.c-label{font-size:11px;color:#828690;margin-bottom:4px}
+.c-value{font-size:16px;font-weight:700;color:#fff}
+.c-diff{font-size:12px;margin-top:3px}
+.c-diff.up{color:#34d399}
+.c-diff.down{color:#f87171}
+.c-diff.same{color:#828690}
+
+/* ── 분포 차트 ── */
+.panel{background:#252525;border:1px solid #333;border-radius:16px;padding:24px;margin-bottom:16px}
+.panel-label{color:#fff;font-size:15px;font-weight:700;margin-bottom:16px}
+#distChart{width:100%;height:300px}
+
+/* ── 연령대별 비교 ── */
+.age-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.age-card{background:#252525;border:1px solid #333;border-radius:12px;padding:16px}
+.age-card .age-label{font-size:12px;color:#828690;margin-bottom:6px}
+.age-card .age-avg{font-size:17px;font-weight:700;color:#fff;margin-bottom:4px}
+.age-card .age-bar-bg{height:6px;background:#2a2a2a;border-radius:99px;overflow:hidden}
+.age-card .age-bar-fill{height:100%;border-radius:99px;background:#00d47a}
+.age-card.my-age{border-color:#2563eb55;background:#1a2535}
+.age-card.my-age .age-avg{color:#60a5fa}
+
+/* ── 산업별 평균 ── */
+.industry-list{display:flex;flex-direction:column;gap:8px}
+.ind-row{background:#252525;border:1px solid #333;border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px}
+.ind-name{width:120px;font-size:13px;color:#fff;flex-shrink:0}
+.ind-bar-bg{flex:1;height:8px;background:#2a2a2a;border-radius:99px;overflow:hidden}
+.ind-bar-fill{height:100%;border-radius:99px;transition:width .5s}
+.ind-val{width:90px;text-align:right;font-size:13px;font-weight:600;color:#A8ADB7;flex-shrink:0}
+.ind-row.highlighted{border-color:#2563eb44;background:#1a2535}
+.ind-row.highlighted .ind-name{color:#60a5fa}
+
+.source-note{font-size:12px;color:#555;margin-top:10px}
+
+.ad-wrap{margin:32px 0;text-align:center}
+.ad-wrap ins{min-height:0!important}
+
+.section-title{color:#fff;font-size:20px;font-weight:700;margin-bottom:6px}
+.section-sub{color:#828690;font-size:14px;margin-bottom:20px}
+
+.cta-box{background:#1a2e24;border:1px solid #00A15D44;border-radius:14px;padding:22px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.cta-box .cta-text .cta-title{color:#fff;font-size:15px;font-weight:700;margin-bottom:3px}
+.cta-box .cta-text .cta-sub{color:#828690;font-size:13px}
+.cta-box a{display:inline-block;background:#00A15D;color:#fff;font-size:13px;font-weight:700;padding:10px 20px;border-radius:10px;text-decoration:none;white-space:nowrap}
+.cta-box a:hover{background:#009050;text-decoration:none}
+
+footer.site{text-align:center;padding:32px 24px;border-top:1px solid #2a2a2a;color:#828690;font-size:13px;margin-top:48px}
+footer.site a{color:#A8ADB7;text-decoration:none;margin:0 10px}
+footer.site a:hover{color:#00d47a}
+
+@media(max-width:640px){
+  .compare-grid{grid-template-columns:1fr 1fr}
+  .options-row{grid-template-columns:1fr 1fr}
+  .age-grid{grid-template-columns:1fr 1fr}
+  .rank-pct{font-size:42px}
+  header.site nav{display:none}
+  .hero h1{font-size:26px}
+}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <a href="index.html" class="brand">
+    <svg viewBox="0 0 24 24" fill="#00d47a"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+    PowerJ Tools
+  </a>
+  <nav>
+    <a href="index.html">홈</a>
+    <a href="qr-generator.html">QR 생성기</a>
+    <a href="salary-calculator.html">실수령액 계산기</a>
+    <a href="salary-rank.html" style="color:#60a5fa">연봉 수준 비교</a>
+    <a href="guide.html">가이드</a>
+    <a href="about.html">소개</a>
+  </nav>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="badge">2023년 고용노동부 고용형태별근로실태조사 기반</div>
+    <h1>내 연봉, 전체 직장인 중 몇 %?</h1>
+    <p class="sub">세전 연봉 또는 월급을 입력하면 전체 임금근로자 중 내 위치를 즉시 확인합니다.</p>
+  </div>
+
+  <!-- 입력 -->
+  <div class="input-panel">
+    <div class="panel-title">내 급여 입력</div>
+    <div class="salary-display" id="salaryDisplay">3,600만 <span>원 / 연</span></div>
+    <input type="range" id="salaryRange" min="10000000" max="150000000" step="1000000" value="36000000">
+    <div class="slider-labels"><span>1,000만</span><span>1억 5,000만</span></div>
+    <div class="options-row">
+      <div class="field">
+        <label>입력 단위</label>
+        <select id="inputUnit">
+          <option value="annual">연봉 (연간)</option>
+          <option value="monthly">월급 (월간)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>나의 연봉 / 월급</label>
+        <input type="text" id="salaryInput" value="36,000,000">
+      </div>
+      <div class="field">
+        <label>연령대 (선택)</label>
+        <select id="ageGroup">
+          <option value="">선택 안 함</option>
+          <option value="20s">20대</option>
+          <option value="30s">30대</option>
+          <option value="40s">40대</option>
+          <option value="50s">50대</option>
+          <option value="60s">60세 이상</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 결과 카드 -->
+  <div class="rank-card">
+    <div class="rank-title">전체 임금근로자 기준 내 위치</div>
+    <div class="rank-main">
+      <div class="rank-pct" id="rankPct">―<em>%</em></div>
+      <div class="rank-desc" id="rankDesc">연봉을 입력하면<br>순위를 계산합니다.</div>
+    </div>
+    <div class="pct-bar-wrap">
+      <div class="pct-bar-bg">
+        <div class="pct-bar-fill" id="pctBarFill" style="width:0%"></div>
+        <div class="pct-marker" id="pctMarker" style="left:0%"></div>
+      </div>
+      <div class="pct-bar-labels"><span>하위 0%</span><span>중위 50%</span><span>상위 0%</span></div>
+    </div>
+    <div class="compare-grid">
+      <div class="c-item">
+        <div class="c-label">전체 평균 연봉</div>
+        <div class="c-value">4,210만 원</div>
+        <div class="c-diff" id="avgDiff">―</div>
+      </div>
+      <div class="c-item">
+        <div class="c-label">중위 연봉 (50%)</div>
+        <div class="c-value">3,240만 원</div>
+        <div class="c-diff" id="medianDiff">―</div>
+      </div>
+      <div class="c-item">
+        <div class="c-label">최저임금 연봉 (2025)</div>
+        <div class="c-value">2,516만 원</div>
+        <div class="c-diff" id="minDiff">―</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 분포 차트 -->
+  <div class="panel">
+    <div class="panel-label">전체 임금근로자 연봉 분포</div>
+    <div id="distChart"></div>
+    <div class="source-note">출처: 고용노동부 고용형태별근로실태조사 2023 · 전체 임금근로자 기준</div>
+  </div>
+
+  <div class="ad-wrap">
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7363737737828593"
+         data-ad-slot="1605418873" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+
+  <!-- 연령대별 비교 -->
+  <div style="margin-bottom:32px">
+    <div class="section-title">연령대별 평균 연봉</div>
+    <p class="section-sub">2023년 고용노동부 통계 기준 · 정규직+비정규직 전체</p>
+    <div class="age-grid" id="ageGrid"></div>
+    <div class="source-note">* 월 평균 임금 × 12개월 기준 환산. 퇴직금·상여금 별도.</div>
+  </div>
+
+  <div class="ad-wrap">
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7363737737828593"
+         data-ad-slot="1605418873" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+
+  <!-- 산업별 평균 -->
+  <div style="margin-bottom:32px">
+    <div class="section-title">산업별 평균 연봉</div>
+    <p class="section-sub">2023년 고용노동부 통계 기준 · 전체 임금근로자</p>
+    <div class="industry-list" id="industryList"></div>
+    <div class="source-note">출처: 고용노동부 고용형태별근로실태조사 2023</div>
+  </div>
+
+  <!-- 실수령액 계산 CTA -->
+  <div class="cta-box">
+    <div class="cta-text">
+      <div class="cta-title">내 연봉의 실수령액이 궁금하다면?</div>
+      <div class="cta-sub">4대보험·소득세 자동 계산 · 2025년 기준</div>
+    </div>
+    <a href="salary-calculator.html">실수령액 계산기 →</a>
+  </div>
+
+  <div class="ad-wrap">
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7363737737828593"
+         data-ad-slot="1605418873" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+
+</div>
+
+<footer class="site">
+  <div>
+    <a href="index.html">홈</a> ·
+    <a href="salary-calculator.html">실수령액 계산기</a> ·
+    <a href="salary-rank.html">연봉 수준 비교</a> ·
+    <a href="qr-generator.html">QR 생성기</a> ·
+    <a href="guide.html">가이드</a> ·
+    <a href="privacy.html">개인정보처리방침</a> ·
+    <a href="contact.html">연락처</a>
+  </div>
+  <div style="margin-top:10px">© 2026 PowerJ Tools. All rights reserved.</div>
+</footer>
+
+<script>
+// ── 2023 고용노동부 통계 기반 연봉 퍼센타일 ──
+// (전체 임금근로자, 연간 환산)
+const PERCENTILE_DATA = [
+  {p:5,  annual:13200000},
+  {p:10, annual:18600000},
+  {p:15, annual:21600000},
+  {p:20, annual:24000000},
+  {p:25, annual:26400000},
+  {p:30, annual:29400000},
+  {p:35, annual:32400000},
+  {p:40, annual:34200000},
+  {p:45, annual:35400000},
+  {p:50, annual:32400000*1.0}, // 중위
+  {p:50, annual:32400000},
+  {p:55, annual:38400000},
+  {p:60, annual:41400000},
+  {p:65, annual:45000000},
+  {p:70, annual:49200000},
+  {p:75, annual:54600000},
+  {p:80, annual:62400000},
+  {p:85, annual:73200000},
+  {p:90, annual:90000000},
+  {p:95, annual:120000000},
+  {p:99, annual:180000000},
+];
+
+// 연봉 → 퍼센타일 계산 (선형 보간)
+const DIST = [
+  {p:0,  a:0},
+  {p:5,  a:13200000},
+  {p:10, a:18600000},
+  {p:20, a:24000000},
+  {p:25, a:26400000},
+  {p:30, a:29400000},
+  {p:40, a:34200000},
+  {p:50, a:32400000},
+  {p:55, a:38400000},
+  {p:60, a:41400000},
+  {p:70, a:49200000},
+  {p:75, a:54600000},
+  {p:80, a:62400000},
+  {p:85, a:73200000},
+  {p:90, a:90000000},
+  {p:95, a:120000000},
+  {p:99, a:180000000},
+  {p:100,a:999000000},
+];
+
+// 더 정확한 보간용 데이터
+const PCT_TABLE = [
+  [0,      0        ],
+  [5,      13200000 ],
+  [10,     18600000 ],
+  [15,     21600000 ],
+  [20,     24000000 ],
+  [25,     26400000 ],
+  [30,     29400000 ],
+  [35,     32400000 ],
+  [40,     34200000 ],
+  [45,     35400000 ],
+  [50,     38400000 ],
+  [55,     41400000 ],
+  [60,     44400000 ],
+  [65,     48000000 ],
+  [70,     52800000 ],
+  [75,     58800000 ],
+  [80,     66000000 ],
+  [85,     76800000 ],
+  [90,     93600000 ],
+  [95,     124800000],
+  [99,     192000000],
+  [100,    999999999],
+];
+
+function getPercentile(annual) {
+  for(let i = 1; i < PCT_TABLE.length; i++) {
+    const [p0, a0] = PCT_TABLE[i-1];
+    const [p1, a1] = PCT_TABLE[i];
+    if(annual <= a1) {
+      const t = (annual - a0) / (a1 - a0);
+      return p0 + t * (p1 - p0);
+    }
+  }
+  return 100;
+}
+
+// ── 연령대별 평균 연봉 (월평균 × 12) ──
+const AGE_DATA = [
+  {label:'20대',     avg:28800000, color:'#60a5fa'},
+  {label:'30대',     avg:42000000, color:'#34d399'},
+  {label:'40대',     avg:50400000, color:'#a78bfa'},
+  {label:'50대',     avg:46800000, color:'#f59e0b'},
+  {label:'60대 이상', avg:28800000, color:'#f87171'},
+];
+const AGE_MAP = {
+  '20s': AGE_DATA[0],
+  '30s': AGE_DATA[1],
+  '40s': AGE_DATA[2],
+  '50s': AGE_DATA[3],
+  '60s': AGE_DATA[4],
+};
+const AGE_KEY_MAP = { '20s':0,'30s':1,'40s':2,'50s':3,'60s':4 };
+
+// ── 산업별 평균 연봉 ──
+const INDUSTRY_DATA = [
+  {name:'금융·보험업',     avg:77400000, color:'#f59e0b'},
+  {name:'전기·가스·수도',  avg:72000000, color:'#60a5fa'},
+  {name:'정보통신업',      avg:66000000, color:'#a78bfa'},
+  {name:'전문·과학기술',   avg:57600000, color:'#34d399'},
+  {name:'제조업',          avg:48000000, color:'#00d47a'},
+  {name:'건설업',          avg:43200000, color:'#f87171'},
+  {name:'교육서비스업',    avg:40800000, color:'#fb923c'},
+  {name:'도·소매업',       avg:34800000, color:'#a3e635'},
+  {name:'음식·숙박업',     avg:24000000, color:'#e879f9'},
+];
+
+const fmt  = n => Math.round(n).toLocaleString('ko-KR');
+const fmtW = n => fmt(n) + ' 원';
+const unformat = s => parseInt((s||'').replace(/,/g,'')) || 0;
+
+let distChart;
+let currentAnnual = 36000000;
+
+// ── 분포 차트 ──
+function initDistChart() {
+  distChart = echarts.init(document.getElementById('distChart'), null, {renderer:'svg'});
+  const xData = ['1천만\n미만','1-2천만','2-3천만','3-4천만','4-5천만','5-6천만','6-7천만','7-8천만','8-9천만','9천만-\n1억','1억\n이상'];
+  const yData = [4.2, 11.8, 19.3, 17.1, 13.2, 9.1, 6.4, 4.8, 3.5, 2.6, 8.0];
+  distChart.setOption({
+    backgroundColor:'transparent',
+    tooltip:{
+      trigger:'axis',
+      backgroundColor:'#2a2a2a', borderColor:'#444',
+      textStyle:{color:'#fff',fontSize:12},
+      formatter: p => `${p[0].name}<br/>전체의 ${p[0].value}%`
+    },
+    grid:{top:16,right:16,bottom:48,left:40},
+    xAxis:{type:'category', data:xData, axisLabel:{color:'#828690',fontSize:11,lineHeight:14}, axisLine:{lineStyle:{color:'#333'}}, splitLine:{show:false}},
+    yAxis:{type:'value', name:'비율(%)', nameTextStyle:{color:'#828690',fontSize:11}, axisLabel:{color:'#828690',fontSize:11,formatter:'{value}%'}, splitLine:{lineStyle:{color:'#2a2a2a'}}},
+    series:[{
+      type:'bar', data:yData, barMaxWidth:40,
+      itemStyle:{color:params => {
+        const bandMap = [0,10000000,20000000,30000000,40000000,50000000,60000000,70000000,80000000,90000000,100000000,Infinity];
+        const i = params.dataIndex;
+        const inRange = currentAnnual >= bandMap[i] && currentAnnual < bandMap[i+1];
+        return inRange ? '#60a5fa' : '#333';
+      }, borderRadius:[4,4,0,0]},
+      label:{show:true, position:'top', color:'#828690', fontSize:10, formatter:'{c}%'}
+    }]
+  });
+}
+
+// ── 연령대 카드 렌더 ──
+function buildAgeGrid(selectedKey) {
+  const maxAvg = Math.max(...AGE_DATA.map(d=>d.avg));
+  const grid = document.getElementById('ageGrid');
+  grid.innerHTML = '';
+  AGE_DATA.forEach((d,i) => {
+    const keyArr = ['20s','30s','40s','50s','60s'];
+    const isSelected = keyArr[i] === selectedKey;
+    const pct = (d.avg/maxAvg*100).toFixed(0);
+    const card = document.createElement('div');
+    card.className = 'age-card' + (isSelected ? ' my-age' : '');
+    card.innerHTML = `
+      <div class="age-label">${d.label} 평균${isSelected ? ' · 내 연령대' : ''}</div>
+      <div class="age-avg">${fmt(d.avg/10000)}만 원</div>
+      <div class="age-bar-bg"><div class="age-bar-fill" style="width:${pct}%;background:${isSelected?'#60a5fa':d.color}"></div></div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ── 산업별 리스트 렌더 ──
+function buildIndustryList() {
+  const maxAvg = Math.max(...INDUSTRY_DATA.map(d=>d.avg));
+  const list = document.getElementById('industryList');
+  INDUSTRY_DATA.forEach(d => {
+    const pct = (d.avg/maxAvg*100).toFixed(0);
+    const row = document.createElement('div');
+    row.className = 'ind-row';
+    row.innerHTML = `
+      <div class="ind-name">${d.name}</div>
+      <div class="ind-bar-bg"><div class="ind-bar-fill" style="width:${pct}%;background:${d.color}"></div></div>
+      <div class="ind-val">${fmt(d.avg/10000)}만 원</div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+// ── 메인 업데이트 ──
+function update() {
+  const unit    = document.getElementById('inputUnit').value;
+  const raw     = unformat(document.getElementById('salaryInput').value);
+  const ageKey  = document.getElementById('ageGroup').value;
+
+  currentAnnual = unit === 'monthly' ? raw * 12 : raw;
+  if(currentAnnual < 100000) return;
+
+  const pct = getPercentile(currentAnnual);
+  const topPct = (100 - pct).toFixed(1);
+  const lowerPct = pct.toFixed(1);
+
+  // 슬라이더 갱신
+  const sliderAnnual = unit === 'monthly' ? currentAnnual : currentAnnual;
+  const sliderVal = Math.min(150000000, Math.max(10000000, sliderAnnual));
+  document.getElementById('salaryRange').value = sliderVal;
+  const sliderPct = ((sliderVal - 10000000) / (150000000 - 10000000) * 100).toFixed(1);
+  document.getElementById('salaryRange').style.setProperty('--pct', sliderPct + '%');
+
+  if(unit === 'monthly') {
+    document.getElementById('salaryDisplay').innerHTML = fmt(raw/10000) + '만 <span>원 / 월</span>';
+  } else {
+    document.getElementById('salaryDisplay').innerHTML = fmt(currentAnnual/10000) + '만 <span>원 / 연</span>';
+  }
+
+  document.getElementById('rankPct').innerHTML = topPct + '<em>%</em>';
+
+  let desc = '';
+  if(parseFloat(topPct) <= 10) desc = `상위 <span>${topPct}%</span> — 소득 상위권입니다.`;
+  else if(parseFloat(topPct) <= 30) desc = `상위 <span>${topPct}%</span> — 평균을 크게 상회합니다.`;
+  else if(parseFloat(topPct) <= 50) desc = `상위 <span>${topPct}%</span> — 중위 이상입니다.`;
+  else if(parseFloat(topPct) <= 70) desc = `상위 <span>${topPct}%</span> — 중위 수준입니다.`;
+  else desc = `상위 <span>${topPct}%</span> — 하위 ${lowerPct}%에 해당합니다.`;
+  document.getElementById('rankDesc').innerHTML = desc;
+
+  // 퍼센타일 바
+  const barWidth = pct.toFixed(1);
+  document.getElementById('pctBarFill').style.width = barWidth + '%';
+  document.getElementById('pctMarker').style.left = barWidth + '%';
+
+  // 비교 수치
+  const AVG = 42100000, MEDIAN = 32400000, MIN = 25160000;
+  const diffAvg    = currentAnnual - AVG;
+  const diffMedian = currentAnnual - MEDIAN;
+  const diffMin    = currentAnnual - MIN;
+  const diffStr = (v) => {
+    const cls = v > 0 ? 'up' : v < 0 ? 'down' : 'same';
+    const sign = v > 0 ? '+' : '';
+    return `<div class="c-diff ${cls}">${sign}${fmt(Math.abs(v)/10000)}만 원 ${v>0?'더 많음':v<0?'더 적음':'동일'}</div>`;
+  };
+  document.getElementById('avgDiff').outerHTML    = diffStr(diffAvg).replace('c-diff','c-diff').replace('<div','<div id="avgDiff"');
+  // Simple update approach
+  document.getElementById('avgDiff')    && (document.getElementById('avgDiff').className    = 'c-diff ' + (diffAvg>0?'up':diffAvg<0?'down':'same'),
+    document.getElementById('avgDiff').textContent    = (diffAvg>0?'+':'')+fmt(Math.abs(Math.round(diffAvg/10000)))+'만 원 '+(diffAvg>0?'더 많음':diffAvg<0?'더 적음':'동일'));
+  document.getElementById('medianDiff') && (document.getElementById('medianDiff').className = 'c-diff ' + (diffMedian>0?'up':diffMedian<0?'down':'same'),
+    document.getElementById('medianDiff').textContent = (diffMedian>0?'+':'')+fmt(Math.abs(Math.round(diffMedian/10000)))+'만 원 '+(diffMedian>0?'더 많음':diffMedian<0?'더 적음':'동일'));
+  document.getElementById('minDiff')   && (document.getElementById('minDiff').className   = 'c-diff ' + (diffMin>0?'up':diffMin<0?'down':'same'),
+    document.getElementById('minDiff').textContent   = (diffMin>0?'+':'')+fmt(Math.abs(Math.round(diffMin/10000)))+'만 원 '+(diffMin>0?'더 많음':diffMin<0?'더 적음':'동일'));
+
+  // 분포 차트 갱신 (현재 위치 하이라이트)
+  if(distChart) distChart.resize(); // trigger re-render with updated currentAnnual
+  initDistChart();
+
+  // 연령대 카드
+  buildAgeGrid(ageKey);
+}
+
+// ── 슬라이더 ↔ 입력 동기화 ──
+document.getElementById('salaryRange').addEventListener('input', e => {
+  const unit = document.getElementById('inputUnit').value;
+  const v = parseInt(e.target.value);
+  document.getElementById('salaryInput').value = unit === 'monthly' ? fmt(Math.round(v/12)) : fmt(v);
+  update();
+});
+document.getElementById('salaryInput').addEventListener('input', e => {
+  const unit = document.getElementById('inputUnit').value;
+  const v = unformat(e.target.value);
+  const annual = unit === 'monthly' ? v*12 : v;
+  document.getElementById('salaryRange').value = Math.min(150000000, Math.max(10000000, annual));
+  update();
+});
+document.getElementById('salaryInput').addEventListener('blur', e => {
+  const v = unformat(e.target.value);
+  e.target.value = v ? fmt(v) : '';
+});
+document.getElementById('inputUnit').addEventListener('change', () => {
+  const unit = document.getElementById('inputUnit').value;
+  const v = unformat(document.getElementById('salaryInput').value);
+  // 단위 전환 시 값 변환
+  if(unit === 'monthly') {
+    document.getElementById('salaryInput').value = fmt(Math.round(currentAnnual/12));
+  } else {
+    document.getElementById('salaryInput').value = fmt(currentAnnual);
+  }
+  update();
+});
+document.getElementById('ageGroup').addEventListener('change', update);
+
+// ── 초기화 ──
+initDistChart();
+buildIndustryList();
+update();
+</script>
+</body>
+</html>
