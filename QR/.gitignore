@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.streamlit/
+data/items.csv
+data/logs.csv
+.claude/

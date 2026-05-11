@@ -1,0 +1,3905 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suno Prompt Builder</title>
+<style>
+  :root {
+    --bg: #1d1d1d;
+    --card: #252525;
+    --surface: #2a2a2a;
+    --border: #333333;
+    --border2: #444444;
+    --text: #ffffff;
+    --text2: #A8ADB7;
+    --text3: #828690;
+    --accent: #00A15D;
+    --accent-bg: rgba(0,161,93,0.14);
+    --accent2: #8B5CF6;
+    --success: #00d47a;
+    --red: #FF4D4D;
+    --red-bg: rgba(255,77,77,0.15);
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+    --shadow-hover: 0 4px 16px rgba(0,0,0,0.4);
+    --r: 16px;
+    --r-sm: 10px;
+  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.22); }
+  * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.12) transparent; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Segoe UI', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── 헤더 ── */
+  header {
+    background: #202020;
+    border-bottom: 1px solid #333;
+    padding: .8rem 1.25rem;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    gap: .75rem;
+  }
+  .header-left { display: flex; align-items: center; }
+  .app-nav { display: flex; align-items: center; gap: 3px; }
+  .nav-item {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 6px 12px; border-radius: .625rem;
+    font-size: 13px; font-weight: 700;
+    text-decoration: none; white-space: nowrap;
+    color: #828690;
+    border: 1px solid transparent;
+    transition: all .15s; cursor: pointer;
+  }
+  .nav-item svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
+  .nav-item:hover { color: #fff; background: rgba(255,255,255,.05); }
+  .nav-item.active { color: #fff; background: rgba(255,255,255,.06); border-color: #333; }
+  .nav-item.active svg { fill: #00A15D; }
+  .nav-badge {
+    font-size: 9px; font-weight: 800; letter-spacing: .04em;
+    padding: 2px 5px; border-radius: 99px;
+    background: #00A15D; color: #fff;
+    line-height: 1.4; flex-shrink: 0;
+    animation: badge-pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes badge-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+
+  /* ── 플로우 스텝 ── */
+  .flow-bar {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .flow-bar::-webkit-scrollbar { display: none; }
+  .flow-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 20px 14px 0;
+    white-space: nowrap;
+    font-size: 14px;
+    color: var(--text2);
+  }
+  .flow-step .n {
+    width: 22px; height: 22px;
+    background: var(--border);
+    color: var(--text2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .flow-step.active .n { background: var(--accent); color: #fff; }
+  .flow-step.active { color: var(--accent); font-weight: 600; }
+  .flow-arrow { color: var(--border2); padding: 0 4px; font-size: 13px; }
+
+  /* ── 메인 레이아웃 ── */
+  .page { padding: 28px 32px 80px; display: flex; flex-direction: column; gap: 20px; }
+
+  /* ── 카드 ── */
+  .card {
+    background: var(--card);
+    border-radius: var(--r);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .card-head {
+    padding: 18px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .step-num {
+    background: var(--accent);
+    color: #fff;
+    border-radius: 6px;
+    padding: 2px 9px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .card-body { padding: 20px 24px; }
+
+  /* ── 주제 ── */
+  .theme-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .theme-tab {
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 7px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--surface);
+    color: var(--text2);
+    user-select: none;
+  }
+  .theme-tab:hover { border-color: var(--accent); color: var(--accent); }
+  .theme-tab.active {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .topic-panel { display: none; }
+  .topic-panel.active { display: block; }
+  .topic-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+  }
+  .topic-item {
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--surface);
+    user-select: none;
+  }
+  .topic-item:hover { border-color: var(--accent); box-shadow: var(--shadow-hover); }
+  .topic-item.selected {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+  }
+  .topic-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .topic-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+  .chat-box {
+    display: none;
+    margin-top: 14px;
+    background: var(--accent-bg);
+    border: 1.5px solid var(--accent);
+    border-radius: var(--r-sm);
+    padding: 14px 16px;
+  }
+  .chat-box.show { display: block; }
+  .chat-box-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .chat-msg { font-size: 14px; line-height: 1.65; white-space: pre-wrap; margin-bottom: 10px; color: var(--text); }
+  .btn-copy-chat {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .btn-copy-chat:hover { opacity: 0.88; }
+  .btn-copy-chat.copied { background: var(--success); }
+
+  /* ── 가사 ── */
+  textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.8;
+    padding: 14px 16px;
+    resize: vertical;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  textarea:focus { border-color: var(--accent); background: var(--surface); }
+  textarea::placeholder { color: var(--text3); }
+
+  /* ── 섹션 라벨 ── */
+  .sec-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sec-label .sub {
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--text3);
+    font-size: 12px;
+  }
+
+  /* ── 스타일 가이드 ── */
+  .guide-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s;
+    margin-bottom: 0;
+  }
+  .guide-toggle:hover { border-color: var(--accent); }
+  .guide-toggle-left { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; }
+  .guide-toggle svg { color: var(--text2); transition: transform 0.2s; flex-shrink: 0; }
+  .guide-toggle.open svg { transform: rotate(180deg); }
+  .guide-body { display: none; margin-top: 12px; }
+  .guide-body.open { display: block; }
+  .guide-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .guide-item {
+    background: var(--accent-bg);
+    border: 1px solid var(--accent-bg);
+    border-radius: var(--r-sm);
+    padding: 14px 16px;
+  }
+  .guide-item-title { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+  .guide-item-text { font-size: 13px; color: var(--text2); line-height: 1.55; }
+  .guide-prompt-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text2); margin-bottom: 8px; }
+  .guide-prompt {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    font-family: 'Consolas', monospace;
+    color: var(--accent);
+    line-height: 1.65;
+    margin-bottom: 8px;
+  }
+
+  /* ── 레퍼런스 ── */
+  .ref-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 10px;
+  }
+  .ref-card {
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 14px 15px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--surface);
+    user-select: none;
+  }
+  .ref-card:hover { border-color: var(--accent); box-shadow: var(--shadow-hover); }
+  .ref-card.selected { border-color: var(--accent); background: var(--accent-bg); }
+  .ref-num {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    margin-bottom: 8px;
+  }
+  .ref-card.selected .ref-num { background: var(--accent2); }
+  .ref-row { display: flex; gap: 5px; align-items: flex-start; margin-bottom: 3px; }
+  .ref-icon { font-size: 12px; flex-shrink: 0; margin-top: 2px; }
+  .ref-text { font-size: 12px; color: var(--text2); line-height: 1.45; }
+  .ref-mood {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .ref-card.selected .ref-mood { color: var(--accent2); }
+
+  /* ── 칩 ── */
+  .opt-section { display: flex; flex-direction: column; gap: 20px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 7px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.12s;
+    user-select: none;
+    background: var(--surface);
+    color: var(--text2);
+  }
+  .chip:hover { border-color: var(--accent); color: var(--accent); }
+  .chip.on {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+  .chip.excl.on {
+    border-color: var(--red);
+    background: var(--red);
+    color: #fff;
+  }
+  .chip.excl:hover { border-color: var(--red); color: var(--red); }
+
+  /* BPM */
+  .bpm-row { display: flex; align-items: center; gap: 12px; }
+  .bpm-row input[type=range] { flex: 1; accent-color: var(--accent); height: 4px; }
+  .bpm-val {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 700;
+    padding: 6px 12px;
+    width: 80px;
+    text-align: center;
+    outline: none;
+    font-family: inherit;
+  }
+  .bpm-val:focus { border-color: var(--accent); }
+  .bpm-presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .bpm-preset {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text2);
+    font-size: 13px;
+    padding: 4px 12px;
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .bpm-preset:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* 커스텀 제외 */
+  .excl-input-row { display: flex; gap: 8px; margin-top: 10px; }
+  .excl-input-row input {
+    flex: 1;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    padding: 8px 13px;
+    outline: none;
+    font-family: inherit;
+  }
+  .excl-input-row input:focus { border-color: var(--accent); background: #fff; }
+  .excl-input-row button {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text2);
+    font-size: 14px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.12s;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .excl-input-row button:hover { border-color: var(--red); color: var(--red); }
+  .custom-excl-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .custom-excl-tag {
+    background: var(--red-bg);
+    border: 1px solid #FFB3B3;
+    border-radius: 14px;
+    padding: 4px 12px;
+    font-size: 13px;
+    color: var(--red);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .custom-excl-tag .rm { cursor: pointer; opacity: 0.6; font-size: 14px; }
+  .custom-excl-tag .rm:hover { opacity: 1; }
+
+  /* ── 결과 ── */
+  .result-block { display: flex; flex-direction: column; gap: 14px; }
+  .result-item { }
+  .result-label-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .result-label {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text2);
+  }
+  .btn-copy {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 7px;
+    color: var(--text2);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 16px;
+    cursor: pointer;
+    transition: all 0.12s;
+    font-family: inherit;
+  }
+  .btn-copy:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-copy.copied { border-color: var(--success); color: var(--success); }
+  .result-box {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.75;
+    min-height: 52px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+    outline: none;
+    color: inherit;
+    font-family: inherit;
+  }
+  .result-box.style-box { font-family: 'Consolas', monospace; color: var(--accent); font-size: 13px; }
+  .result-box.has-content { border-color: #C5D8FD; background: var(--accent-bg); }
+  .result-placeholder { color: var(--text3); font-style: italic; }
+
+  .suno-guide {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 16px 20px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-top: 4px;
+  }
+  .suno-field { flex: 1; min-width: 0; }
+  .suno-field-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text2); margin-bottom: 3px; }
+  .suno-field-desc { font-size: 14px; color: var(--text); }
+
+  /* ── 구분선 ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+
+  @media (max-width: 640px) {
+    header { padding: 16px; }
+    header p { display: none; }
+    .flow-bar { padding: 0 16px; }
+    .page { padding: 16px 16px 80px; }
+    .card-body { padding: 16px; }
+    .card-head { padding: 14px 16px; }
+    .topic-grid { grid-template-columns: repeat(2, 1fr); }
+    .ref-grid { grid-template-columns: repeat(2, 1fr); }
+    .guide-grid { grid-template-columns: 1fr; }
+  }
+
+/* ── 가사 라이브러리 ── */
+.lyric-lib { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+.lyric-lib-toggle { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 11px 16px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-sm); user-select: none; font-size: 14px; font-weight: 600; color: var(--text2); transition: all 0.15s; }
+.lyric-lib-toggle:hover { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); }
+.lyric-lib-toggle svg { transition: transform 0.2s; flex-shrink: 0; }
+.lyric-lib-toggle.open { color: var(--accent); border-color: var(--accent); }
+.lyric-lib-toggle.open svg { transform: rotate(180deg); }
+.lyric-lib-body { display: none; flex-direction: column; gap: 12px; }
+.lyric-lib-body.open { display: flex; }
+.lyric-filter-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.lyric-filter { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); font-size: 13px; cursor: pointer; color: var(--text2); white-space: nowrap; transition: all 0.12s; }
+.lyric-filter:hover { border-color: var(--accent); color: var(--accent); }
+.lyric-filter.on { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+.lyric-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.lyric-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-sm); padding: 14px; cursor: pointer; transition: all 0.15s; }
+.lyric-card:hover { border-color: var(--accent); background: var(--accent-bg); box-shadow: 0 2px 8px rgba(49,130,246,0.1); }
+.lyric-card.selected { border-color: var(--accent); background: var(--accent-bg); }
+.lyric-card-badge { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+.lyric-card-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; line-height: 1.4; }
+.lyric-card-preview { font-size: 12px; color: var(--text2); line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.lyric-lang-row { display: flex; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.lyric-lang-tab { padding: 7px 20px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--card); font-size: 14px; font-weight: 700; cursor: pointer; color: var(--text2); transition: all 0.12s; }
+.lyric-lang-tab:hover { border-color: var(--accent); color: var(--accent); }
+.lyric-lang-tab.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── 초기화 버튼 ── */
+.btn-reset { padding: 6px 14px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); font-size: 13px; font-weight: 600; color: var(--text2); cursor: pointer; transition: all 0.12s; white-space: nowrap; }
+.btn-reset:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+
+/* ── 레퍼런스 별 즐겨찾기 & 삭제 ── */
+.ref-card { position: relative; }
+.ref-card-actions { position: absolute; top: 7px; right: 7px; display: flex; gap: 2px; z-index: 1; }
+.ref-star { background: none; border: none; cursor: pointer; font-size: 16px; line-height: 1; padding: 3px 4px; color: var(--border2); transition: color 0.15s, transform 0.15s; border-radius: 6px; }
+.ref-star:hover { color: #FFB800; transform: scale(1.2); }
+.ref-star.on { color: #FFB800; }
+.ref-del { background: none; border: none; cursor: pointer; font-size: 14px; line-height: 1; padding: 3px 4px; color: var(--text3); transition: color 0.15s, background 0.15s; border-radius: 6px; }
+.ref-del:hover { color: var(--red); background: var(--red-bg); }
+
+/* ── 확인 모달 ── */
+.confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; align-items: center; justify-content: center; }
+.confirm-overlay.open { display: flex; }
+.confirm-box { background: var(--card); border-radius: 20px; padding: 28px 24px 20px; width: 320px; max-width: calc(100vw - 32px); box-shadow: 0 8px 32px rgba(0,0,0,0.18); display: flex; flex-direction: column; gap: 16px; }
+.confirm-title { font-size: 17px; font-weight: 800; color: var(--text); line-height: 1.4; }
+.confirm-desc { font-size: 14px; color: var(--text2); line-height: 1.6; margin-top: -8px; }
+.confirm-btns { display: flex; gap: 8px; margin-top: 4px; }
+.confirm-cancel { flex: 1; padding: 13px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--surface); font-size: 15px; font-weight: 600; color: var(--text2); cursor: pointer; font-family: inherit; }
+.confirm-cancel:hover { background: var(--bg); }
+.confirm-ok { flex: 1; padding: 13px; border-radius: 12px; border: none; background: var(--red); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.confirm-ok:hover { background: #e63c3c; }
+.ref-filter-row { display: flex; gap: 8px; align-items: center; margin-bottom: 2px; }
+.ref-filter-chip { padding: 5px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--surface); font-size: 13px; font-weight: 600; color: var(--text2); cursor: pointer; transition: all 0.12s; white-space: nowrap; }
+.ref-filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+.ref-filter-chip.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── 카드 접기 ── */
+.card-head-toggle { cursor: pointer; user-select: none; }
+.card-head-toggle:hover { background: rgba(255,255,255,0.02); border-radius: var(--r) var(--r) 0 0; }
+.card-body.collapsed { display: none; }
+.card-chevron { color: var(--text3); transition: transform 0.2s; flex-shrink: 0; margin-left: auto; }
+.card-chevron.open { transform: rotate(180deg); }
+.topic-selected-badge {
+  display: none;
+  align-items: center;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.topic-selected-badge.show { display: flex; }
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <nav class="app-nav">
+      <a href="../ppt/index.dist.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+        Dashboard Builder
+      </a>
+      <a href="../ppt/qr-generator.dist.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M3 3h7v7H3V3zm2 2v3h3V5H5zm9-2h7v7h-7V3zm2 2v3h3V5h-3zM3 14h7v7H3v-7zm2 2v3h3v-3H5z"/></svg>
+        QR / 바코드
+      </a>
+      <span class="nav-item active">
+        <svg viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
+        Song Builder
+      </span>
+    </nav>
+  </div>
+</header>
+
+<div class="flow-bar">
+  <div class="flow-step active"><span class="n">1</span> 주제 선택</div>
+  <span class="flow-arrow">›</span>
+  <div class="flow-step"><span class="n">2</span> 가사 라이브러리</div>
+  <span class="flow-arrow">›</span>
+  <div class="flow-step"><span class="n">3</span> 스타일 조립</div>
+  <span class="flow-arrow">›</span>
+  <div class="flow-step"><span class="n">4</span> Suno 입력</div>
+  <span class="flow-arrow">›</span>
+  <div class="flow-step"><span class="n">5</span> 뮤직비디오 프롬프트</div>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmTitle"></div>
+    <div class="confirm-desc" id="confirmDesc"></div>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="hideConfirm()">취소</button>
+      <button class="confirm-ok" id="confirmOkBtn">삭제</button>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- 1. 주제 선택 -->
+  <div class="card">
+    <div class="card-head card-head-toggle" onclick="toggleStep1()">
+      <div class="card-title">
+        <span class="step-num">1</span> 주제 선택
+        <span class="topic-selected-badge" id="topicBadge"></span>
+      </div>
+      <svg class="card-chevron" id="step1Chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="card-body collapsed" id="step1Body">
+      <div class="theme-tabs" id="themeTabs"></div>
+      <div id="topicPanels"></div>
+      <div class="chat-box" id="chatBox">
+        <div class="chat-box-label">✅ 선택됨 — 아래 메시지를 채팅에 붙여넣으세요</div>
+        <div class="chat-msg" id="chatMsg"></div>
+        <button class="btn-copy-chat" id="btnCopyChat" onclick="copyChatMsg()">채팅 메시지 복사</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 가사 -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title"><span class="step-num">2</span> 가사 붙여넣기</div>
+    </div>
+    <div class="card-body">
+      <div class="lyric-lib">
+        <div class="lyric-lib-toggle open" id="lyricLibToggle" onclick="toggleLyricLib()">
+          <span>📚 가사 라이브러리 <span id="lyricLibCount" style="font-weight:400;color:var(--text3);margin-left:4px"></span></span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="lyric-lib-body open" id="lyricLibBody">
+          <div class="lyric-lang-row" id="lyricLangRow"></div>
+          <div class="lyric-filter-row" id="lyricFilters"></div>
+          <div class="lyric-grid" id="lyricGrid"></div>
+        </div>
+      </div>
+      <textarea id="lyricsInput" rows="1" style="display:none"></textarea>
+    </div>
+  </div>
+
+  <!-- 3. 스타일 조립 -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title"><span class="step-num">3</span> 스타일 조립</div>
+      <button class="btn-reset" onclick="resetAll()">↺ 초기화</button>
+    </div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:22px;">
+
+      <!-- 스타일 가이드 -->
+      <div>
+        <div class="guide-toggle" id="guideToggle" onclick="toggleGuide()">
+          <div class="guide-toggle-left">
+            💡 <span>나의 스타일 가이드</span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="guide-body" id="guideBody">
+          <div class="guide-grid">
+            <div class="guide-item">
+              <div class="guide-item-title">🎸 악기 구성</div>
+              <div class="guide-item-text">악기 2~3개만. 피아노 스타카토 탭핑 or 어쿠스틱·클린톤 일렉 기타. 드럼 대신 쉐이커·핑거스냅·림샷·하이햇. 악기 사이 여백 충분히.</div>
+            </div>
+            <div class="guide-item">
+              <div class="guide-item-title">🎤 보컬 스타일</div>
+              <div class="guide-item-text">마이크 바로 앞에서 속삭이는 위스퍼링. 공기 섞인 브레시 질감. 리버브 최소화 → 귀 바로 옆에서 들리는 드라이한 친밀감.</div>
+            </div>
+            <div class="guide-item">
+              <div class="guide-item-title">⚡ 도입부</div>
+              <div class="guide-item-text">긴 전주 없이 짧은 기타 리프 or 콧노래 1~2마디 후 보컬 즉각 진입.</div>
+            </div>
+            <div class="guide-item">
+              <div class="guide-item-title">🎚 BPM & 키워드</div>
+              <div class="guide-item-text">75~95 BPM 미디엄 템포. Bedroom Pop / Acoustic Chill / Indie Pop / Jazz Pop / Minimalist / Cozy / Intimate</div>
+            </div>
+          </div>
+          <div class="guide-prompt-label">추천 Suno 프롬프트 베이스</div>
+          <div class="guide-prompt" id="guidePromptText">Minimalist Acoustic Pop, Sparkling Piano Tapping Intro, Soft Rhythmic Shaker, Airy and Breathy Vocals, Intimate Whispering Voice, Dry Texture, 85 BPM, Sunny and Cozy atmosphere, No Reverb, High Fidelity</div>
+          <button class="btn-copy" onclick="copyGuide(this)">복사</button>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- 레퍼런스 -->
+      <div>
+        <div class="sec-label" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <span>🎵 내 취향 레퍼런스 <span class="sub">클릭 → 베이스 스타일 설정 / ☆ → 즐겨찾기</span></span>
+          <div class="ref-filter-row">
+            <span class="ref-filter-chip on" id="refChipAll" onclick="setRefFilter('all')">전체</span>
+            <span class="ref-filter-chip" id="refChipFav" onclick="setRefFilter('fav')">⭐ 즐겨찾기</span>
+          </div>
+        </div>
+        <div class="ref-grid" id="refGrid"></div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- 추가 옵션 -->
+      <div class="opt-section">
+
+        <div>
+          <div class="sec-label">전체 느낌 <span class="sub">(복수 선택)</span></div>
+          <div class="chips" id="vibeChips">
+            <div class="chip multi" data-val="soft and warm">말랑말랑</div>
+            <div class="chip multi" data-val="lovely and tender">사랑스러운</div>
+            <div class="chip multi" data-val="cozy">포근한</div>
+            <div class="chip multi" data-val="fresh and airy">청량한</div>
+            <div class="chip multi" data-val="light and fluttery">설레는</div>
+            <div class="chip multi" data-val="dreamy">몽환적</div>
+            <div class="chip multi" data-val="warm and gentle">따뜻한</div>
+            <div class="chip multi" data-val="melancholic undertone">쓸쓸한</div>
+            <div class="chip multi" data-val="delicate">여린</div>
+            <div class="chip multi" data-val="sweet and playful">귀여운</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="sec-label">사운드 질감 <span class="sub">(복수 선택)</span></div>
+          <div class="chips" id="textureChips">
+            <div class="chip multi" data-val="tight arrangement">단단한 (루즈하지 않은)</div>
+            <div class="chip multi" data-val="polished production">정돈된 / 세련된</div>
+            <div class="chip multi" data-val="minimalist arrangement">미니멀한</div>
+            <div class="chip multi" data-val="spacious mix">공간감 있는</div>
+            <div class="chip multi" data-val="intimate sound">친밀한</div>
+            <div class="chip multi" data-val="crisp and clean">선명한</div>
+            <div class="chip multi" data-val="warm mix">따뜻한 믹스</div>
+            <div class="chip multi" data-val="layered textures">레이어드</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="sec-label">악기 <span class="sub">(복수 선택)</span></div>
+          <div class="chips" id="instrChips">
+            <div class="chip multi" data-val="staccato piano">피아노 (스타카토)</div>
+            <div class="chip multi" data-val="piano">피아노</div>
+            <div class="chip multi" data-val="acoustic guitar">어쿠스틱 기타</div>
+            <div class="chip multi" data-val="fingerstyle guitar">핑거스타일 기타</div>
+            <div class="chip multi" data-val="electric guitar">일렉 기타</div>
+            <div class="chip multi" data-val="bass guitar">베이스</div>
+            <div class="chip multi" data-val="drums">드럼</div>
+            <div class="chip multi" data-val="shaker">쉐이커</div>
+            <div class="chip multi" data-val="finger snaps">핑거스냅</div>
+            <div class="chip multi" data-val="strings">스트링</div>
+            <div class="chip multi" data-val="violin">바이올린</div>
+            <div class="chip multi" data-val="cello">첼로</div>
+            <div class="chip multi" data-val="synthesizer">신스</div>
+            <div class="chip multi" data-val="saxophone">색소폰</div>
+            <div class="chip multi" data-val="ukulele">우쿨렐레</div>
+            <div class="chip multi" data-val="trumpet">트럼펫</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="sec-label">보컬 색깔 <span class="sub">(복수 선택)</span></div>
+          <div class="chips" id="vocalColorChips">
+            <div class="chip multi" data-val="sophisticated vocal delivery">세련된</div>
+            <div class="chip multi" data-val="clean and natural vocals">담백한</div>
+            <div class="chip multi" data-val="clear and bright vocals">맑은</div>
+            <div class="chip multi" data-val="whisper singing style">속삭이는</div>
+            <div class="chip multi" data-val="emotionally expressive">감성적</div>
+            <div class="chip multi" data-val="breathy vocals">숨결 섞인</div>
+            <div class="chip multi" data-val="cool and detached vocal">쿨한</div>
+            <div class="chip multi" data-val="gentle low register">낮은 음역대</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="sec-label">장르 뉘앙스</div>
+          <div class="chips" id="genreChips">
+            <div class="chip" data-val="Indie Pop">인디팝</div>
+            <div class="chip" data-val="Bedroom Pop">베드룸팝</div>
+            <div class="chip" data-val="Acoustic Pop">어쿠스틱팝</div>
+            <div class="chip" data-val="City Pop">시티팝</div>
+            <div class="chip" data-val="Chamber Pop">챔버팝</div>
+            <div class="chip" data-val="Folk Pop">포크팝</div>
+            <div class="chip" data-val="Jazz Pop">재즈팝</div>
+            <div class="chip" data-val="R&B Pop">R&B팝</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="sec-label">보컬 타입</div>
+          <div class="chips" id="vocalChips">
+            <div class="chip" data-val="female vocals">여성</div>
+            <div class="chip" data-val="male vocals">남성</div>
+            <div class="chip" data-val="duet vocals">혼성 듀엣</div>
+            <div class="chip" data-val="powerful vocals">파워풀</div>
+            <div class="chip" data-val="rap vocals">랩</div>
+            <div class="chip" data-val="no vocals">인스트루멘탈</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="sec-label" style="display:flex;justify-content:space-between;">
+            <span>BPM</span>
+            <span id="bpmLabel" style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">사용 안 함</span>
+          </div>
+          <div class="bpm-row">
+            <input type="range" id="bpmSlider" min="60" max="180" value="85" oninput="onBpmSlide(this.value)" />
+            <input type="number" class="bpm-val" id="bpmInput" min="60" max="180" placeholder="—" oninput="onBpmInput(this.value)" />
+          </div>
+          <div class="bpm-presets">
+            <span class="bpm-preset" onclick="setBpm(0)">사용 안 함</span>
+            <span class="bpm-preset" onclick="setBpm(70)">70</span>
+            <span class="bpm-preset" onclick="setBpm(75)">75</span>
+            <span class="bpm-preset" onclick="setBpm(80)">80</span>
+            <span class="bpm-preset" onclick="setBpm(85)">85</span>
+            <span class="bpm-preset" onclick="setBpm(88)">88</span>
+            <span class="bpm-preset" onclick="setBpm(90)">90</span>
+            <span class="bpm-preset" onclick="setBpm(95)">95</span>
+            <span class="bpm-preset" onclick="setBpm(100)">100</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="sec-label">제외할 것 <span class="sub">(No X)</span></div>
+          <div class="chips" id="exclChips">
+            <div class="chip excl" data-val="No piano">No piano</div>
+            <div class="chip excl" data-val="No drums">No drums</div>
+            <div class="chip excl" data-val="No electric guitar">No electric guitar</div>
+            <div class="chip excl" data-val="No high notes">No high notes</div>
+            <div class="chip excl" data-val="No rap">No rap</div>
+            <div class="chip excl" data-val="No autotune">No autotune</div>
+            <div class="chip excl" data-val="No reverb">No reverb</div>
+            <div class="chip excl" data-val="No percussive hits">No percussive hits</div>
+            <div class="chip excl" data-val="No guitar slapping">No guitar slapping</div>
+          </div>
+          <div class="excl-input-row">
+            <input type="text" id="exclCustom" placeholder="직접 입력: No strings ..." />
+            <button onclick="addCustomExcl()">추가</button>
+          </div>
+          <div class="custom-excl-tags" id="customExclTags"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 최종 결과 -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-title"><span class="step-num">4</span> 최종 Suno 프롬프트</div>
+    </div>
+    <div class="card-body">
+      <div class="result-block">
+        <div class="result-item">
+          <div class="result-label-row">
+            <div class="result-label">🎛 Style of Music</div>
+            <button class="btn-copy" onclick="copyEl('finalStyle', this)">복사</button>
+          </div>
+          <textarea class="result-box style-box" id="finalStyle" rows="3" placeholder="레퍼런스 카드 또는 옵션을 선택하면 여기에 조립됩니다"></textarea>
+        </div>
+        <div class="result-item">
+          <div class="result-label-row">
+            <div class="result-label">📝 Lyrics</div>
+            <button class="btn-copy" onclick="copyEl('finalLyrics', this)">복사</button>
+          </div>
+          <div class="result-box" id="finalLyrics"><span class="result-placeholder">가사를 붙여넣으면 여기에 표시됩니다</span></div>
+        </div>
+      </div>
+      <div class="suno-guide">
+        <div class="suno-field">
+          <div class="suno-field-label">🎛 Style of Music 칸</div>
+          <div class="suno-field-desc">Style of Music 복사 → Suno에 붙여넣기</div>
+        </div>
+        <div style="color:var(--border2);font-size:1.2rem;flex-shrink:0">+</div>
+        <div class="suno-field">
+          <div class="suno-field-label">📝 Lyrics 칸</div>
+          <div class="suno-field-desc">Lyrics 복사 → Suno에 붙여넣기</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+<script>
+const THEMES = [
+  { name:'일상의 소소한 행복', emoji:'☕', topics:[
+    {name:'창가에 비친 오후',desc:'나른한 오후 햇살이 거실 바닥에 길게 누워 있는 풍경.'},
+    {name:'갓 구운 빵 냄새',desc:'골목길 빵집에서 풍겨오는 고소하고 따뜻한 향기.'},
+    {name:'오래된 책방의 먼지',desc:'서가 사이를 거닐며 느끼는 종이 냄새와 정적.'},
+    {name:'화분 물 주기',desc:'베란다 작은 초록 잎들에 맺힌 물방울과 생동감.'},
+    {name:'동네 산책로',desc:'늘 걷던 길에서 새로 발견한 이름 모를 들꽃.'},
+    {name:'식어가는 커피 한 잔',desc:'바쁜 일상 속 잠시 멈춰 선 휴식의 순간.'},
+    {name:'빨래 건조대의 향기',desc:'갓 세탁한 옷가지에서 나는 깨끗한 섬유 유연제 향.'},
+    {name:'자전거 바구니',desc:'강바람을 맞으며 자전거를 탈 때 바구니에 담긴 가벼운 짐.'},
+    {name:'슬리퍼 차림의 편의점',desc:'늦은 밤, 조용한 골목을 가로질러 다녀오는 길.'},
+    {name:'일기장 첫 페이지',desc:'새로운 시작을 앞두고 설레는 마음으로 적는 첫 문장.'},
+  ]},
+  { name:'여행과 설렘', emoji:'✈️', topics:[
+    {name:'기차역의 플랫폼',desc:'멀리서 들어오는 기차 소리와 떠나는 사람들의 표정.'},
+    {name:'지도 위의 손가락',desc:'가보지 못한 낯선 도시의 이름을 따라가 보는 상상.'},
+    {name:'공항 게이트 앞',desc:'여권을 손에 쥐고 비행기를 기다리는 떨림.'},
+    {name:'창밖의 지평선',desc:'끝없이 펼쳐진 도로 위를 달리는 차 안에서의 풍경.'},
+    {name:'여름밤의 캠프파이어',desc:'타닥타닥 타오르는 장작 불꽃과 밤하늘의 별.'},
+    {name:'모래사장 위 발자국',desc:'파도가 밀려와 발자국을 지우는 바닷가 산책.'},
+    {name:'낯선 도시의 아침',desc:'호텔 창문 밖으로 보이는 생경한 거리의 소음.'},
+    {name:'배낭 속의 보물',desc:'여행지에서 주운 조약돌이나 티켓 영수증.'},
+    {name:'구름 위의 일몰',desc:'비행기 창가 좌석에서 바라보는 붉게 물든 구름 바다.'},
+    {name:'간이역의 벤치',desc:'아무도 없는 작은 역에서 다음 기차를 기다리는 여유.'},
+  ]},
+  { name:'계절의 감각', emoji:'🍂', topics:[
+    {name:'첫눈의 소리',desc:'세상이 하얗게 변하며 모든 소음이 사라진 고요한 아침.'},
+    {name:'벚꽃 엔딩',desc:'바람에 흩날리는 분홍색 꽃잎 비를 맞는 길.'},
+    {name:'여름비와 아스팔트',desc:'소나기가 내린 직후 뜨거웠던 도로에서 올라오는 향기.'},
+    {name:'가을 바스락',desc:'노랗게 물든 은행잎 위를 걸을 때 나는 소리.'},
+    {name:'겨울 코트 안의 온기',desc:'추운 밖을 걷다가 따뜻한 실내로 들어왔을 때의 안도감.'},
+    {name:'보슬비와 투명 우산',desc:'우산 위로 떨어지는 빗방울 리듬을 감상하는 오후.'},
+    {name:'얼음 녹는 시냇물',desc:'봄이 오는 소리를 내며 흐르는 맑은 물줄기.'},
+    {name:'매미 소리와 얼음물',desc:'한여름 무더위 속 컵에서 달그락거리는 얼음 소리.'},
+    {name:'낙엽 태우는 냄새',desc:'시골 마을 어귀에서 풍기는 아련한 연기 향.'},
+    {name:'첫 풀잎의 초록',desc:'겨울을 이겨내고 돋아난 연한 새싹의 빛깔.'},
+  ]},
+  { name:'관계와 기억', emoji:'🤝', topics:[
+    {name:'아이 손잡기',desc:'작고 부드러운 손이 내 손가락을 꽉 쥐는 느낌.'},
+    {name:'할머니의 뜨개질',desc:'한 땀 한 땀 정성이 담긴 털실의 따뜻한 감촉.'},
+    {name:'편지 봉투 열기',desc:'멀리서 온 친구의 손편지를 조심스레 뜯는 순간.'},
+    {name:'어린 시절 비밀기지',desc:'놀이터 구석이나 나무 아래 나만 알던 장소.'},
+    {name:'오래된 사진첩',desc:'빛바랜 사진 속 웃고 있는 가족들의 얼굴.'},
+    {name:'귓속말',desc:'소중한 사람과 나누는 아주 작고 비밀스러운 대화.'},
+    {name:'등대 같은 사람',desc:'어두운 밤길을 비춰주듯 늘 곁에 있어 주는 존재.'},
+    {name:'함께 걷는 보폭',desc:'상대방의 속도에 맞춰 천천히 걷는 다정한 배려.'},
+    {name:'전화기 너머 웃음소리',desc:'목소리만 들어도 기분이 좋아지는 마법 같은 순간.'},
+    {name:'먼지 쌓인 레코드판',desc:'예전에 즐겨 듣던 음악을 다시 꺼내 보는 추억.'},
+  ]},
+  { name:'몽글몽글한 상상', emoji:'🌙', topics:[
+    {name:'솜사탕 구름',desc:'한 입 베어 물면 달콤할 것 같은 하늘 위 뭉게구름.'},
+    {name:'달빛 아래 춤',desc:'아무도 없는 공원에서 달빛을 조명 삼아 추는 춤.'},
+    {name:'별을 낚는 낚싯대',desc:'밤하늘 은하수에 낚시를 드리워 별을 잡는 상상.'},
+    {name:'고양이의 꿈',desc:'햇살 아래 잠든 고양이는 어떤 꿈을 꾸고 있을까.'},
+    {name:'유리병 속의 바다',desc:'작은 병 안에 파도 소리와 푸른 바다를 담아두기.'},
+    {name:'무지개 끝을 찾아서',desc:'비 갠 뒤 나타난 무지개의 시작점을 찾아가는 여정.'},
+    {name:'종이비행기의 여행',desc:'바람을 타고 어디론가 멀리 날아가는 종이비행기.'},
+    {name:'나무의 대화',desc:'바람에 흔들리는 나뭇잎들이 서로 나누는 이야기.'},
+    {name:'시계 태엽의 비밀',desc:'째깍거리는 시계 속 작은 요정들이 사는 세상.'},
+    {name:'투명한 마음',desc:'물처럼 맑아서 속이 다 들여다보이는 순수한 진심.'},
+  ]},
+  { name:'자연과 여유', emoji:'🌿', topics:[
+    {name:'사랑하는 사람과 행복한 주말',desc:'특별한 계획 없어도 좋아하는 사람 곁에 있어 충분한 나른한 주말 오후.'},
+    {name:'주말 나들이',desc:'가벼운 가방 하나 들고 가까운 공원으로 나서는 설레는 외출.'},
+    {name:'날씨 좋은 날',desc:'맑고 바람 살짝 부는 그런 날, 어디라도 가고 싶어지는 기분.'},
+    {name:'기분 좋은 아침',desc:'눈을 뜨면 왠지 모르게 기분이 좋은, 설명하기 어려운 상쾌한 아침.'},
+    {name:'베란다의 화분',desc:'아침 햇살을 받으며 작은 화분들을 살피는 조용하고 포근한 시간.'},
+    {name:'싱그러운 풀내음',desc:'비 온 다음 날 풀밭에서 올라오는 청량하고 싱그러운 향기.'},
+    {name:'숲과 나무',desc:'나무들이 가득한 숲길을 걸으며 느끼는 고요하고 안온한 기분.'},
+    {name:'잔디밭 소풍',desc:'돗자리 펴고 하늘 바라보며 뒹굴거리는 한가로운 오후.'},
+    {name:'바람에 흔들리는 나뭇잎',desc:'바람결에 살랑이는 초록 나뭇잎들의 부드럽고 느긋한 움직임.'},
+    {name:'파란 하늘 아래 산책',desc:'구름 한 점 없이 높고 맑은 하늘 아래 걷는 여유로운 길.'},
+  ]},
+];
+
+const MY_REFS = [
+  { num:'2',  instr:'미니멀 피아노, 핑거스냅',         vocal:'드라이 중저음 보컬',          mood:'나른하고 여유로운 미디엄 템포',   tags:'Minimal piano taps, Finger snaps, Dry and clear vocals, Low-mid register, Laid-back medium tempo, Short piano riff intro, Indie Pop' },
+  { num:'3',  instr:'어쿠스틱 기타 스트로크, 쉐이커',  vocal:'공기 반 속삭이는 창법',        mood:'밝고 상쾌한 아침 햇살',           tags:'Upbeat acoustic guitar strumming, Shaker, Breathy whisper vocals, Airy, Bright and fresh, Morning sunshine feel, Immediate entry' },
+  { num:'5',  instr:'스타카토 피아노, 묵직한 베이스',  vocal:'리드미컬한 소울풍 보컬',       mood:'도심 오후 세련된 시티팝',          tags:'Staccato piano, Heavy bass line, Rhythmic soul vocals, City Pop, Sophisticated urban afternoon, Rhythmic piano tap intro' },
+  { num:'6',  instr:'통기타 아르페지오, 피아노',       vocal:'깊고 부드러운 중저음 남성',    mood:'차분하고 서정적인 발라드',         tags:'Warm acoustic guitar arpeggios, Piano, Deep smooth male vocals, Low register, Calm lyrical ballad, Gentle guitar intro' },
+  { num:'8',  instr:'일렉 기타(클린톤), 그루비 베이스', vocal:'대화하듯 읊조리는 창법',      mood:'빈티지하고 몽환적인 로우파이',     tags:'Clean-tone electric guitar, Groovy bass, Conversational murmuring vocals, Vintage, Dreamy lo-fi, Low voice entry with guitar' },
+  { num:'9',  instr:'맑은 건반, 미세한 쉐이커',       vocal:'투명하고 브레시한 여성 보컬',  mood:'포근하고 말랑말랑한 솜사탕',       tags:'Clear piano, Subtle shaker texture, Breathy female vocals, Transparent and airy, Cozy and soft, Cotton candy feel, Instant vocal entry' },
+  { num:'10', instr:'맑은 피아노, 미세한 쉐이커',     vocal:'브레시하고 가까운 질감',       mood:'포근함, 실내 무드 · 80~85 BPM',   tags:'Clear piano, Subtle shaker, Breathy and close vocals, Intimate texture, No reverb, 82 BPM, Warm cozy indoor mood, Minimalist arrangement' },
+  { num:'11', instr:'어쿠스틱 기타 스트로크, 핑거스냅', vocal:'나른하고 편안한 남성 보컬', mood:'상쾌한 아침, 산책 · 85~90 BPM',   tags:'Acoustic guitar strumming, Finger snaps, Relaxed male vocals, 87 BPM, Shuffle rhythm, Fresh morning feel, Outdoor walk, Bright and breezy' },
+  { num:'12', instr:'기타 아르페지오, 따뜻한 피아노', vocal:'맑고 투명한 미성',            mood:'정적인 휴식, 햇살 · 75~80 BPM',   tags:'Guitar arpeggios, Warm piano, Clear airy vocals, Transparent falsetto, 77 BPM, Spacious rhythm, Quiet rest, Sunlight, Delicate' },
+  { num:'13', instr:'클린톤 일렉 기타, 가벼운 림샷',  vocal:'대화하듯 속삭이는 낮은 톤',   mood:'차분한 오후, 평온함 · 70~75 BPM', tags:'Clean-tone electric guitar, Light rimshot, Whispering low vocals, Conversational tone, 72 BPM, Very laid-back, Calm afternoon, Serene and peaceful' },
+  { num:'14', instr:'기타 리프, 쉐이커, 가벼운 비트', vocal:'리드미컬하고 밝은 여성 보컬', mood:'설렘, 외출 전 기분 · 90~95 BPM',  tags:'Guitar riff, Shaker, Light beat, Rhythmic bright female vocals, 92 BPM, Bouncy rhythm, Exciting pre-outing mood, Light and fluttery' },
+  { num:'15', instr:'피아노 탭, 드라이한 타악기',     vocal:'담백하고 꾸밈없는 창법',       mood:'미니멀함, 세련미 · 85~90 BPM',   tags:'Piano taps, Dry percussion, Clean unadorned vocals, 87 BPM, Steady beat, Minimalist arrangement, Sophisticated and polished' },
+  { num:'16', instr:'맑은 피아노 건반, 미세한 쉐이커', vocal:'공기 섞인 나른하고 포근한 창법', mood:'햇살 가득한 오후 · 80 BPM',    tags:'Clear piano, Subtle shaker, Airy and warm vocals, Languid and cozy tone, 80 BPM, Steady rhythm, Sunny afternoon, Sweet and cozy atmosphere' },
+  { num:'17', instr:'어쿠스틱 기타, 부드러운 타악기', vocal:'담백하고 속삭이는 남성 보컬',  mood:'봄날의 산책, 따스함 · 75 BPM',   tags:'Acoustic guitar, Soft percussion, Plain whispering male vocals, 75 BPM, Relaxed shuffle feel, Spring walk theme, Warm and gentle' },
+  { num:'18', instr:'피아노 스타카토, 경쾌한 쉐이커', vocal:'리드미컬하고 밝은 여성 보컬', mood:'설레는 외출, 경쾌함 · 90 BPM',   tags:'Staccato piano, Lively shaker, Rhythmic bright female vocals, 90 BPM, Bouncy beat, Exciting pre-outing mood, Fresh and cheerful' },
+  { num:'19', instr:'맑은 건반, 아주 미세한 비트',   vocal:'브레시하고 투명한 질감',       mood:'나른한 실내, 평온함 · 85 BPM',   tags:'Clear piano, Very subtle beat, Breathy and transparent vocals, 85 BPM, Smooth and calm flow, Lazy indoor atmosphere, Peaceful and serene' },
+  { num:'20', instr:'건반 탭, 여백이 많은 사운드',   vocal:'친밀하고 드라이한 보컬',       mood:'정적인 휴식, 안락함 · 80 BPM',   tags:'Piano taps, Spacious sparse sound, Intimate dry vocals, 80 BPM, Laid-back rhythm, Quiet rest, Warm and comfortable' },
+  { num:'21', instr:'어쿠스틱 기타 리프, 가벼운 타격음', vocal:'부드럽고 친밀한 위스퍼링', mood:'차분한 저녁, 고백 · 80 BPM',     tags:'Acoustic guitar riff, Light percussion, Soft intimate whispering vocals, 80 BPM, Steady 4-beat, Calm evening, Confessional mood' },
+  { num:'22', instr:'클린 일렉 기타, 쉐이커 리듬',  vocal:'공기 섞인 감각적인 미성',      mood:'몽환적인 밤, 여운 · 90 BPM',     tags:'Clean electric guitar, Shaker rhythm, Airy sensual falsetto, 90 BPM, Rhythmic flow, Dreamy night atmosphere, Lingering feeling' },
+  { num:'23', instr:'기타 아르페지오, 핑거스냅',    vocal:'나른하고 세련된 창법',          mood:'평화로운 오후, 휴식 · 75 BPM',   tags:'Guitar arpeggios, Finger snaps, Languid and sophisticated vocals, 75 BPM, Spacious rhythm, Peaceful afternoon, Restful' },
+  { num:'24', instr:'밝은 어쿠스틱 기타, 가벼운 비트', vocal:'경쾌하고 속삭이는 음색',    mood:'설레는 외출, 발랄함 · 95 BPM',   tags:'Bright acoustic guitar, Light beat, Cheerful whispering vocals, 95 BPM, Bouncy rhythm, Exciting outing mood, Playful and light' },
+  { num:'25', instr:'기타 선율, 부드러운 하이햇',   vocal:'감성적이고 브레시한 질감',      mood:'센치한 비 오는 날 · 85 BPM',     tags:'Guitar melody, Soft hi-hat, Emotional breathy vocals, 85 BPM, Smooth tempo, Sentimental rainy day, Reminiscent atmosphere' },
+  { num:'26', instr:'어쿠스틱 기타 리프, 가벼운 타격음', vocal:'공기 섞인 나른한 남성 보컬', mood:'나른한 오후, 여정 · 80 BPM',  tags:'Acoustic guitar riff, Light percussion, Airy languid male vocals, 80 BPM, Steady rhythm, Lazy afternoon, Journey feel' },
+  { num:'27', instr:'클린톤 일렉 기타, 쉐이커 리듬', vocal:'감각적이고 부드러운 미성',    mood:'아침 햇살, 새로운 시작 · 85 BPM', tags:'Clean electric guitar, Shaker rhythm, Sensual smooth falsetto, 85 BPM, Slight groove, Morning sunshine, Fresh new beginning' },
+  { num:'28', instr:'핑거스냅, 기타, 부드러운 베이스', vocal:'대화하듯 편안하게 읊조리는', mood:'저녁 산책, 평온함 · 90 BPM',    tags:'Finger snaps, Guitar, Soft bass, Conversational relaxed vocals, 90 BPM, Upbeat shuffle feel, Evening walk, Peaceful and calm' },
+  { num:'샘플1', instr:'맑은 피아노 건반, 미세한 비트', vocal:'위스퍼링에 가까운 보컬',  mood:'포근한 실내, 달콤함 · 85 BPM',   tags:'Clear piano, Subtle beat, Whispering vocals, Airy, 85 BPM, Smooth and soft flow, Cozy indoor atmosphere, Sweet and warm' },
+];
+
+const LYRICS_LIB = [
+  { theme:'일상의 소소한 행복', emoji:'☕', name:'창가에 비친 오후', lyrics:`[Verse 1]
+The afternoon falls slow across the floor
+Dust is dancing in the golden air
+The kettle hums a quiet little song
+And I have nowhere else I need to be
+
+[Verse 2]
+A book half-read is lying on the chair
+The clock ticks soft, I'm barely keeping track
+The world outside is moving on without me
+And that feels fine, I'm not looking back
+
+[Chorus]
+Just the light and me
+Just the light and me
+Afternoon pouring through the windowpane
+Nothing needs to change
+Nothing needs to change
+I could stay like this forever in this frame
+
+[Outro]
+Golden light, golden light
+Stay a little longer` },
+
+  { theme:'일상의 소소한 행복', emoji:'☕', name:'갓 구운 빵 냄새', lyrics:`[Verse 1]
+Down the alley through the morning haze
+Something warm is drifting through the air
+I don't know why a smell can stop the day
+But I slow my steps and breathe it in with care
+
+[Verse 2]
+Flour and butter, something soft and sweet
+A little bakery behind a wooden door
+The kind of smell that pulls you off the street
+And makes you want to stay a little more
+
+[Chorus]
+This small thing, this soft thing
+This unexpected morning blessing
+Something warm, something near
+Reminds me all is right right here
+A little loaf, a golden crust
+Simple things are all I really trust
+
+[Bridge]
+Sometimes happiness
+Is walking past a door
+And catching something golden
+You didn't know you needed anymore
+
+[Outro]
+Warm and slow
+Warm and slow` },
+
+  { theme:'일상의 소소한 행복', emoji:'☕', name:'식어가는 커피 한 잔', lyrics:`[Verse 1]
+I meant to drink it while it still was hot
+But I got lost in thinking about you
+The steam has faded, the cup has cooled
+And I don't mind, I've got nothing else to do
+
+[Chorus]
+Let the coffee go cold
+Let the morning go soft
+Let the hours drift easy and long
+Let me sit in this light
+Let me breathe in this space
+Let me stay in this halfway place
+
+[Verse 2]
+The outside world is moving, I can hear it
+But here inside, the time has slowed to still
+There's something in this ordinary quiet
+That gives me everything I need to fill
+
+[Chorus]
+Let the coffee go cold
+Let the morning go soft
+Let the hours drift easy and long
+Let me sit in this light
+Let me breathe in this space
+Let me stay in this halfway place
+
+[Outro]
+Cold cup, warm hands
+Cold cup, warm hands` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'기차역의 플랫폼', lyrics:`[Verse 1]
+The announcement rings but I can't hear the words
+Just the shape of sound, the hum, the crowd
+A train pulls in, the doors slide open wide
+And something in my chest says, go, go now
+
+[Verse 2]
+My bag is light, my ticket in my hand
+The destination printed, I can feel
+The ordinary world behind the turnstile
+Is slowly becoming less and less real
+
+[Chorus]
+On the platform, everything is possible
+Every track leads somewhere I've not been
+On the platform, heart is almost weightless
+About to become someone new again
+Somewhere between here and there
+I'm the freest that I'll ever be
+
+[Bridge]
+It's not the place, it's the leaving
+It's the moment the door closes
+And I know I'm really going
+
+[Outro]
+Departing
+Departing` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'구름 위의 일몰', lyrics:`[Verse 1]
+Somewhere over the middle of the world
+I pressed my face against the plastic glass
+Below me nothing but the white of clouds
+Above me colors burning, orange, brass
+
+[Chorus]
+The sun is setting over nothing
+Over no city, no field, no sea
+Just me and the fire in the distance
+And the silence of being completely free
+Above the clouds, above the world
+Above the small concerns I always carry
+I am nothing, I am tiny
+I am briefly, beautifully free
+
+[Verse 2]
+The cabin's quiet, people reading, sleeping
+I want to keep this picture just a moment
+This is the kind of thing you can't unsave
+
+[Chorus]
+The sun is setting over nothing
+Over no city, no field, no sea
+Just me and the fire in the distance
+And the silence of being completely free
+
+[Outro]
+Keep flying
+Keep flying` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'낯선 도시의 아침', lyrics:`[Verse 1]
+The curtains let in light that isn't mine
+The sounds outside are foreign and alive
+I lie still for a moment in the strange
+And let the newness slowly help me thrive
+
+[Verse 2]
+Coffee from a shop I've never heard of
+A table by the window, all alone
+This city doesn't know me, doesn't need me
+And somehow that is what I'd call a home
+
+[Chorus]
+A morning in a city I don't know
+Everything is open, everything's unknown
+I could be anyone on these quiet streets
+I could be the freest thing there's ever been
+New sounds, new light, new coffee going warm
+This is what I traveled all this way for
+
+[Bridge]
+I won't remember all the names
+But I'll remember this exact feeling
+Better than any word can tell
+
+[Outro]
+New city, new me
+Just for today` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'벚꽃 엔딩', lyrics:`[Verse 1]
+They bloomed so fast I almost missed them
+A week of pink and then the petals fell
+Now the branches stand like quiet skeletons
+Already holding next year's story to tell
+
+[Verse 2]
+We walked beneath the falling white and pink
+Your shoulder brushed my shoulder on the path
+I kept on looking up when I should have been
+Memorizing every moment that would last
+
+[Chorus]
+Cherry blossoms ending
+Too beautiful to keep
+The prettiest things always fall the fastest
+That's the way of everything we love
+Here and gone and here again next spring
+But different, always different, always enough
+
+[Bridge]
+I think I love you like the cherry blossoms
+Arriving so full it almost hurts
+And I know that this will end like all of them
+But the ending is worth it
+
+[Outro]
+Petals falling
+Still beautiful
+Still enough` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'첫눈의 소리', lyrics:`[Verse 1]
+I don't know how but I knew before I looked
+A different kind of quiet woke me up
+I pulled the curtains back and there it was
+The world erased and replaced with white
+
+[Chorus]
+First snow, first snow
+Everything is soft and everything is slow
+First snow, first snow
+The city holds its breath and lets it go
+All the noise we made, all the marks we left
+Covered overnight in something fresh
+First snow, first snow
+
+[Verse 2]
+My footprints were the first ones on the block
+I walked as gently as the morning let me
+And stopped beneath the lamplight still half-dark
+Held the silence like it chose me
+
+[Chorus]
+First snow, first snow
+Everything is soft and everything is slow
+First snow, first snow
+The city holds its breath and lets it go
+
+[Outro]
+White and white and white
+So quiet, so quiet` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'여름비와 아스팔트', lyrics:`[Verse 1]
+All at once the sky just gave it up
+A cloud burst open, warm and sudden and loud
+The streets were boiling and now they're steaming
+That smell is rising like a dream from the ground
+
+[Chorus]
+Summer rain on hot asphalt
+The kind of smell that finds the deepest part of you
+Summer rain, sudden and soft
+It only lasts a moment but it's perfectly true
+I don't know why this feeling hits so hard
+Standing at the edge of a puddle in the dark
+
+[Verse 2]
+Everyone ran inside but I stood still
+My shoes are soaked, my shoulders wet and warm
+I've been too careful all year with my umbrella
+Maybe I needed to be caught in this storm
+
+[Chorus]
+Summer rain on hot asphalt
+The kind of smell that finds the deepest part of you
+Summer rain, sudden and soft
+It only lasts a moment but it's perfectly true
+
+[Bridge]
+The rain stops fast, the sun comes back
+Everything is glittering, everything is washed
+
+[Outro]
+Still standing in it
+Still standing in it` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'아이 손잡기', lyrics:`[Verse 1]
+I didn't notice when it happened first
+A little hand just found its way to mine
+No explanation, no permission asked
+Just trust so simple it nearly made me cry
+
+[Chorus]
+Such a small hand, such a warm hand
+Wrapped around my finger like it knows
+Everything is safe here, I'm right here
+This tiny grip, this is how love goes
+Holding on so lightly, holding on so sure
+The smallest hands can hold the heaviest things
+
+[Verse 2]
+We walked across the park, the leaves were yellow
+They wanted to stop and look at every stone
+I slowed my pace and let the morning stretch
+And thought, this is the best I've ever known
+
+[Chorus]
+Such a small hand, such a warm hand
+Wrapped around my finger like it knows
+Everything is safe here, I'm right here
+This tiny grip, this is how love goes
+
+[Outro]
+Don't let go
+Don't let go` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'등대 같은 사람', lyrics:`[Verse 1]
+I've been lost in the dark more times than I can count
+But you were always standing on the shore
+You never chased me down or called too loud
+You just stayed lit so I could find my way back more
+
+[Chorus]
+You are a lighthouse
+Standing where the water gets too wild
+I don't always know I'm heading home
+Until I see your light across the miles
+You don't move, you don't follow
+You just trust that I'll return
+And that quiet kind of loving
+Is the hardest thing to learn
+
+[Verse 2]
+Some people love you loudly, urgently
+You love me like a constant, like a landmark
+The kind of love that says, I'm always here
+
+[Chorus]
+You are a lighthouse
+Standing where the water gets too wild
+I don't always know I'm heading home
+Until I see your light across the miles
+
+[Bridge]
+I've been the storm, I've been the wave
+You've been the thing I kept returning to
+
+[Outro]
+Still lit, still there, still you` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'함께 걷는 보폭', lyrics:`[Verse 1]
+You walk a little slower than I do
+I used to stay a half a step ahead
+But somewhere in this year of walking with you
+I learned the pace where both of us feel led
+
+[Chorus]
+I slow down for you
+You don't have to ask
+I didn't even notice when I started
+Now my stride has you built into it
+And I can't imagine walking any other way
+Just this pace, just this road
+Just your footstep next to mine today
+
+[Verse 2]
+It's not a big thing, adjusting how you walk
+But something in it says, I see you, I'm with you
+And the way we've learned to match each other's rhythm
+Feels like the realest thing we've ever done
+
+[Chorus]
+I slow down for you
+You don't have to ask
+I didn't even notice when I started
+Now my stride has you built into it
+
+[Bridge]
+Side by side
+Neither one ahead
+This is what I want to do
+For the rest of every road I take
+
+[Outro]
+Walk with me
+Walk with me` },
+
+  { theme:'몽글몽글한 상상', emoji:'🌙', name:'솜사탕 구름', lyrics:`[Verse 1]
+I spent the whole afternoon looking up
+Trying to eat the clouds with just my eyes
+That one's a rabbit, that one's a mountain
+And that enormous one is someone's big surprise
+
+[Chorus]
+Cotton candy clouds, cotton candy clouds
+Piled up soft and sweet above the town
+If I could reach them I would float a while
+Drift across the sky without a sound
+Pink and white and lightly swirled
+The most delicious kind of ordinary world
+
+[Verse 2]
+My neck is stiff from all this upward staring
+But I can't stop, there's always one more cloud
+That slow procession of enormous softness
+Reminding me to not be quite so proud
+
+[Bridge]
+Maybe the sky is making something
+Every single day, a new creation
+Just to be looked at, just to drift away
+
+[Outro]
+So sweet, so sweet
+Floating on` },
+
+  { theme:'몽글몽글한 상상', emoji:'🌙', name:'고양이의 꿈', lyrics:`[Verse 1]
+She curls into a circle on the sill
+Her paws are twitching softly in the sun
+Her eyes are closed but somewhere she is running
+Chasing something small through fields of warm
+
+[Chorus]
+What does the cat dream of
+Beneath the afternoon light
+A garden full of butterflies
+A world that's always bright
+What does the cat dream of
+While we do all our worrying
+Something simple, something warm
+A never-ending, peaceful, golden thing
+
+[Verse 2]
+I watch her ears flicker at a distant sound
+She sighs and settles deeper, unconcerned
+I think she knows a secret about resting
+That I've been trying all my life to learn
+
+[Chorus]
+What does the cat dream of
+Beneath the afternoon light
+A garden full of butterflies
+A world that's always bright
+
+[Bridge]
+Just sleeping, just being
+Just breathing in the sun
+Not becoming anything
+Just already done
+
+[Outro]
+Dream on, dream on` },
+
+  { theme:'몽글몽글한 상상', emoji:'🌙', name:'달빛 아래 춤', lyrics:`[Verse 1]
+The park was empty and the path was silver
+The moon had turned the ordinary white
+I looked around and then I stopped pretending
+That I hadn't wanted to dance all night
+
+[Chorus]
+Dancing in the moonlight, all alone
+No one watching, nothing to explain
+Arms out wide, the whole park is my stage
+I don't need a partner, just the night and my name
+Turning slow beneath the silver light
+This is what I saved up all week for
+Dancing in the moonlight, all alone
+Finding out I wasn't looking for more
+
+[Verse 2]
+I hummed a song I half-remembered having
+And moved my feet the way they wanted to
+The trees were very politely not watching
+Or watching kindly, I don't know which is true
+
+[Bridge]
+This is mine
+This spinning, soft, embarrassing joy
+This is completely mine
+
+[Outro]
+Turn and turn
+Under the moon` },
+
+  { theme:'자연과 여유', emoji:'🌿', name:'사랑하는 사람과 행복한 주말', lyrics:`[Verse 1]
+Coffee getting cold on the windowsill
+Sunlight spilling slow across the floor
+Your hand in mine, we've got nowhere to be
+Nowhere I'd rather be than here with you
+
+[Verse 2]
+Lazy afternoon, the curtains swaying soft
+Your laugh is the only music that I need
+No plans, no rush, just breathing easy now
+Every ordinary moment feels like gold
+
+[Chorus]
+This is enough, just you and me
+Saturday with nowhere we need to be
+In this quiet room, in this afternoon light
+Everything is right
+Everything is right
+
+[Bridge]
+Don't need a reason, don't need a plan
+Just your quiet breathing
+And your warm, warm hands
+
+[Outro]
+This is enough
+This is enough
+Just you and me` },
+
+  { theme:'자연과 여유', emoji:'🌿', name:'기분 좋은 아침', lyrics:`[Verse 1]
+I can't explain why today is different
+The alarm went off and I just didn't mind
+Something in the air was almost asking me
+To be a little gentler, and I find
+
+[Chorus]
+It's a good morning, I don't know why
+Everything is ordinary and everything is fine
+The coffee tastes like coffee, the sun is just the sun
+But something in the background hums a lovely tune
+A good morning, just a good morning
+The kind that doesn't ask for any reason to be good
+
+[Verse 2]
+I opened up the window and the air came in
+The kind of cool that makes you want to live
+I stood there for a moment in the breeze
+Just breathing in whatever this day gives
+
+[Bridge]
+These mornings are the best ones
+The unexplained ones
+When life just decides to feel a little lighter
+
+[Outro]
+Good morning, good morning` },
+
+  { theme:'자연과 여유', emoji:'🌿', name:'싱그러운 풀내음', lyrics:`[Verse 1]
+The rain had stopped by the time I stepped outside
+The world was dripping, blinking, waking up
+And then it hit me all at once, that smell
+The earth remembering itself, the green
+
+[Chorus]
+Green after rain
+The most alive that any smell can be
+Green after rain
+Like the world just took a breath with me
+Something in the soil, something in the grass
+The kind of clean that doesn't last
+But while it does I'll stand here breathing in
+The smell of every growing thing
+
+[Verse 2]
+I crouched down by the garden at the edge
+The blades of grass were still bent from the rain
+I don't know why it made me want to cry
+Like something old in me remembers this
+
+[Bridge]
+This is where I'm from
+Some original place
+Before all the buildings, before all the noise
+Just green and water and open space
+
+[Outro]
+Breathing in, breathing in` },
+
+  { theme:'자연과 여유', emoji:'🌿', name:'숲과 나무', lyrics:`[Verse 1]
+I walked in past the first line of the trees
+And the city noise went quiet by degree
+By fifty paces in there was nothing left
+But wind and wood and the breathing of the leaves
+
+[Chorus]
+Among the trees, I remember something
+That I always knew and keep forgetting
+That I am small and that is fine
+That the world is old and I have all the time
+Among the trees, I slow to tree pace
+Where a hundred years is just a quiet thing
+I leave the urgent part of me at the entrance
+And walk in just to be a living thing
+
+[Verse 2]
+The light came through in patterns on the ground
+I stopped to watch a shadow slowly move
+A bird called out somewhere above me twice
+Then went back to whatever birds pursue
+
+[Bridge]
+The roots go down so deep
+I'm just a visitor
+These trees were here before
+And will be here long after
+
+[Outro]
+Among the trees
+Among the trees` },
+
+  { theme:'자연과 여유', emoji:'🌿', name:'베란다의 화분', lyrics:`[Verse 1]
+Every morning I go out to check on them
+My little green collection, one by one
+The succulent that somehow keeps surviving
+The mint that's growing wild, the basil in the sun
+
+[Chorus]
+These plants don't know my name
+These plants don't care about my week
+But every time I water them in the morning
+They give me back the quiet that I seek
+Something growing, something alive
+Something that just needs a little water and light
+My tiny balcony garden
+My smallest act of choosing life
+
+[Verse 2]
+I repotted the orchid back in autumn
+Thought I'd lost it but it came back in spring
+I think about that sometimes when I'm worried
+That rest and patience are part of growing things
+
+[Bridge]
+Dirt under my nails
+Water on the floor
+This is the closest thing to peace
+I know for sure
+
+[Outro]
+Growing slowly
+Growing surely` },
+];
+
+LYRICS_LIB.forEach(l => l.lang = 'en');
+
+const LYRICS_LIB_KO = [
+  { theme:'일상의 소소한 행복', emoji:'☕', name:'창가에 비친 오후', lyrics:`[Verse 1]
+오후 햇살이 바닥에 길게 누워
+먼지들이 빛 속에서 춤을 춰
+주전자 소리 낮게 콧노래 같아
+아무 데도 가지 않아도 괜찮아
+
+[Chorus]
+빛이랑 나만 있어
+창문으로 쏟아지는 따뜻한 오후
+아무것도 바꾸지 않아도 돼
+이대로가 충분히 아름다워
+
+[Verse 2]
+반쯤 읽다 덮어둔 책 한 권
+시계 소리도 느긋하게 흘러가
+세상은 저만치서 달려가고 있지만
+여기는 여기대로 좋아
+
+[Outro]
+황금빛, 황금빛
+조금만 더 머물러 줘` },
+
+  { theme:'일상의 소소한 행복', emoji:'☕', name:'갓 구운 빵 냄새', lyrics:`[Verse 1]
+골목 어귀에서 풍겨오는 그 냄새
+발걸음을 멈추게 만드는 마법 같아
+밀가루랑 버터랑 따뜻한 무언가
+작은 나무 문 앞에 서게 해
+
+[Chorus]
+이 작은 행복
+이 부드러운 아침의 선물
+별것 없어도 다 괜찮아지는 느낌
+갓 구워진 빵 한 조각
+이런 게 진짜인 것 같아
+
+[Bridge]
+가끔 행복은
+문 앞을 지나다가
+뜻밖에 맡는
+황금빛 냄새 같은 거야
+
+[Outro]
+따뜻하게, 천천히` },
+
+  { theme:'일상의 소소한 행복', emoji:'☕', name:'동네 산책로', lyrics:`[Verse 1]
+늘 걷던 이 길에 오늘은 뭐가 달라
+노란 꽃 한 송이 언제 피어났지
+이름은 모르지만 반갑게 고개 끄덕
+이 길은 매일 조금씩 새로워
+
+[Chorus]
+동네 산책길에서
+작은 것들을 발견해
+빠르게 가지 않아도 돼
+천천히 걷자
+아는 길인데 낯선 것들이 보여
+이런 하루가 좋아
+
+[Verse 2]
+강아지랑 눈이 마주쳤어
+꼬리를 흔드는 게 인사인가 봐
+텃밭에서 파 냄새 솔솔
+작은 동네가 다 내 세상이야
+
+[Outro]
+천천히 걸어
+또 와야지` },
+
+  { theme:'일상의 소소한 행복', emoji:'☕', name:'빨래 건조대의 향기', lyrics:`[Verse 1]
+햇살 좋은 날 빨래를 널었어
+바람이 살살 건드리며 지나가
+섬유 유연제 향기 코끝에 감기면
+이렇게 좋은 하루가 시작돼
+
+[Chorus]
+깨끗하고 포근한 향기
+작은 행복이 가득해
+빨랫줄에 흔들리는 하얀 옷들처럼
+내 하루도 가볍게 날아가
+
+[Verse 2]
+저녁 되면 다 마른 빨래 걷어
+보들보들 향기 그대로야
+작은 일인데 왜 이렇게 기분이 좋지
+이런 날들이 쌓여가는 거야
+
+[Outro]
+포근하게
+하루하루` },
+
+  { theme:'일상의 소소한 행복', emoji:'☕', name:'자전거 바구니', lyrics:`[Verse 1]
+강바람이 시원하게 불어와
+자전거 바구니엔 가벼운 짐들
+아이스크림 녹기 전에 먹어야지
+이 속도가 딱 좋아
+
+[Chorus]
+바구니에 싣고 달려
+강변길을 달려
+머리카락이 날리고
+기분도 날아가
+이렇게 가벼운 오후가 좋아
+
+[Verse 2]
+지나가는 사람들 손 흔들어
+나도 기분 좋게 웃으며 지나쳐
+해가 강물에 반짝이는 거 봤어
+이런 하루가 선물 같아
+
+[Outro]
+신나게 달려
+계속 달려` },
+
+  { theme:'일상의 소소한 행복', emoji:'☕', name:'일기장 첫 페이지', lyrics:`[Verse 1]
+새 일기장을 펼쳤어
+하얀 첫 페이지가 설레
+무슨 말을 쓸까 잠깐 생각하다가
+오늘 가장 좋았던 걸 적어
+
+[Chorus]
+새로운 시작
+설레는 첫 문장
+뭔가 좋은 일이 생길 것 같아
+이 깨끗한 페이지처럼
+내 하루도 새로 시작할게
+
+[Verse 2]
+날짜랑 날씨부터 꼼꼼히 써
+작은 것도 기록해두고 싶어
+나중에 읽으면 웃음이 나겠지
+지금 이 순간이 소중하니까
+
+[Outro]
+한 줄씩, 한 페이지씩
+차곡차곡` },
+
+  { theme:'일상의 소소한 행복', emoji:'☕', name:'오래된 책방의 먼지', lyrics:`[Verse 1]
+좁은 책방 문을 삐걱 열고 들어서면
+종이 냄새랑 먼지 냄새가 섞여
+천장까지 빼곡한 책들 사이로
+시간이 멈춰있는 것 같아
+
+[Chorus]
+책장을 넘기는 소리
+조용하고 고요한 공간
+여기서는 서두를 필요 없어
+원하는 만큼 머물러도 돼
+오래된 책방이 좋아
+
+[Verse 2]
+이름 모를 작가의 시집 하나
+첫 줄부터 마음에 쏙 들어
+계산대 할아버지 고개 들어 웃어주셔
+이 공간이 전부 다 좋아
+
+[Outro]
+책장 냄새
+오래된 오후` },
+
+  { theme:'일상의 소소한 행복', emoji:'☕', name:'슬리퍼 차림의 편의점', lyrics:`[Verse 1]
+밤 열 시 슬리퍼 끌고 나왔어
+별 것 사러 가는 건 아니야
+그냥 걷고 싶어서 바람 쐬러
+편의점 불빛이 반갑게 손 흔들어
+
+[Chorus]
+삼각김밥 하나 집어들고
+차가운 음료 캔 하나 더
+계산대 앞에서 잠깐 멍 때리다
+밤공기 마시며 집으로 돌아가
+
+[Verse 2]
+아무도 없는 골목이 좋아
+내 발소리만 들리는 이 시간
+서두르지 않아도 되는 밤
+이런 거 작은 자유 같아
+
+[Outro]
+슬슬 걸어
+좋은 밤이야` },
+
+  { theme:'일상의 소소한 행복', emoji:'☕', name:'식어가는 커피 한 잔', lyrics:`[Verse 1]
+뜨거울 때 마시려 했는데
+생각이 너무 많아서 식어버렸어
+커피 향은 아직 남아있고
+이 느긋함도 나쁘지 않아
+
+[Chorus]
+커피가 식어도 괜찮아
+아침이 느려도 괜찮아
+이렇게 멍하니 앉아서
+창밖만 보고 있어도 돼
+이런 아침이 좋아
+
+[Verse 2]
+다음 잔은 제때 마셔야지
+아니면 또 식겠지 어때
+이 여유가 오늘의 선물이야
+서두르지 않는 하루
+
+[Outro]
+식은 커피도 좋아
+이런 아침이 좋아` },
+
+  { theme:'일상의 소소한 행복', emoji:'☕', name:'화분 물 주기', lyrics:`[Verse 1]
+베란다 화분들한테 물 줄 시간
+작은 물뿌리개 들고 나섰어
+잎사귀에 맺히는 물방울 보면
+괜히 내가 다 뿌듯해
+
+[Chorus]
+잘 자라고 있어
+매일 조금씩
+물이랑 햇볕이면 충분한 것들
+나도 그렇게 살고 싶어
+우리 모두 잘 자라고 있어
+
+[Verse 2]
+다육이는 과하면 안 돼
+허브들은 한껏 마셔도 돼
+각자 다른 만큼 딱 맞게
+이게 돌봄이라는 거구나
+
+[Outro]
+쑥쑥 자라
+오늘도 잘 부탁해` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'기차역의 플랫폼', lyrics:`[Verse 1]
+안내방송 소리가 울려 퍼지고
+낯선 설렘이 가슴에 차올라
+기차가 들어오는 소리 들려와
+어딘가로 떠나는 게 이렇게 좋아
+
+[Chorus]
+플랫폼에 서면 가슴이 뛰어
+어디든 갈 수 있을 것 같아
+티켓 하나 손에 꽉 쥐고서
+새로운 나를 만나러 가는 길
+
+[Verse 2]
+창가 자리에 앉아 창밖 봐
+지나가는 풍경들 안녕 안녕
+처음 보는 하늘이 반갑고
+이 기분 계속 간직하고 싶어
+
+[Outro]
+출발합니다
+어디든 설레` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'공항 게이트 앞', lyrics:`[Verse 1]
+여권이랑 탑승권 손에 꽉 쥐고
+게이트 번호 확인 또 확인해
+이 설렘이 너무 좋아서
+빨리 비행기 타고 싶어
+
+[Chorus]
+공항 게이트 앞에서
+세상이 넓어지는 느낌이야
+어딘가로 날아가는 거잖아
+이보다 더 신나는 게 있을까
+설레고 설레
+
+[Verse 2]
+면세점 가볍게 돌아보고
+탑승 시작되면 줄 서서
+비행기 안으로 들어가면서
+드디어 시작이다 싶어
+
+[Outro]
+날아가자
+어디든 가자` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'창밖의 지평선', lyrics:`[Verse 1]
+끝없이 펼쳐진 도로 위를 달려
+창문 너머로 지평선이 보여
+이 속도로 계속 달리고 싶어
+어디까지 갈 수 있는지 보고 싶어
+
+[Chorus]
+지평선을 따라 달려가
+끝이 어딘지 몰라도 돼
+이 길이 어디로 가든
+지금 이 순간이 좋으니까
+
+[Verse 2]
+음악 크게 틀고 창문 열었어
+바람이 머리카락 흩어놓아
+이게 자유라는 게 맞지 않을까
+이런 하루가 더 많았으면 해
+
+[Outro]
+계속 달려
+지평선 너머로` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'배낭 속의 보물', lyrics:`[Verse 1]
+여행지에서 주운 작은 돌멩이
+해변에서 찾은 조개 껍데기
+티켓 영수증이랑 지도 한 장
+배낭 속에 차곡차곡 담았어
+
+[Chorus]
+작은 것들이 다 보물이야
+그냥 지나쳤으면 없었을 것들
+이 여행을 함께한 증거들
+꺼내 볼 때마다 웃음이 나
+
+[Verse 2]
+집에 가서도 꺼내 봐야지
+이 작은 돌 어디서 주웠더라
+기억이랑 같이 간직할게
+이게 여행이 주는 선물이야
+
+[Outro]
+하나씩, 하나씩
+소중한 기억들` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'간이역의 벤치', lyrics:`[Verse 1]
+아무도 없는 작은 간이역
+다음 기차는 한 시간 뒤래
+벤치에 앉아 하늘 올려다봐
+이런 기다림도 나쁘지 않아
+
+[Chorus]
+서두르지 않아도 되는 곳
+다음 기차 올 때까지
+구름 구경하고 새소리 듣고
+이게 여행이 주는 선물이야
+
+[Verse 2]
+역 앞 자판기에서 캔커피 뽑아
+따뜻한 걸 손에 꼭 쥐고서
+이름도 모르는 작은 마을에서
+잠깐의 쉼이 달콤해
+
+[Outro]
+기차 올 때까지
+여기 있어도 좋아` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'여름밤의 캠프파이어', lyrics:`[Verse 1]
+타닥타닥 불꽃이 춤을 춰
+별빛 가득한 밤하늘 아래서
+마시멜로 구워서 나눠 먹고
+이 순간이 언제까지나 이었으면 해
+
+[Chorus]
+캠프파이어 불빛 아래
+가장 중요한 것들이 보여
+지금 여기 있는 사람들
+이 따뜻함이면 충분해
+
+[Verse 2]
+기타 소리 들으며 콧노래 흥얼거려
+장작 냄새 밤공기에 퍼지고
+이야기 나누다 웃고 또 웃고
+내일 있어도 오늘이 전부야
+
+[Outro]
+타닥타닥
+따뜻한 밤이야` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'모래사장 위 발자국', lyrics:`[Verse 1]
+파도가 밀려와 발을 간질여
+모래사장에 발자국을 남기며 걸어
+또 파도가 와서 지워버리고
+또 다시 걸으면 새 발자국이 나
+
+[Chorus]
+계속 지워지고 또 생겨나는
+발자국처럼 걸어가면 돼
+완벽하지 않아도 괜찮아
+또 새로 시작하면 되니까
+
+[Verse 2]
+바다 냄새 가득한 바람 맞으며
+모래 위에 이름 써봤어
+파도가 금방 지우겠지 뭐
+그래도 좋아, 이 순간이
+
+[Outro]
+파도야, 와라
+또 걸을게` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'낯선 도시의 아침', lyrics:`[Verse 1]
+커튼 틈으로 낯선 빛이 들어와
+창 밖은 여기가 어딘지 알려줘
+모르는 도시의 아침 소리들
+이 낯섦이 왠지 좋아
+
+[Chorus]
+낯선 도시의 아침
+아무도 나를 몰라도 돼
+카페에 혼자 앉아 커피 마시며
+새로운 하루를 시작해
+아무거나 돼도 되는 하루
+
+[Verse 2]
+이름 모르는 거리를 천천히 걸어
+가게 간판도 읽어보고
+뭘 살 것도 아닌데 기웃기웃
+이 자유로움이 여행이야
+
+[Outro]
+안녕, 낯선 도시
+오늘 잘 부탁해` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'지도 위의 손가락', lyrics:`[Verse 1]
+가보지 못한 도시 이름을 손가락으로 짚어봐
+어떤 곳일까 상상해봐
+골목길이 있을까 바다가 있을까
+이미 반쯤 떠난 것 같아
+
+[Chorus]
+지도 위에서 손가락이 여행해
+언젠가 꼭 가볼 거야
+비행기 소리만 들려도 설레는 나
+어디든 갈 수 있다면 좋겠어
+
+[Verse 2]
+빨간 핀으로 가고 싶은 곳 표시하면
+지도가 꿈으로 가득 차
+하나씩 지워가는 게 행복이겠지
+오늘은 어디로 떠날까
+
+[Outro]
+언젠가 꼭
+거기서 보자` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'구름 위의 일몰', lyrics:`[Verse 1]
+창가 자리에 앉아 창밖을 봐
+구름 위로 해가 지고 있어
+주황빛 노을이 구름 바다 위에서
+이렇게 아름다운 게 진짜 있었구나
+
+[Chorus]
+구름 위에서 해가 져
+말로 못할 이 색깔들
+아무 도시도 아무 바다도 없는
+딱 나랑 저 하늘뿐인 시간
+이보다 자유로울 수는 없어
+
+[Verse 2]
+옆 자리 손님도 창밖 보고 있어
+이 노을은 우리 것인가 봐
+낯선 사람과 같은 하늘 공유하는 것
+여행이 주는 작은 선물이야
+
+[Outro]
+계속 날아가
+저 빛 속으로` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'벚꽃 엔딩', lyrics:`[Verse 1]
+딱 일주일이었어, 피고 졌어
+분홍 꽃잎이 눈처럼 날리던 그 길
+다음 해도 피겠지만 올해랑은 달라
+그래도 괜찮아, 그래서 더 예뻐
+
+[Chorus]
+벚꽃이 지고 있어
+예뻐서 좋고 지니까 소중해
+매년 기다리게 만드는 것들
+이런 설렘이 있어 살 맛 나
+
+[Verse 2]
+꽃잎이 옷에 앉았다 날아가
+사진 찍기도 바쁜 봄날
+내년에도 이 길 걷고 싶어
+벚꽃이 날리는 이 길에서
+
+[Outro]
+또 봐
+내년 봄에` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'매미 소리와 얼음물', lyrics:`[Verse 1]
+매미가 엄청 크게 울어대는 날
+아이스박스에 얼음 가득 채우고
+시원한 음료 한 캔 꺼내 들면
+여름이 이래서 좋구나 싶어
+
+[Chorus]
+따가운 햇볕도 좋아
+매미 소리도 좋아
+달그락달그락 얼음 소리와 함께
+여름 냄새가 가득해
+이게 여름이야
+
+[Verse 2]
+선풍기 바람 맞으며 수박 먹고
+낮잠 한 숨 자고 일어나면
+저녁 되면 덜 더워질 거야
+지금 이 더위도 추억이 되겠지
+
+[Outro]
+여름아, 반갑다
+올해도 잘 부탁해` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'보슬비와 투명 우산', lyrics:`[Verse 1]
+보슬보슬 비가 내리고 있어
+투명 우산 들고 걸어가는 길
+빗소리가 자장가처럼 들려와
+이런 비 오는 날도 좋아
+
+[Chorus]
+우산 위에 떨어지는 빗방울
+리듬이 되어 들려와
+이 촉촉한 오후가 좋아
+비 냄새가 기분 좋게 해줘
+
+[Verse 2]
+물웅덩이 슬쩍 밟아봤어
+어릴 때처럼 풍덩은 못 해도
+이 촉촉한 공기가 좋아
+비 오는 날의 설렘이 있어
+
+[Outro]
+보슬보슬 내려
+좋은 비야` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'얼음 녹는 시냇물', lyrics:`[Verse 1]
+겨울이 끝나가고 있나봐
+시냇물이 졸졸 소리 내며 흘러
+얼음 녹은 자리에 작은 물길 생기고
+봄이 오는 소리가 들려
+
+[Chorus]
+봄이 오고 있어
+시냇물이 알려줘
+아직 쌀쌀하지만 괜찮아
+이 소리 들리면 다 알거든
+곧 따뜻해질 거야
+
+[Verse 2]
+돌 위에 쪼그려 앉아 물 봐
+반짝반짝 빛이 나는 맑은 물
+겨울 동안 기다렸던 봄이
+이렇게 조용히 찾아오네
+
+[Outro]
+봄아, 어서 와
+기다리고 있었어` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'첫 풀잎의 초록', lyrics:`[Verse 1]
+겨울 땅에서 돋아난 연한 초록
+이렇게 작은데 이렇게 강하다니
+눈 속에서도 버텨낸 이 새싹이
+지금 가장 예뻐 보여
+
+[Chorus]
+첫 풀잎의 초록
+이 세상에서 가장 신선한 색
+겨울이 지나면 반드시 봄이 와
+이 작은 잎이 증명해줘
+
+[Verse 2]
+발 아래 조심조심 걸어
+밟지 않으려고 돌아서 가
+이 작은 생명 응원하고 싶어
+잘 자라라, 쑥쑥 커라
+
+[Outro]
+초록빛
+봄이 왔어` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'첫눈의 소리', lyrics:`[Verse 1]
+눈 뜨기 전에 이미 알았어
+뭔가 다른 이 고요함
+커튼 젖히니 온 세상이 하얗게
+이게 첫눈이구나
+
+[Chorus]
+첫눈이 내려
+세상이 조용해져
+모든 소리가 사라진 것 같아
+이 하얀 아침이 좋아
+첫눈이야
+
+[Verse 2]
+발자국이 아무도 없는 길
+내가 처음으로 걸어가
+뽀드득 뽀드득 소리가 좋아
+이 길은 오늘 나의 길이야
+
+[Outro]
+하얗고, 하얗고
+참 좋다` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'여름비와 아스팔트', lyrics:`[Verse 1]
+갑자기 하늘이 쏟아지기 시작해
+아스팔트에 빗방울 자국이 생겨
+후끈 달궈졌던 도로에서
+뭔가 오르는 냄새가 나
+
+[Chorus]
+비 온 뒤 도로 냄새
+왜 이렇게 좋은 거야
+아무도 안 좋아한다고 해도
+나는 이 냄새가 좋아
+여름비, 여름비
+
+[Verse 2]
+다들 처마 밑으로 숨는데
+나는 잠깐 비 맞고 서 있어
+신발이 젖어도 뭐 어때
+이 냄새 맡는 게 더 좋은걸
+
+[Outro]
+시원하게 쏟아져라
+여름비야` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'겨울 코트 안의 온기', lyrics:`[Verse 1]
+바깥은 많이 추웠는데
+따뜻한 실내로 들어왔어
+코트 안이 아직 바깥 냄새 나
+이 온도 차이가 좋아
+
+[Chorus]
+추운 밖에서 따뜻한 안으로
+이 순간 안도감 있잖아
+차가운 볼이 따뜻해지는 느낌
+겨울이 이래서 좋은 거야
+
+[Verse 2]
+따뜻한 음료 두 손으로 감싸고
+김이 모락모락 올라와
+창밖에 눈이라도 내리면
+완벽한 겨울 오후야
+
+[Outro]
+따뜻해
+다 괜찮아` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'가을 바스락', lyrics:`[Verse 1]
+노랗게 물든 은행잎 길을 걸어
+발밑에서 바스락바스락 소리 나
+일부러 낙엽 위를 골라 밟으며
+이 소리 너무 좋아서 계속 걷게 돼
+
+[Chorus]
+가을이야, 가을이야
+낙엽 밟는 소리가 음악이야
+이 계절이 좋아서
+천천히 걷고 싶어
+바스락바스락
+
+[Verse 2]
+낙엽 하나 집어 들었어
+색깔이 참 예쁘다
+단풍 빛깔이 이렇게 다양한지
+매년 새로 알게 되는 것 같아
+
+[Outro]
+바스락바스락
+가을이 좋아` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'봄비 그치고', lyrics:`[Verse 1]
+봄비가 그치고 해가 났어
+촉촉한 땅에서 흙냄새 올라와
+꽃잎에 맺힌 빗방울 반짝이고
+이게 봄이구나, 정말 봄이야
+
+[Chorus]
+봄비 그치고 나면
+더 예뻐진 세상이 있어
+비가 씻어준 하늘이 파래
+이런 오후가 선물이야
+
+[Verse 2]
+우산 접고 하늘 올려다봐
+무지개가 생겼나 찾아봐
+없어도 괜찮아, 이 하늘이면 충분해
+비 온 뒤 봄이 더 봄다워
+
+[Outro]
+반짝반짝
+봄이 왔어` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'아이 손잡기', lyrics:`[Verse 1]
+내 손가락을 꼭 쥐는 작은 손
+물어보지도 않고 그냥 잡아
+이 신뢰가 뭔지 설명이 안 돼
+그냥 마음이 따뜻해지는 거야
+
+[Chorus]
+이 작고 보드라운 손
+손가락 사이에 꼭
+이 믿음이 이렇게 무겁고도 가벼워
+그냥 같이 걸으면 돼
+
+[Verse 2]
+강아지 보면 같이 쪼그려 앉고
+꽃이 있으면 같이 들여다보고
+내 속도 맞춰 천천히 걷는 게
+세상에서 가장 좋은 산책이야
+
+[Outro]
+꼭 잡아
+여기 있어` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'할머니의 뜨개질', lyrics:`[Verse 1]
+찰칵찰칵 뜨개바늘 소리 들려
+할머니 손에서 조금씩 만들어져
+이게 뭐가 될지 물어보니
+손자 목도리라고 웃으며 말해
+
+[Chorus]
+한 땀 한 땀 정성이 담겨
+이 따뜻함이 전해져 와
+겨울이 되면 감겠지
+이 온기가 목을 감싸겠지
+
+[Verse 2]
+TV 보면서도 손은 계속 움직여
+몇 년 전부터 짜던 거래
+시간이 얼마나 들었는지 모르지만
+그 시간이 다 사랑인 거야
+
+[Outro]
+따뜻하게
+고마워요, 할머니` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'함께 걷는 보폭', lyrics:`[Verse 1]
+나보다 조금 느리게 걷는 사람
+언제부터인지 내가 맞추고 있어
+딱히 말도 안 했는데
+이게 자연스러워진 거야
+
+[Chorus]
+나는 너한테 맞춰 걸어
+알아서, 자연스럽게
+이게 우리 사이 생긴 리듬이야
+누가 가르쳐준 것도 아닌데
+
+[Verse 2]
+나란히 같은 걸 보면서 걷는 게
+이렇게 좋은 거구나 알았어
+앞서지 않아도 돼
+지금 이 속도가 우리 속도야
+
+[Outro]
+천천히, 같이
+좋아` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'귓속말', lyrics:`[Verse 1]
+아무한테도 하지 않을 이야기
+너한테만 살짝 해도 될까
+귀에다 대고 조그맣게 말하면
+눈이 동그래지는 얼굴이 좋아
+
+[Chorus]
+이건 너랑 나만의 비밀이야
+작은 목소리로 나눠
+이런 순간들이 쌓여가면서
+우리 사이가 됐어
+
+[Verse 2]
+웃으면서 고개 끄덕이는 모습
+그 표정이 너무 좋아
+별거 아닌 말에도 반응해줘서
+이렇게 편한 사람이 또 있을까
+
+[Outro]
+우리끼리만
+알고 있어` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'등대 같은 사람', lyrics:`[Verse 1]
+헤맬 때마다 네가 생각나
+달려오지 않아도 알아
+거기 있다는 것만으로
+길을 찾을 수 있으니까
+
+[Chorus]
+등대처럼 서 있어줘
+멀리서도 빛이 보여
+쫓아오지 않아도 돼
+거기 있어줘서 돌아올 수 있어
+
+[Verse 2]
+이런 사람 곁에 있다는 게
+얼마나 다행인지 몰라
+아무 말 없어도 되는 사이
+이게 진짜 안정이야
+
+[Outro]
+항상 거기서
+고맙다` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'전화기 너머 웃음소리', lyrics:`[Verse 1]
+전화 받자마자 들리는 목소리
+그것만으로 기분이 좋아져
+별 이유 없이 웃음이 나오고
+이 사람이 왜 이렇게 좋을까
+
+[Chorus]
+전화기 너머에서 웃어도
+여기까지 따뜻하게 전해져
+만나지 않아도 괜찮아
+목소리만으로 충분한 거야
+
+[Verse 2]
+별 이야기 없어도 한참 얘기하고
+끊기가 싫어서 자꾸 미루고
+이 사람이랑 있으면 시간이 빨리 가
+그게 좋은 사람인 거야
+
+[Outro]
+또 전화해
+언제든지` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'오래된 사진첩', lyrics:`[Verse 1]
+책장 구석에서 꺼낸 사진첩
+빛바랜 사진들이 가득해
+이게 언제였지, 아 맞다 그때
+웃음이 먼저 나와
+
+[Chorus]
+빛바랜 사진 속에서도
+행복했던 게 느껴져
+지금도 좋지만 그때도 좋았어
+이런 기억들이 쌓여가는 거야
+
+[Verse 2]
+다들 지금이랑 많이 다르네
+어리고 웃음이 많았어
+그때도 좋은 날들이 있었고
+지금도 좋은 날들이 있어
+
+[Outro]
+찰칵찰칵
+행복했던 날들` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'편지 봉투 열기', lyrics:`[Verse 1]
+멀리서 온 편지 봉투 하나
+손글씨로 내 이름이 적혀 있어
+조심스럽게 뜯어서 꺼내니
+친구 냄새가 나는 것 같아
+
+[Chorus]
+종이에 담긴 마음이 전해져
+문자랑은 다른 느낌이야
+이 손글씨에 얼마나 걸렸을까
+고마운 마음이 차올라
+
+[Verse 2]
+읽고 또 읽어 접어서 간직해
+답장도 손으로 써야겠다
+시간이 걸리더라도 써서 보낼게
+이 마음 전하는 방식이 좋아
+
+[Outro]
+받았어
+기다릴게, 너의 답장` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'어린 시절 비밀기지', lyrics:`[Verse 1]
+놀이터 구석 나만 아는 자리
+아무도 못 보게 웅크리고 앉아
+그게 뭐라고 그렇게 좋았는지
+그때 나에게 세상이었던 곳
+
+[Chorus]
+비밀기지에서 세상 구경했어
+아무도 모르는 내 작은 왕국
+지금도 가끔 그 자리 생각나
+어딘가에 숨고 싶을 때
+
+[Verse 2]
+나뭇잎 지붕이 우산이 되어주고
+바람 소리가 배경음악이 되고
+혼자인데 하나도 안 외로웠어
+그땐 상상만으로 충분했으니까
+
+[Outro]
+여기야, 여기
+아직 있어` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'먼지 쌓인 레코드판', lyrics:`[Verse 1]
+장롱 속에서 찾아낸 레코드판
+먼지 살살 닦아 올려놓았어
+바늘이 닿는 순간 흘러나오는 소리
+그 시절이 바로 들어와
+
+[Chorus]
+먼지 쌓인 레코드판에서
+기억이 나와서 방 안에 가득해
+이 노래 듣던 그때로
+잠깐 돌아갈 수 있어
+
+[Verse 2]
+지지직거리는 소리도 좋아
+그 잡음까지가 그 시절이야
+음악이 끝나도 꺼내지 않고
+한참 더 돌아가게 둬
+
+[Outro]
+돌아가라
+그 시절로` },
+
+  { theme:'몽글몽글한 상상', emoji:'🌙', name:'솜사탕 구름', lyrics:`[Verse 1]
+하늘 올려다보며 걷다가
+엄청 큰 뭉게구름 발견했어
+저거 솜사탕이면 어떡하지
+한 입만 베어 물면 얼마나 달까
+
+[Chorus]
+솜사탕 구름 솜사탕 구름
+저 하늘 위에 쌓여 있어
+손 닿으면 녹아 없어지겠지만
+딱 한 번만 맛보고 싶어
+
+[Verse 2]
+분홍 구름은 딸기맛이겠지
+하얀 구름은 바닐라겠지
+저 뭉게구름은 무슨 맛일까
+생각만 해도 달콤해
+
+[Outro]
+맛있겠다
+저 구름` },
+
+  { theme:'몽글몽글한 상상', emoji:'🌙', name:'고양이의 꿈', lyrics:`[Verse 1]
+햇살 아래 잠든 우리 고양이
+발이 살살 움직이고 있어
+꿈에서 뭘 쫓고 있는 걸까
+저렇게 자는 표정이 행복해 보여
+
+[Chorus]
+고양이는 무슨 꿈을 꾸는 걸까
+나비 쫓는 꿈, 생선 먹는 꿈
+뭐가 됐든 행복한 꿈이겠지
+저 표정 보면 알 수 있어
+
+[Verse 2]
+나도 고양이처럼 자고 싶어
+햇살 좋은 자리에서 쭉 늘어져
+아무 걱정 없이 그냥 자는 거야
+그게 제일 어려운 거더라
+
+[Outro]
+꿈 꿔
+예쁜 꿈 꿔` },
+
+  { theme:'몽글몽글한 상상', emoji:'🌙', name:'달빛 아래 춤', lyrics:`[Verse 1]
+공원이 비어있는 밤이야
+달이 길을 하얗게 물들이고
+아무도 없으니까 한번 춰볼까
+달빛 조명이 이렇게 예쁜걸
+
+[Chorus]
+달빛 아래서 춤을 춰
+아무도 안 봐도 좋아
+팔 벌리고 빙그르르 돌면
+이 공원이 무대가 돼
+
+[Verse 2]
+유행가 한 소절 흥얼거리며
+발끝으로 리듬 맞춰봐
+부끄럽긴 한데 아무도 없잖아
+이런 밤이 또 있을까
+
+[Outro]
+빙글빙글
+달빛 아래서` },
+
+  { theme:'몽글몽글한 상상', emoji:'🌙', name:'무지개 끝을 찾아서', lyrics:`[Verse 1]
+비 갠 뒤 무지개가 떴어
+어디서 시작해서 어디서 끝날까
+저 끝에 가보고 싶어서
+걷기 시작했어
+
+[Chorus]
+무지개 끝이 어딜까
+찾으면 거기 뭐가 있을까
+보물이 있다는 말도 있지만
+그냥 찾아가는 것만으로도 좋아
+
+[Verse 2]
+걷다 보니 무지개가 움직여
+아직 멀리 있는 것 같아
+괜찮아, 목적지가 아니라
+이 길이 좋으니까
+
+[Outro]
+계속 걸어
+무지개 따라` },
+
+  { theme:'몽글몽글한 상상', emoji:'🌙', name:'종이비행기의 여행', lyrics:`[Verse 1]
+종이 한 장 접어서 비행기 만들어
+제일 잘 날아가게 각도 맞춰
+창문 열고 하늘 향해 날려보내
+어디까지 날아가는지 봐
+
+[Chorus]
+종이비행기야 잘 날아가
+바람 타고 멀리 멀리
+네가 내 마음을 싣고 가
+세상 어딘가에 닿을 거야
+
+[Verse 2]
+보이지 않을 때까지 쳐다봤어
+이제 어디 있을지 모르겠어
+그래도 어딘가 날고 있겠지
+이런 상상이 좋아
+
+[Outro]
+멀리 날아가
+잘 가` },
+
+  { theme:'자연과 여유', emoji:'🌿', name:'잔디밭 소풍', lyrics:`[Verse 1]
+돗자리 깔고 공원에 누웠어
+하늘이 이렇게 넓을 줄 몰랐어
+풀 냄새랑 따뜻한 햇볕이랑
+이 조합이 진짜 최고야
+
+[Chorus]
+잔디밭에서 하루를 보내
+할 일이 없어도 괜찮아
+뒹굴뒹굴 낮잠 자도 되고
+구름 구경해도 되고
+이게 진짜 쉬는 거야
+
+[Verse 2]
+도시락 펼쳐 먹고 또 누워
+지나가는 사람들 구경해
+비둘기도 눈치 없이 다가오고
+이런 오후가 좋아
+
+[Outro]
+누워서, 뒹굴며
+좋은 하루야` },
+
+  { theme:'자연과 여유', emoji:'🌿', name:'베란다의 화분', lyrics:`[Verse 1]
+아침마다 베란다 나와서
+화분들한테 인사해
+잘 잤어, 잘 자랐어
+물 줄게
+
+[Chorus]
+내 작은 초록들
+매일 조금씩 자라
+바라보는 것만으로도 좋아
+이것도 사랑이야
+
+[Verse 2]
+시든 잎 잘라주고 새 흙 주면
+다시 살아나는 게 신기해
+기다려주면 돼, 서두르지 않아도
+이 화분들이 가르쳐줘
+
+[Outro]
+쑥쑥 자라
+우리 모두` },
+
+  { theme:'자연과 여유', emoji:'🌿', name:'싱그러운 풀내음', lyrics:`[Verse 1]
+비 그친 다음 날 공원 갔어
+코끝에 확 오는 풀 냄새
+이게 세상에서 제일 좋은 냄새야
+숨 크게 들이마셔
+
+[Chorus]
+비 오고 나면 더 초록이야
+냄새도 더 진해져
+이런 날이 좋아
+이런 냄새가 좋아
+싱그러운 풀내음
+
+[Verse 2]
+풀밭에 맨발로 서봤어
+차갑고 부드러운 느낌이
+발바닥으로 전해져와
+이 지구가 살아있는 느낌
+
+[Outro]
+숨 들이마셔
+진짜 좋아` },
+
+  { theme:'자연과 여유', emoji:'🌿', name:'숲과 나무', lyrics:`[Verse 1]
+나무들 사이로 들어가면
+도시 소리가 금방 사라져
+새 소리랑 바람 소리만 남아
+여기가 좋아
+
+[Chorus]
+숲 속에 있으면
+마음이 커져
+나무 크기만큼 든든해져
+이 고요함이 최고야
+
+[Verse 2]
+나무 껍질에 손 대봤어
+오래 살아온 느낌이 나
+나는 잠깐 여기 온 손님이야
+그래도 환영해주는 것 같아
+
+[Outro]
+고마워, 숲아
+또 올게` },
+
+  { theme:'자연과 여유', emoji:'🌿', name:'기분 좋은 아침', lyrics:`[Verse 1]
+이유 없이 기분 좋은 아침이야
+알람 소리도 오늘은 반가워
+창문 열었더니 바람이 살살
+오늘 뭔가 좋은 일이 생길 것 같아
+
+[Chorus]
+기분 좋은 아침이야
+이유는 없어도 돼
+그냥 오늘이 좋은 거야
+그것만으로 충분해
+
+[Verse 2]
+커피 한 잔 타서 창가에 앉아
+오늘 하루 천천히 시작해
+서두르지 않아도 되는 아침
+이런 날이 더 많았으면 해
+
+[Outro]
+좋은 아침이야
+오늘도 잘 부탁해` },
+];
+LYRICS_LIB_KO.forEach(l => l.lang = 'ko');
+LYRICS_LIB.push(...LYRICS_LIB_KO);
+
+const LYRICS_LIB_EN_EXTRA = [
+  { theme:'자연과 여유', emoji:'🌿', name:'Weekend Trip', lyrics:`[Verse 1]
+Packed a light bag on a Saturday morning
+No real destination, just away
+Following the map until we stopped following
+And found ourselves right where we wanted to stay
+
+[Chorus]
+A weekend trip with nowhere we must be
+Just two tickets and an open road
+The kind of day that doesn't need a story
+Just the feeling of a lightened load
+
+[Verse 2]
+We stopped at every viewpoint, looked for long
+Ate from a cart beside a market door
+I took a photo but it didn't catch it
+That kind of light refuses to be stored
+
+[Outro]
+Heading home now
+Already planning the next one` },
+
+  { theme:'자연과 여유', emoji:'🌿', name:'Good Weather', lyrics:`[Verse 1]
+The sky decided to be perfect today
+No announcement, it just arrived
+That particular shade of clear and blue
+That makes you feel so glad to be alive
+
+[Chorus]
+Good weather kind of day
+Where everything feels possible
+The breeze just cool enough, the sun just warm
+I don't need anything else today
+Just this, just this
+
+[Verse 2]
+I canceled all my indoor plans
+And walked until my legs said stop
+Found a bench, sat, watched the afternoon
+And felt completely fine
+
+[Outro]
+Just this weather
+Just this day` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:"Grandmother's Knitting", lyrics:`[Verse 1]
+Click click click goes the needle
+Click click click all afternoon
+She doesn't look down at her hands
+She's watching something on TV
+
+[Chorus]
+What she's making is a scarf for winter
+She started it back in spring
+Every row is a quiet kind of saying
+I thought of you today, and the day before
+
+[Verse 2]
+I sit beside her and watch
+Neither of us needs to speak
+The clicking and the light and the hour
+This is where I want to stay
+
+[Outro]
+Click click click
+Thank you` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'Whispers', lyrics:`[Verse 1]
+You leaned in close to tell me something small
+Something you'd only say to me
+I don't remember the exact words now
+But I remember how it felt
+
+[Chorus]
+A whisper just between us two
+Something the world outside can't hear
+This is how we talk sometimes
+In half-words only we can reach
+Secret language, secret warmth
+
+[Verse 2]
+I leaned back and looked at your face
+A small smile, a question in your eyes
+Whatever this was, I was grateful
+That you chose me to tell it to
+
+[Outro]
+Just between us
+Only us` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'Old Photo Album', lyrics:`[Verse 1]
+Found the album at the back of the shelf
+Blew the dust off, sat right down
+Every page took a long time to turn
+The people in here are so young
+
+[Chorus]
+There's the smile I recognize
+But younger, lighter, without the history
+We were always happy somewhere
+Even when I'd forgotten we were
+Old photo album reminding me
+
+[Verse 2]
+I stopped at one with the whole family
+Someone's holding a cake, someone's laughing
+I don't know who took this photo
+But I want to thank them
+
+[Outro]
+Click of the shutter
+All those good days` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'A Secret from Childhood', lyrics:`[Verse 1]
+There was a spot behind the playground
+That nobody else could find but me
+Under a kind of climbing structure
+Where the ground stayed dry in rain
+
+[Chorus]
+My secret place, my quiet little kingdom
+Where I'd go when the world got loud
+I'd sit there with nothing but myself
+And feel like the richest kid around
+
+[Verse 2]
+I went back years later to find it
+The space had changed but I still knew where it was
+Some places live longer in memory
+Than they ever did in wood and stone
+
+[Outro]
+Still there
+Still mine` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'The Record Player', lyrics:`[Verse 1]
+I found it under blankets in the attic
+Carried it down carefully like a gift
+Cleaned the needle, found the oldest record
+And held my breath before the first note hit
+
+[Chorus]
+Crackle and hiss and then the music
+Coming from another era
+The living room filled up with something
+Warmer than anything digital
+Old record player, still alive
+
+[Verse 2]
+I sat on the floor and just listened
+Not moving, not checking my phone
+The whole side of the album played through
+And I forgot that time was happening
+
+[Outro]
+Still spinning
+Still beautiful` },
+
+  { theme:'관계와 기억', emoji:'🤝', name:'Reading a Letter', lyrics:`[Verse 1]
+A handwritten envelope in the mailbox
+In a world where mail is mostly bills
+I recognized the handwriting before I opened it
+And sat down right there on the step
+
+[Chorus]
+Letter from someone who took the time
+To find paper, a pen, and the right words
+Who sat somewhere and thought of me
+Long enough to fill a whole page
+
+[Verse 2]
+I read it twice before going inside
+Once more at the kitchen table
+Then folded it back the way it came
+And kept it in the drawer beside my bed
+
+[Outro]
+Reading it again tonight
+Thank you for the time it took` },
+
+  { theme:'몽글몽글한 상상', emoji:'🌙', name:"Finding the Rainbow's End", lyrics:`[Verse 1]
+A rainbow appeared after the Tuesday storm
+I'd seen a hundred but this one felt close
+I followed its apparent end down three blocks
+Trying to find whatever was there
+
+[Chorus]
+Following the rainbow end
+Knowing it will always move
+But following anyway feels right
+The search itself is where the treasure hides
+
+[Verse 2]
+I stopped where it seemed to land
+Just a parking lot with wet pavement
+But something in the light there was different
+Or maybe I just needed to believe
+
+[Outro]
+Still looking
+Still walking` },
+
+  { theme:'몽글몽글한 상상', emoji:'🌙', name:'Paper Airplane', lyrics:`[Verse 1]
+I folded it the way I was taught as a kid
+That particular crease that makes it fly
+Took it to the window on the second floor
+And let it go into the afternoon
+
+[Chorus]
+Paper airplane catching the breeze
+Banking left over the street below
+I watched until I couldn't see it
+Flying somewhere I'll never know
+Go, paper airplane, go
+
+[Verse 2]
+I hope it landed somewhere interesting
+A garden or a stranger's windowsill
+I hope whoever found it held it gently
+And understood it had been meant to fly
+
+[Outro]
+Flying still, maybe
+Somewhere out there` },
+
+  { theme:'몽글몽글한 상상', emoji:'🌙', name:'The Trees Are Talking', lyrics:`[Verse 1]
+The wind came through and the leaves all answered
+A sound like conversation, leaf to leaf
+The big oak started and the maples followed
+A whole discussion I was not invited to
+
+[Chorus]
+The trees are talking, I can almost hear them
+Exchanging news about the weather and the roots
+An old and patient language underneath everything
+That we've been too loud to learn to use
+
+[Verse 2]
+I sat under the biggest one and listened
+Tried to slow my thinking to tree pace
+Maybe they were saying something beautiful
+Maybe I just wasn't built to hear it yet
+
+[Outro]
+I'm listening now
+I'll come back again` },
+
+  { theme:'몽글몽글한 상상', emoji:'🌙', name:'Fishing for Stars', lyrics:`[Verse 1]
+I threw my line into the Milky Way
+A joke I made alone at two a.m.
+But then I sat awhile and really looked
+And thought, well what if?
+
+[Chorus]
+Fishing for stars in the summer sky
+The only catch is wonder
+If a star bit down and I felt the tug
+I'd hold it for a moment, just a moment
+Then let it go back
+
+[Verse 2]
+Maybe that's what wishing is
+A line thrown up into the dark
+You feel a little pull, you reel it in
+And find you've caught something like hope
+
+[Outro]
+Still fishing
+Still watching` },
+
+  { theme:'몽글몽글한 상상', emoji:'🌙', name:'A Bottle of the Sea', lyrics:`[Verse 1]
+When I left the coast I took a little sand
+And seawater in a jar
+A strange thing to carry on a train
+But I needed something to take with me
+
+[Chorus]
+My bottle of the sea sits on the shelf
+When I shake it the waves come back
+I close my eyes and I can hear them
+A little ocean in my little room
+
+[Verse 2]
+On ordinary days when I need it
+I shake the jar and hold it to the light
+The same water that touched ten thousand shores
+Is here with me tonight
+
+[Outro]
+Shake and listen
+Still the sea` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'Crickets and Ice', lyrics:`[Verse 1]
+The crickets were at full volume all July
+I'd fall asleep to them and wake to them
+And in the hottest afternoons
+I'd make a drink full of ice just to hear it
+
+[Chorus]
+Crickets outside and ice inside
+The summer soundtrack of my childhood
+That rattle and that high summer singing
+All that heat you can't escape from
+But wouldn't want to
+
+[Verse 2]
+I'd carry my glass to the back step
+And sit and listen and sweat and be glad
+That summer had come back around again
+And that I was exactly here for it
+
+[Outro]
+Still ringing
+Crickets and ice` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'Drizzle Under an Umbrella', lyrics:`[Verse 1]
+Not a proper rain, just a soft suggestion
+The kind that doesn't make you run inside
+I put up my umbrella anyway
+And walked slower than I usually might
+
+[Chorus]
+Drizzle on my umbrella overhead
+A gentle drumming, soft and even
+The street is quiet, the puddles forming slow
+I'm in no hurry in this in-between rain
+
+[Verse 2]
+People who were out for walks stayed out
+We all nodded at each other's umbrellas
+A small shared acknowledgment that this
+Was exactly the right kind of weather
+
+[Outro]
+Still drizzling
+Still fine` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'The Melting Creek', lyrics:`[Verse 1]
+In late February I heard it first
+A sound I hadn't heard in months
+Water moving underneath the ice
+Spring announcing itself quietly
+
+[Chorus]
+The creek is melting, the creek is waking
+I can hear it talking to itself
+Something that was frozen is returning
+Everything that slept is blinking open
+
+[Verse 2]
+I sat on the bank and watched for a while
+The ice in patches, water between
+The whole thing working itself out
+Taking its time, which was exactly right
+
+[Outro]
+Flowing now
+Flowing` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'First Green', lyrics:`[Verse 1]
+It was barely visible the first day
+A smudge of color under dead leaves
+I checked it every morning for a week
+Until the green was undeniable
+
+[Chorus]
+First green of the year
+Breaking through the grey
+I can't explain why it matters so much
+But something rearranges when I see it
+First green, first green
+
+[Verse 2]
+There's something about the first of anything
+That carries all the ones that will follow
+This tiny shoot is already the whole summer
+Already the whole long turn of the year
+
+[Outro]
+Growing
+There it is` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'Autumn Crunch', lyrics:`[Verse 1]
+The path was covered with leaves by October
+Gold and copper, some still partly green
+I chose my route deliberately by crunch
+Finding the driest ones, the loudest ones
+
+[Chorus]
+Crunch crunch crunch goes the autumn path
+I haven't outgrown this, I never will
+The satisfying giving of the leaf
+The season announcing itself under my feet
+
+[Verse 2]
+I gathered a small handful to take home
+Lined them up on the windowsill by color
+Red to orange to yellow to pale gold
+The whole spectrum of the season in a row
+
+[Outro]
+Crunch
+Crunch crunch` },
+
+  { theme:'계절의 감각', emoji:'🍂', name:'The Warmth Inside a Winter Coat', lyrics:`[Verse 1]
+I'd been out longer than I meant to be
+The cold had worked its way through everything
+Then I stepped inside and the door closed
+And the world outside was suddenly past tense
+
+[Chorus]
+The warmth inside, coming back slowly
+Starting in my hands and moving up
+The contrast is the thing I always forget
+How good warmth feels after the cold
+How relief feels like a second home
+
+[Verse 2]
+I stood there for a moment in my coat
+Not ready to move or change or start
+Just standing in the in-between of temperatures
+Both places at once, not quite arrived
+
+[Outro]
+Warming up now
+Home` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'Campfire Night', lyrics:`[Verse 1]
+We found the dry wood before dark
+And built it up the way we'd been shown
+The first match didn't catch, the second did
+And the circle of light expanded slowly
+
+[Chorus]
+Campfire going, everyone quiet
+Watching the same fire from different angles
+There's something about fire that silences talking
+And opens up a different kind of being together
+
+[Verse 2]
+Somebody offered something to roast
+We all held our sticks out to the center
+The heat on our faces, the dark at our backs
+The stars overhead doing their patient thing
+
+[Outro]
+Crackling fire
+Perfect night` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'Footprints in the Sand', lyrics:`[Verse 1]
+I walked the beach before anyone else was up
+The tide had smoothed the sand completely flat
+I was the first to break the surface for the day
+Each step a small announcement, I was here
+
+[Chorus]
+Footprints in the sand
+The tide will take them, I know
+But for right now they're mine
+A small record of this morning
+Before the day fills in
+
+[Verse 2]
+I walked until the sand became the rock
+Then turned and walked back through my own prints
+It was strange to see the evidence of myself
+Already half a memory
+
+[Outro]
+Gone with the tide
+But real until then` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'My Traveling Bag', lyrics:`[Verse 1]
+I keep a list of things inside the side pocket
+That I've collected from the places I've been
+A tram ticket that expired in a good city
+The corner of a map I never threw away
+
+[Chorus]
+My traveling bag holds the small proofs
+That I've been somewhere, done something
+The weight of all that going and coming
+Is exactly the weight I choose to carry
+
+[Verse 2]
+People ask what's practical about this
+And I tell them, nothing, that's the point
+Some things you carry not because you need them
+But because they carry you
+
+[Outro]
+Still traveling
+Still keeping things` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'A Quiet Station', lyrics:`[Verse 1]
+The schedule said one hour to the next train
+I sat on the only bench on the platform
+The town behind me was too small to explore
+So I stayed and let the hour arrive to me
+
+[Chorus]
+Quiet station, no one else waiting
+The clock moved slowly and that was fine
+Sometimes the gift of travel is the pausing
+The unhurried middle of the journey
+
+[Verse 2]
+A sparrow landed near my feet
+I broke a cracker into three small pieces
+We ate together on the empty platform
+Two travelers going different directions
+
+[Outro]
+Train's coming now
+That was just right` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'Following the Map', lyrics:`[Verse 1]
+I unfolded the paper version on purpose
+My phone stayed in my bag all afternoon
+There's something about actually touching the route
+That makes you feel more present in the place
+
+[Chorus]
+Following the map with my actual fingers
+Turning it when the road turned too
+Getting lost is just a new direction
+Finding things that weren't on any page
+
+[Verse 2]
+I missed the street I was looking for
+And found a market no one had told me about
+I ate something I couldn't name
+And understood why people do this
+
+[Outro]
+Folding it back wrong now
+Worth it` },
+
+  { theme:'여행과 설렘', emoji:'✈️', name:'Bread in a Strange City', lyrics:`[Verse 1]
+I didn't speak enough to explain what I wanted
+I pointed at the one in the window
+The woman behind the counter smiled and wrapped it
+We concluded our whole transaction without words
+
+[Chorus]
+Buying bread in a city I don't know
+With hands and smiles and finger-pointing
+This is the oldest trade there is
+Someone made this, someone needs to eat
+Simple and complete
+
+[Verse 2]
+I ate it on a bench outside
+Still warm, exactly what I needed
+I didn't know the street or the baker's name
+But it was the best bread I remember
+
+[Outro]
+Thank you
+Wherever you are` },
+
+  { theme:'자연과 여유', emoji:'🌿', name:'Morning Rounds', lyrics:`[Verse 1]
+Every morning I do my rounds
+Can in hand, plant to plant
+The succulents get barely any
+The ferns demand their share
+
+[Chorus]
+Morning rounds with my watering can
+This is how I start the day
+A small act of tending, of attention
+The quietest possible beginning
+
+[Verse 2]
+I've learned each one by now
+What they need, how they respond
+The sad droop before water, the lift after
+A small conversation every day
+
+[Outro]
+Good morning, everyone
+See you tomorrow` },
+
+  { theme:'자연과 여유', emoji:'🌿', name:'Rain on Grass', lyrics:`[Verse 1]
+It always catches me off guard
+That first full breath after the rain
+The earth deciding to announce itself
+Through every blade of newly wet grass
+
+[Chorus]
+Petrichor rising from the grass
+The oldest smell in my memory
+Before I was old enough to name it
+I was already stopped in my tracks by it
+Rain on grass, rain on grass
+
+[Verse 2]
+I stood there in the wet backyard
+Not going anywhere, not needing to
+Sometimes the right thing is just to hold still
+And let the world smell this good
+
+[Outro]
+Breathing in
+That's it, that's all` },
+
+  { theme:'자연과 여유', emoji:'🌿', name:'Walking into Trees', lyrics:`[Verse 1]
+There's a path near home that goes straight into woods
+Within a hundred yards the road is gone
+Just the rustling and the shifting light
+And whatever I brought in with me
+
+[Chorus]
+Walking into the trees I always slow down
+Something about the canopy overhead
+I leave things at the entrance without meaning to
+Worry and hurry, the whole front load
+
+[Verse 2]
+I know these trees by now
+Which ones creak in the wind
+Which clearing gets the late afternoon sun
+Which path leads back to ordinary
+
+[Outro]
+Out again now
+But changed a little` },
+
+  { theme:'자연과 여유', emoji:'🌿', name:'Picnic on the Grass', lyrics:`[Verse 1]
+We spread the blanket out imperfectly
+The corners going where they wanted to go
+Put all the food in the middle and sat around it
+No table manners, no indoor rules
+
+[Chorus]
+Eating outside on the actual ground
+Ants and breezes both welcome
+The sky for a ceiling, the grass for a floor
+This is the most civilized way to have a meal
+
+[Verse 2]
+We stayed long after the food was gone
+Trading conversation for silence
+Then trading that for the sounds of the park
+Children and dogs and the wind
+
+[Outro]
+We should do this more often
+We always say that here` },
+
+  { theme:'자연과 여유', emoji:'🌿', name:'Blue Sky Walk', lyrics:`[Verse 1]
+The sky had decided to be extraordinary
+That particular blue of the late-September day
+The kind you stop strangers to point out
+Nobody doesn't look up
+
+[Chorus]
+Walking under a blue sky
+That particular shade I can't quite name
+It's not a paint color, not a category
+It's a thing that only happens sometimes
+Blue sky walk, blue sky walk
+
+[Verse 2]
+I took the long way home on purpose
+Under that sky for as long as I could
+It would change before I reached my door
+All skies do, but this one was worth it
+
+[Outro]
+Still that blue
+For a little longer` },
+];
+LYRICS_LIB_EN_EXTRA.forEach(l => l.lang = 'en');
+LYRICS_LIB.push(...LYRICS_LIB_EN_EXTRA);
+
+/* ── 상태 ── */
+let refTags = '';
+let vocal = null, genre = null, bpm = 0;
+const vibeSet = new Set(), textureSet = new Set(), vocalColorSet = new Set();
+const instrSet = new Set(), exclSet = new Set(), customExclSet = new Set();
+
+/* ── 가사 라이브러리 ── */
+let lyricLang = 'en';
+let lyricFilter = '전체';
+
+function toggleLyricLib() {
+  document.getElementById('lyricLibToggle').classList.toggle('open');
+  document.getElementById('lyricLibBody').classList.toggle('open');
+}
+
+function buildLyricsLib() {
+  const langRow = document.getElementById('lyricLangRow');
+  [['ko','한국어'],['en','English']].forEach(([lang, label]) => {
+    const el = document.createElement('div');
+    el.className = 'lyric-lang-tab' + (lang === lyricLang ? ' on' : '');
+    el.textContent = label;
+    el.onclick = () => {
+      lyricLang = lang;
+      langRow.querySelectorAll('.lyric-lang-tab').forEach(t => t.classList.toggle('on', t.textContent === label));
+      lyricFilter = '전체';
+      buildThemeFilters();
+      renderLyricCards();
+    };
+    langRow.appendChild(el);
+  });
+  buildThemeFilters();
+  const ko = LYRICS_LIB.filter(l => l.lang === 'ko').length;
+  const en = LYRICS_LIB.filter(l => l.lang === 'en').length;
+  document.getElementById('lyricLibCount').textContent = `한국어 ${ko}곡 · English ${en}곡`;
+  renderLyricCards();
+}
+
+function buildThemeFilters() {
+  const filterRow = document.getElementById('lyricFilters');
+  filterRow.innerHTML = '';
+  const pool = LYRICS_LIB.filter(l => l.lang === lyricLang);
+  const themes = ['전체', ...new Set(pool.map(l => l.theme))];
+  themes.forEach(t => {
+    const el = document.createElement('div');
+    el.className = 'lyric-filter' + (t === lyricFilter ? ' on' : '');
+    el.textContent = t === '전체' ? '전체' : (pool.find(l=>l.theme===t)?.emoji||'') + ' ' + t;
+    el.onclick = () => {
+      lyricFilter = t;
+      filterRow.querySelectorAll('.lyric-filter').forEach(f => f.classList.toggle('on', f === el));
+      renderLyricCards();
+    };
+    filterRow.appendChild(el);
+  });
+}
+
+function renderLyricCards() {
+  const grid = document.getElementById('lyricGrid');
+  grid.innerHTML = '';
+  const pool = LYRICS_LIB.filter(l => l.lang === lyricLang);
+  const list = lyricFilter === '전체' ? pool : pool.filter(l => l.theme === lyricFilter);
+  list.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'lyric-card';
+    const preview = item.lyrics.split('\n').filter(l => l && !l.startsWith('[')).slice(0,2).join(' / ');
+    card.innerHTML = `<div class="lyric-card-badge">${item.emoji} ${item.theme}</div>
+      <div class="lyric-card-name">${item.name}</div>
+      <div class="lyric-card-preview">${preview}</div>`;
+    card.onclick = () => {
+      grid.querySelectorAll('.lyric-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      document.getElementById('lyricsInput').value = item.lyrics;
+      buildPrompt();
+      document.getElementById('lyricsInput').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+    grid.appendChild(card);
+  });
+}
+
+/* ── 주제 빌드 ── */
+function buildTopics() {
+  const tabs = document.getElementById('themeTabs');
+  const panels = document.getElementById('topicPanels');
+  THEMES.forEach((theme, ti) => {
+    const tab = document.createElement('div');
+    tab.className = 'theme-tab' + (ti===0?' active':'');
+    tab.textContent = theme.emoji + ' ' + theme.name;
+    tab.onclick = () => {
+      document.querySelectorAll('.theme-tab').forEach((t,i) => t.classList.toggle('active', i===ti));
+      document.querySelectorAll('.topic-panel').forEach((p,i) => p.classList.toggle('active', i===ti));
+    };
+    tabs.appendChild(tab);
+    const panel = document.createElement('div');
+    panel.className = 'topic-panel' + (ti===0?' active':'');
+    const grid = document.createElement('div');
+    grid.className = 'topic-grid';
+    theme.topics.forEach(t => {
+      const item = document.createElement('div');
+      item.className = 'topic-item';
+      item.innerHTML = `<div class="topic-name">${t.name}</div><div class="topic-desc">${t.desc}</div>`;
+      item.onclick = () => {
+        document.querySelectorAll('.topic-item').forEach(i => i.classList.remove('selected'));
+        item.classList.add('selected');
+        const msg = `이 주제로 노래 가사와 Suno 스타일 태그를 만들어줘.\n\n주제: ${t.name}\n설명: ${t.desc}`;
+        document.getElementById('chatMsg').textContent = msg;
+        document.getElementById('chatBox').classList.add('show');
+        const btn = document.getElementById('btnCopyChat');
+        btn.textContent = '채팅 메시지 복사';
+        btn.classList.remove('copied');
+        const badge = document.getElementById('topicBadge');
+        badge.textContent = t.name;
+        badge.classList.add('show');
+        document.getElementById('step1Body').classList.add('collapsed');
+        document.getElementById('step1Chevron').classList.remove('open');
+      };
+      grid.appendChild(item);
+    });
+    panel.appendChild(grid);
+    panels.appendChild(panel);
+  });
+}
+
+function toggleStep1() {
+  const body = document.getElementById('step1Body');
+  const chevron = document.getElementById('step1Chevron');
+  const isCollapsed = body.classList.toggle('collapsed');
+  chevron.classList.toggle('open', !isCollapsed);
+}
+
+function copyChatMsg() {
+  navigator.clipboard.writeText(document.getElementById('chatMsg').textContent).then(() => {
+    const btn = document.getElementById('btnCopyChat');
+    btn.textContent = '복사됨 ✓'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '채팅 메시지 복사'; btn.classList.remove('copied'); }, 2500);
+  });
+}
+
+/* ── 레퍼런스 빌드 ── */
+function buildRefs() {
+  const wrap = document.getElementById('refGrid');
+  const deleted = getDeletedRefs();
+  MY_REFS.filter(r => !deleted.has(r.num)).forEach(r => {
+    const el = document.createElement('div');
+    el.className = 'ref-card';
+    el.dataset.reftags = r.tags;
+    el.innerHTML = `
+      <div class="ref-num">No.${r.num}</div>
+      <div class="ref-row"><span class="ref-icon">🎸</span><span class="ref-text">${r.instr}</span></div>
+      <div class="ref-row"><span class="ref-icon">🎤</span><span class="ref-text">${r.vocal}</span></div>
+      <div class="ref-mood">${r.mood}</div>`;
+    const actions = document.createElement('div');
+    actions.className = 'ref-card-actions';
+    const star = document.createElement('button');
+    star.className = 'ref-star' + (getRefFavs().has(r.num) ? ' on' : '');
+    star.title = '즐겨찾기';
+    star.textContent = '★';
+    star.onclick = (e) => { e.stopPropagation(); toggleRefFav(r.num, star); };
+    const del = document.createElement('button');
+    del.className = 'ref-del';
+    del.title = '이 레퍼런스 삭제';
+    del.textContent = '✕';
+    del.onclick = (e) => { e.stopPropagation(); showConfirm(`No.${r.num} 레퍼런스를 삭제할까요?`, '삭제하면 목록에서 사라져요. 다시 보려면 새로고침 하세요.', () => deleteRef(r.num, el)); };
+    actions.appendChild(star);
+    actions.appendChild(del);
+    el.appendChild(actions);
+    el.onclick = () => {
+      const was = el.classList.contains('selected');
+      document.querySelectorAll('.ref-card').forEach(c => c.classList.remove('selected'));
+      clearChips();
+      if (!was) { el.classList.add('selected'); applyRefPreset(r.num); }
+      buildPrompt();
+    };
+    wrap.appendChild(el);
+  });
+}
+
+/* ── 레퍼런스 프리셋 ── */
+const REF_PRESETS = {
+  '2':     { vibe:['soft and warm','cozy'],                           texture:['minimalist arrangement','intimate sound'],            instr:['piano','finger snaps'],                    vocalColor:['clean and natural vocals','gentle low register'],              genre:'Indie Pop' },
+  '3':     { vibe:['fresh and airy','light and fluttery'],            texture:['crisp and clean'],                                   instr:['acoustic guitar','shaker'],                vocalColor:['breathy vocals','whisper singing style'],                      genre:'Acoustic Pop', vocal:'female vocals' },
+  '5':     { vibe:['sweet and playful'],                              texture:['polished production','tight arrangement'],            instr:['staccato piano','bass guitar'],             vocalColor:['sophisticated vocal delivery'],                                genre:'City Pop' },
+  '6':     { vibe:['soft and warm','warm and gentle'],                texture:['warm mix','intimate sound'],                         instr:['acoustic guitar','piano'],                 vocalColor:['gentle low register','clean and natural vocals'],              vocal:'male vocals' },
+  '8':     { vibe:['dreamy'],                                         texture:['intimate sound'],                                    instr:['electric guitar','bass guitar'],            vocalColor:['whisper singing style','gentle low register'] },
+  '9':     { vibe:['soft and warm','cozy','fresh and airy'],          texture:['minimalist arrangement','intimate sound'],            instr:['piano','shaker'],                          vocalColor:['breathy vocals'],                                              vocal:'female vocals' },
+  '10':    { vibe:['soft and warm','cozy'],                           texture:['minimalist arrangement','intimate sound'],            instr:['piano','shaker'],                          vocalColor:['breathy vocals','whisper singing style'],                      excl:['No reverb'], bpm:82 },
+  '11':    { vibe:['fresh and airy','light and fluttery','warm and gentle'], texture:['crisp and clean'],                            instr:['acoustic guitar','finger snaps'],           vocalColor:['clean and natural vocals'],                                    vocal:'male vocals', bpm:87 },
+  '12':    { vibe:['delicate','soft and warm'],                       texture:['spacious mix','warm mix'],                           instr:['fingerstyle guitar','piano'],               vocalColor:['clear and bright vocals'],                                     bpm:77 },
+  '13':    { vibe:['cozy','warm and gentle'],                         texture:['intimate sound','minimalist arrangement'],            instr:['electric guitar'],                         vocalColor:['whisper singing style','gentle low register'],                 bpm:72 },
+  '14':    { vibe:['light and fluttery','fresh and airy','sweet and playful'], texture:['crisp and clean'],                          instr:['acoustic guitar','shaker'],                vocalColor:['clear and bright vocals'],                                     vocal:'female vocals', bpm:92 },
+  '15':    { vibe:['delicate','soft and warm'],                       texture:['minimalist arrangement','polished production'],       instr:['staccato piano'],                          vocalColor:['clean and natural vocals','sophisticated vocal delivery'],     bpm:87 },
+  '16':    { vibe:['soft and warm','cozy','fresh and airy'],          texture:['warm mix','intimate sound'],                         instr:['piano','shaker'],                          vocalColor:['breathy vocals'],                                              bpm:80 },
+  '17':    { vibe:['warm and gentle','soft and warm'],                texture:['intimate sound','minimalist arrangement'],            instr:['acoustic guitar'],                         vocalColor:['whisper singing style','clean and natural vocals'],            vocal:'male vocals', bpm:75 },
+  '18':    { vibe:['light and fluttery','fresh and airy','sweet and playful'], texture:['crisp and clean','tight arrangement'],       instr:['staccato piano','shaker'],                 vocalColor:['clear and bright vocals'],                                     vocal:'female vocals', bpm:90 },
+  '19':    { vibe:['soft and warm','cozy','dreamy'],                  texture:['intimate sound','minimalist arrangement'],            instr:['piano'],                                   vocalColor:['breathy vocals'],                                              bpm:85 },
+  '20':    { vibe:['soft and warm','cozy'],                           texture:['spacious mix','intimate sound','minimalist arrangement'], instr:['piano'],                              vocalColor:['whisper singing style','clean and natural vocals'],            bpm:80 },
+  '21':    { vibe:['soft and warm','cozy','delicate'],                texture:['intimate sound'],                                    instr:['acoustic guitar'],                         vocalColor:['whisper singing style','breathy vocals'],                      bpm:80 },
+  '22':    { vibe:['dreamy','delicate'],                              texture:['spacious mix'],                                      instr:['electric guitar','shaker'],                vocalColor:['breathy vocals','clear and bright vocals'],                    bpm:90 },
+  '23':    { vibe:['soft and warm','cozy','delicate'],                texture:['spacious mix','intimate sound'],                     instr:['fingerstyle guitar','finger snaps'],        vocalColor:['sophisticated vocal delivery','clean and natural vocals'],     bpm:75 },
+  '24':    { vibe:['light and fluttery','fresh and airy','sweet and playful'], texture:['crisp and clean'],                          instr:['acoustic guitar'],                         vocalColor:['whisper singing style','clear and bright vocals'],             bpm:95 },
+  '25':    { vibe:['dreamy','delicate','soft and warm'],              texture:['warm mix','intimate sound'],                         instr:['acoustic guitar'],                         vocalColor:['breathy vocals','emotionally expressive'],                     bpm:85 },
+  '26':    { vibe:['soft and warm','warm and gentle','dreamy'],       texture:['intimate sound'],                                    instr:['acoustic guitar'],                         vocalColor:['breathy vocals','gentle low register'],                        vocal:'male vocals', bpm:80 },
+  '27':    { vibe:['fresh and airy','light and fluttery'],            texture:['crisp and clean','polished production'],             instr:['electric guitar','shaker'],                vocalColor:['clear and bright vocals','sophisticated vocal delivery'],      bpm:85 },
+  '28':    { vibe:['soft and warm','warm and gentle'],                texture:['intimate sound','crisp and clean'],                  instr:['acoustic guitar','finger snaps','bass guitar'], vocalColor:['clean and natural vocals','whisper singing style'],        bpm:90 },
+  '샘플1': { vibe:['soft and warm','cozy','fresh and airy'],          texture:['intimate sound','minimalist arrangement'],            instr:['piano'],                                   vocalColor:['whisper singing style','breathy vocals'],                      bpm:85 },
+};
+
+function clearChips() {
+  vocal = null; genre = null;
+  vibeSet.clear(); textureSet.clear(); instrSet.clear();
+  vocalColorSet.clear(); exclSet.clear();
+  document.querySelectorAll('.chip.on').forEach(c => c.classList.remove('on'));
+  setBpm(0);
+}
+
+function applyRefPreset(num) {
+  const p = REF_PRESETS[String(num)];
+  if (!p) return;
+  const activate = (groupId, vals, set) => {
+    if (!vals) return;
+    vals.forEach(v => {
+      const chip = document.querySelector(`#${groupId} [data-val="${CSS.escape(v)}"]`);
+      if (chip) { chip.classList.add('on'); set.add(v); }
+    });
+  };
+  activate('vibeChips',      p.vibe,       vibeSet);
+  activate('textureChips',   p.texture,    textureSet);
+  activate('instrChips',     p.instr,      instrSet);
+  activate('vocalColorChips',p.vocalColor, vocalColorSet);
+  activate('exclChips',      p.excl,       exclSet);
+  if (p.genre) {
+    genre = p.genre;
+    const chip = document.querySelector(`#genreChips [data-val="${p.genre}"]`);
+    if (chip) chip.classList.add('on');
+  }
+  if (p.vocal) {
+    vocal = p.vocal;
+    const chip = document.querySelector(`#vocalChips [data-val="${p.vocal}"]`);
+    if (chip) chip.classList.add('on');
+  }
+  if (p.bpm > 0) setBpm(p.bpm);
+}
+
+/* ── 초기화 ── */
+function resetAll() {
+  vocal = null; genre = null; bpm = 0;
+  vibeSet.clear(); textureSet.clear(); instrSet.clear();
+  vocalColorSet.clear(); exclSet.clear(); customExclSet.clear();
+  document.querySelectorAll('.ref-card.selected').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.chip.on').forEach(c => c.classList.remove('on'));
+  document.getElementById('bpmInput').value = '';
+  document.getElementById('bpmSlider').value = 85;
+  document.getElementById('bpmLabel').textContent = '사용 안 함';
+  renderCustomExcl();
+  buildPrompt();
+}
+
+/* ── 확인 모달 ── */
+let _confirmCallback = null;
+function showConfirm(title, desc, onOk) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmDesc').textContent = desc;
+  _confirmCallback = onOk;
+  document.getElementById('confirmOkBtn').onclick = () => { hideConfirm(); onOk(); };
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function hideConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('open');
+  _confirmCallback = null;
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') hideConfirm(); });
+
+/* ── 레퍼런스 삭제 ── */
+const REF_DEL_KEY = 'suno_ref_deleted';
+function getDeletedRefs() {
+  try { return new Set(JSON.parse(localStorage.getItem(REF_DEL_KEY) || '[]')); } catch { return new Set(); }
+}
+function deleteRef(num, cardEl) {
+  const deleted = getDeletedRefs();
+  deleted.add(num);
+  localStorage.setItem(REF_DEL_KEY, JSON.stringify([...deleted]));
+  if (cardEl.classList.contains('selected')) { clearChips(); buildPrompt(); }
+  cardEl.style.transition = 'opacity 0.2s, transform 0.2s';
+  cardEl.style.opacity = '0';
+  cardEl.style.transform = 'scale(0.92)';
+  setTimeout(() => cardEl.remove(), 200);
+  if (refFilterMode === 'fav') setRefFilter('fav');
+}
+
+/* ── 레퍼런스 카드 즐겨찾기 ── */
+const REF_FAV_KEY = 'suno_ref_favs';
+
+function getRefFavs() {
+  try { return new Set(JSON.parse(localStorage.getItem(REF_FAV_KEY) || '[]')); } catch { return new Set(); }
+}
+
+function toggleRefFav(num, starEl) {
+  const favs = getRefFavs();
+  if (favs.has(num)) { favs.delete(num); starEl.classList.remove('on'); }
+  else { favs.add(num); starEl.classList.add('on'); }
+  localStorage.setItem(REF_FAV_KEY, JSON.stringify([...favs]));
+  if (document.getElementById('refChipFav').classList.contains('on')) setRefFilter('fav');
+}
+
+let refFilterMode = 'all';
+function setRefFilter(mode) {
+  refFilterMode = mode;
+  document.getElementById('refChipAll').classList.toggle('on', mode === 'all');
+  document.getElementById('refChipFav').classList.toggle('on', mode === 'fav');
+  document.querySelectorAll('.ref-card').forEach(el => {
+    el.style.display = (mode === 'all' || el.querySelector('.ref-star.on')) ? '' : 'none';
+  });
+}
+
+/* ── 가이드 ── */
+function toggleGuide() {
+  document.getElementById('guideToggle').classList.toggle('open');
+  document.getElementById('guideBody').classList.toggle('open');
+}
+function copyGuide(btn) {
+  navigator.clipboard.writeText(document.getElementById('guidePromptText').textContent).then(() => {
+    btn.textContent = '복사됨 ✓'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+/* ── 칩 헬퍼 ── */
+function initMulti(id, set) {
+  document.getElementById(id).querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', () => {
+      c.classList.toggle('on');
+      c.classList.contains('on') ? set.add(c.dataset.val) : set.delete(c.dataset.val);
+      buildPrompt();
+    });
+  });
+}
+function initSingle(id, setter) {
+  document.getElementById(id).querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', () => {
+      const was = c.classList.contains('on');
+      document.getElementById(id).querySelectorAll('.chip').forEach(x => x.classList.remove('on'));
+      if (!was) { c.classList.add('on'); setter(c.dataset.val); } else setter(null);
+      buildPrompt();
+    });
+  });
+}
+initMulti('vibeChips', vibeSet);
+initMulti('textureChips', textureSet);
+initMulti('instrChips', instrSet);
+initMulti('vocalColorChips', vocalColorSet);
+initSingle('genreChips', v => genre = v);
+initSingle('vocalChips', v => vocal = v);
+initMulti('exclChips', exclSet);
+
+/* ── 제외 커스텀 ── */
+function addCustomExcl() {
+  const inp = document.getElementById('exclCustom');
+  const val = inp.value.trim();
+  if (!val || customExclSet.has(val)) return;
+  customExclSet.add(val); inp.value = '';
+  renderCustomExcl(); buildPrompt();
+}
+document.getElementById('exclCustom').addEventListener('keydown', e => { if(e.key==='Enter') addCustomExcl(); });
+function renderCustomExcl() {
+  const wrap = document.getElementById('customExclTags');
+  wrap.innerHTML = '';
+  customExclSet.forEach(v => {
+    const el = document.createElement('div');
+    el.className = 'custom-excl-tag';
+    el.innerHTML = `${v}<span class="rm" onclick="removeExcl('${v}')">×</span>`;
+    wrap.appendChild(el);
+  });
+}
+function removeExcl(v) { customExclSet.delete(v); renderCustomExcl(); buildPrompt(); }
+
+/* ── BPM ── */
+function onBpmSlide(v) { bpm=parseInt(v); document.getElementById('bpmInput').value=v; document.getElementById('bpmLabel').textContent=v+' BPM'; buildPrompt(); }
+function onBpmInput(v) { const n=parseInt(v); if(isNaN(n)) return; bpm=n; document.getElementById('bpmSlider').value=Math.min(180,Math.max(60,n)); document.getElementById('bpmLabel').textContent=n+' BPM'; buildPrompt(); }
+function setBpm(v) {
+  bpm=v;
+  if(v===0){ document.getElementById('bpmInput').value=''; document.getElementById('bpmLabel').textContent='사용 안 함'; }
+  else { document.getElementById('bpmInput').value=v; document.getElementById('bpmSlider').value=v; document.getElementById('bpmLabel').textContent=v+' BPM'; }
+  buildPrompt();
+}
+
+/* ── 프롬프트 조립 ── */
+function buildPrompt() {
+  const parts = [];
+  if (genre) parts.push(genre);
+  vibeSet.forEach(v => parts.push(v));
+  textureSet.forEach(v => parts.push(v));
+  instrSet.forEach(v => parts.push(v));
+  vocalColorSet.forEach(v => parts.push(v));
+  if (vocal) parts.push(vocal);
+  if (bpm > 0) parts.push(bpm+' BPM');
+  exclSet.forEach(v => parts.push(v));
+  customExclSet.forEach(v => parts.push(v));
+
+  const lyrics = document.getElementById('lyricsInput').value.trim();
+  const styleEl = document.getElementById('finalStyle');
+  const lyricsEl = document.getElementById('finalLyrics');
+
+  if (parts.length > 0) {
+    styleEl.value = parts.join(', ');
+    styleEl.classList.add('has-content');
+  } else {
+    styleEl.value = '';
+    styleEl.classList.remove('has-content');
+  }
+  if (lyrics) {
+    lyricsEl.textContent = lyrics;
+    lyricsEl.classList.add('has-content');
+  } else {
+    lyricsEl.innerHTML = '<span class="result-placeholder">가사를 붙여넣으면 여기에 표시됩니다</span>';
+    lyricsEl.classList.remove('has-content');
+  }
+}
+
+function copyEl(id, btn) {
+  const el = document.getElementById(id);
+  const text = el.tagName === 'TEXTAREA' ? el.value.trim() : el.textContent.trim();
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '복사됨 ✓'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+document.getElementById('lyricsInput').addEventListener('input', buildPrompt);
+buildTopics();
+buildRefs();
+buildLyricsLib();
+</script>
+</body>
+</html>
