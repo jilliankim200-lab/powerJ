@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suno Style Reference</title>
+<style>
+  :root {
+    --bg: #1d1d1d; --card: #252525; --surface: #2a2a2a;
+    --border: #333; --text: #fff; --text2: #A8ADB7; --text3: #828690;
+    --accent: #00A15D; --accent-bg: rgba(0,161,93,0.13);
+    --red-bg: rgba(255,77,77,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 3px; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Segoe UI', sans-serif;
+    font-size: 15px; line-height: 1.6; min-height: 100vh;
+  }
+  header {
+    background: #202020; border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem; position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .header-title { font-size: 18px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+  .header-title span { color: var(--accent); }
+  .header-count {
+    background: var(--accent-bg); border: 1px solid var(--accent);
+    color: var(--accent); border-radius: 20px; padding: 3px 14px;
+    font-size: 13px; font-weight: 700;
+  }
+  .page { padding: 28px 2rem 80px; max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+  .card {
+    background: var(--card); border: 1.5px solid var(--border);
+    border-radius: 14px; overflow: hidden;
+  }
+  .card-head {
+    padding: 13px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .card-num {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text3); border-radius: 6px;
+    font-size: 11px; font-weight: 700; padding: 2px 8px; flex-shrink: 0;
+  }
+  .card-ref { font-size: 14px; font-weight: 700; flex: 1; color: var(--text); }
+  .card-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+  .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text3); margin-bottom: 4px; }
+  .prompt-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 15px;
+    font-size: 13.5px; color: var(--text2); line-height: 1.75;
+    word-break: break-word; user-select: all; cursor: text;
+  }
+  .copy-row { display: flex; justify-content: flex-end; }
+  .copy-btn {
+    background: var(--surface); border: 1.5px solid var(--border);
+    color: var(--text2); border-radius: 8px; padding: 6px 16px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: all .12s; font-family: inherit;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.done { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">🎵 <span>Suno</span> Style Reference</div>
+  <div class="header-count" id="totalCount"></div>
+</header>
+
+<div class="page" id="page"></div>
+
+<script>
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   STYLES  ─ { ref: 참고곡, prompt: 스타일 프롬프트 }
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const STYLES = [
+  {
+    ref: "밤양갱",
+    prompt: "Indie pop, Waltz pop, Unique sweet female vocals, 3/4 waltz rhythm, Sharp staccato piano intro, Light rhythmic drums, Plucked acoustic bass, Kitsch, Playful, Full song structure, 118 BPM.",
+  },
+  {
+    ref: "밤양갱",
+    prompt: "Neo-waltz, Jazzy pop lounge, Sultry sophisticated female vocals, 3/4 cabaret rhythm, Muted staccato piano intro, French accordion accents, Jazz brush drums, Minimalist, Chic, Full song structure, 116 BPM, No amateur sound.",
+  },
+  {
+    ref: "상상",
+    prompt: "Dream pop, Indie modern rock, Pure airy female vocals, Soft acoustic piano intro, Atmospheric electric guitar, Mellow bass, Lo-fi drums, Ethereal, Fairytale-like, Full song structure, 86 BPM.",
+  },
+  {
+    ref: "Mocca",
+    prompt: "Twee pop, Indie jazz pop, Sweet innocent female vocals, Bright playful trumpet intro, Walking upright bass, Rhythmic acoustic guitar, Vintage analog texture, Cheerful, Fairytale-like, Full song structure, 112 BPM.",
+  },
+  {
+    ref: "Nervous",
+    prompt: "Acoustic folk ballad, Indie pop, Husky warm male vocals, Vulnerable breathy phrasing, Soft kick drum start, Gentle acoustic guitar arpeggio, Cinematic reverb, Minimalist, Melancholic, 84 BPM.",
+  },
+  {
+    ref: "어쿠스틱 그루브",
+    prompt: "Indie R&B, Alt-pop, Smooth clear male vocals, Acappella start, Sudden acoustic guitar beat drop, Soft lo-fi drums, Rhythmic, Urban, Atmospheric reverb, 96 BPM.",
+  },
+  {
+    ref: "인디 발라드 , 어쿠스틱발라드",
+    prompt: "Acoustic pop, Indie ballad, Gentle acoustic guitar arpeggio intro, Warm soft male vocals, Melodic, Emotional, Atmospheric synth pad, Pure acoustic texture, Slow tempo, Romantic, 80 BPM.",
+  },
+  {
+    ref: "I Will",
+    prompt: "Classic Acoustic Folk, 1960s pop ballad, Warm plain male vocals, Acoustic guitar strumming, Light maracas, Soft acoustic bass, Vintage analog texture, Humming intro, Simple, Romantic, 94 BPM.",
+  },
+  {
+    ref: "Every second",
+    prompt: "Neo-soul, Lo-fi R&B, Slinky groovy male vocals, Breathy phrasing, Syncopated acoustic guitar riff, Muted piano chords, Finger snaps start, Tight bassline, Crisp modern production, 86 BPM, No lazy bedroom amateur sound.",
+  },
+  {
+    ref: "colors",
+    prompt: "Alternative Indie Pop, Kitsch Bedroom Pop, Playful trendy female vocals, Staccato vocal phrasing, Finger snaps start, Acappella layers intro, Minimal electronic beat, Dry sound texture, Catchy, 100 BPM.",
+  },
+  {
+    ref: "colors",
+    prompt: "Alternative Pop, Bedroom Pop, Kitsch, Trendy female vocals, Rhythmic vocal chops, Finger snaps, Minimalist electronic beat, Playful, Bouncy, Clean production, 98 BPM.",
+  },
+  {
+    ref: "Cheese",
+    prompt: "City Pop, Disco Funk Pop, Crisp clear female vocals, Slap bass groove, Bright brass synths, Jazz piano intro, Upbeat retro drums, Urban, Sparkling, Confident, 114 BPM.",
+  },
+  {
+    ref: "Amelie",
+    prompt: "Bossa Nova Pop, Jazzy Lounge, Sweet clear female vocals, Warm electric piano chords, Soft nylon guitar, Light shaker, Smooth rimshot drums, Playful, Refreshing, Sunny afternoon, 118 BPM.",
+  },
+  /* ← 여기에 순서대로 추가 */
+];
+
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied';
+    btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('done'); }, 1800);
+  });
+}
+
+function render() {
+  document.getElementById('totalCount').textContent = STYLES.length + ' Styles';
+  document.getElementById('page').innerHTML = STYLES.map((s, i) => `
+    <div class="card">
+      <div class="card-head">
+        <span class="card-num">#${i + 1}</span>
+        <span class="card-ref">🎵 ${s.ref}</span>
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="label">Style Prompt</div>
+          <div class="prompt-box" id="p${i}">${s.prompt}</div>
+        </div>
+        <div class="copy-row">
+          <button class="copy-btn" onclick="copyText(document.getElementById('p${i}').textContent, this)">Copy</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+render();
+</script>
+</body>
+</html>
