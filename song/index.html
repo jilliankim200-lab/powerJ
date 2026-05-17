@@ -707,7 +707,10 @@
   <div class="card">
     <div class="card-head">
       <div class="card-title"><span class="step-num">3</span> 스타일 조립</div>
-      <button class="btn-reset" onclick="resetAll()">↺ 초기화</button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn-copy" onclick="copyStyle(this)">스타일 복사</button>
+        <button class="btn-reset" onclick="resetAll()">↺ 초기화</button>
+      </div>
     </div>
     <div class="card-body" style="display:flex;flex-direction:column;gap:22px;">
 
@@ -791,7 +794,7 @@
             <div class="chip multi" data-val="intimate sound">친밀한</div>
             <div class="chip multi" data-val="crisp and clean">선명한</div>
             <div class="chip multi" data-val="warm mix">따뜻한 믹스</div>
-            <div class="chip multi" data-val="layered textures">레이어드</div>
+            <div class="chip multi" data-val="layered textures">레이어드 (겹겹이 쌓인)</div>
           </div>
         </div>
 
@@ -834,14 +837,14 @@
         <div>
           <div class="sec-label">장르 뉘앙스</div>
           <div class="chips" id="genreChips">
-            <div class="chip" data-val="Indie Pop">인디팝</div>
-            <div class="chip" data-val="Bedroom Pop">베드룸팝</div>
-            <div class="chip" data-val="Acoustic Pop">어쿠스틱팝</div>
-            <div class="chip" data-val="City Pop">시티팝</div>
-            <div class="chip" data-val="Chamber Pop">챔버팝</div>
-            <div class="chip" data-val="Folk Pop">포크팝</div>
-            <div class="chip" data-val="Jazz Pop">재즈팝</div>
-            <div class="chip" data-val="R&B Pop">R&B팝</div>
+            <div class="chip" data-val="Indie Pop">인디팝 (소규모 밴드감)</div>
+            <div class="chip" data-val="Bedroom Pop">베드룸팝 (아늑한 홈레코딩)</div>
+            <div class="chip" data-val="Acoustic Pop">어쿠스틱팝 (통기타 중심)</div>
+            <div class="chip" data-val="City Pop">시티팝 (80s 도시적 세련)</div>
+            <div class="chip" data-val="Chamber Pop">챔버팝 (클래식 악기 편곡)</div>
+            <div class="chip" data-val="Folk Pop">포크팝 (서정적 포크)</div>
+            <div class="chip" data-val="Jazz Pop">재즈팝 (재즈 화성·스윙)</div>
+            <div class="chip" data-val="R&B Pop">R&B팝 (소울풀한)</div>
           </div>
         </div>
 
@@ -880,17 +883,17 @@
         </div>
 
         <div>
-          <div class="sec-label">제외할 것 <span class="sub">(No X)</span></div>
+          <div class="sec-label">제외할 것 <span class="sub">(선택 시 No X 추가)</span></div>
           <div class="chips" id="exclChips">
-            <div class="chip excl" data-val="No piano">No piano</div>
-            <div class="chip excl" data-val="No drums">No drums</div>
-            <div class="chip excl" data-val="No electric guitar">No electric guitar</div>
-            <div class="chip excl" data-val="No high notes">No high notes</div>
-            <div class="chip excl" data-val="No rap">No rap</div>
-            <div class="chip excl" data-val="No autotune">No autotune</div>
-            <div class="chip excl" data-val="No reverb">No reverb</div>
-            <div class="chip excl" data-val="No percussive hits">No percussive hits</div>
-            <div class="chip excl" data-val="No guitar slapping">No guitar slapping</div>
+            <div class="chip excl" data-val="No piano">피아노 제외</div>
+            <div class="chip excl" data-val="No drums">드럼 제외</div>
+            <div class="chip excl" data-val="No electric guitar">일렉기타 제외</div>
+            <div class="chip excl" data-val="No high notes">고음 제외</div>
+            <div class="chip excl" data-val="No rap">랩 제외</div>
+            <div class="chip excl" data-val="No autotune">오토튠 제외</div>
+            <div class="chip excl" data-val="No reverb">리버브 제외</div>
+            <div class="chip excl" data-val="No percussive hits">강한 타격음 제외</div>
+            <div class="chip excl" data-val="No guitar slapping">기타 슬랩 제외</div>
           </div>
           <div class="excl-input-row">
             <input type="text" id="exclCustom" placeholder="직접 입력: No strings ..." />
@@ -3884,6 +3887,15 @@ function buildPrompt() {
     lyricsEl.innerHTML = '<span class="result-placeholder">가사를 붙여넣으면 여기에 표시됩니다</span>';
     lyricsEl.classList.remove('has-content');
   }
+}
+
+function copyStyle(btn) {
+  const val = document.getElementById('finalStyle').value.trim();
+  if (!val) return;
+  navigator.clipboard.writeText(val).then(() => {
+    btn.textContent = '복사됨 ✓'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '스타일 복사'; btn.classList.remove('copied'); }, 2000);
+  });
 }
 
 function copyEl(id, btn) {
